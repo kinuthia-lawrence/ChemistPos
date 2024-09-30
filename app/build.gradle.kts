@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    //testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -87,15 +88,15 @@ dependencies {
     * */
 
     // Arrow -used for functional programming(used to handle side effects in a functional way eg. error handling)
-    implementation("io.arrow-kt:arrow-core:1.2.0")
-    implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0")
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.fx.coroutines)
 
     // Retrofit -used to make network requests(used to fetch data from the server eg. json data from an api)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
     //Coil -used to load images from the internet
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation(libs.coil.compose)
 
     //dagger hilt
     implementation(libs.hilt.android)
@@ -104,8 +105,10 @@ dependencies {
 
     // Room -used to access the database
     implementation(libs.androidx.room.runtime)
+    implementation (libs.androidx.room.ktx) // to support kotlin coroutines -used to access the database
     annotationProcessor(libs.androidx.room.compiler)
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)
+
 
 }
