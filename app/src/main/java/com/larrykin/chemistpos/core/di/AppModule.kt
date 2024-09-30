@@ -2,7 +2,10 @@ package com.larrykin.chemistpos.core.di
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.larrykin.chemistpos.authentication.data.UserDao
 import com.larrykin.chemistpos.authentication.data.UserRepositoryImplementation
 import com.larrykin.chemistpos.authentication.domain.UserRepository
@@ -25,7 +28,12 @@ object AppModule {
             app, // Use the Application context
             AppDatabase::class.java,
             "my_pos_database"
-        ).build()
+        ).addCallback(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                Log.d("Database", "Database created")
+            }
+        }).build()
     }
 
     @Provides // Provide UserDao instance

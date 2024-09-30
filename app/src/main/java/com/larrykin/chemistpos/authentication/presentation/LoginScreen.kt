@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -30,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,10 +43,11 @@ import androidx.navigation.compose.rememberNavController
 import com.larrykin.chemistpos.R
 import com.larrykin.chemistpos.authentication.data.LoginViewModel
 import com.larrykin.chemistpos.components.HeaderText
+import com.larrykin.chemistpos.components.LoginTextField
 import com.larrykin.chemistpos.core.naviagation.Screen
 
 val defaultPadding = 16.dp
-val itemSpacing = 8.dp
+val itemSpacing = 16.dp
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavController) {
@@ -66,21 +71,25 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
         HeaderText(
             text = "Login",
             modifier = Modifier.padding(vertical = defaultPadding)
-                .align(alignment = Alignment.Start)
+                .align(alignment = Alignment.CenterHorizontally)
         )
-        TextField(
+        Spacer(modifier = Modifier.height(32.dp))
+        LoginTextField(
             value = viewModel.username,
             onValueChange = { viewModel.username = it },
-            label = { Text("Username") },
+            labelText = "Username",
+            leadingIcon = Icons.Default.Person,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        LoginTextField(
             value = viewModel.password,
             onValueChange = { viewModel.password = it },
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Password",
+            leadingIcon = Icons.Default.Lock,
+            modifier = Modifier.fillMaxWidth(),
+            keyboardType = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation() //is used to mask the original text with dot character
         )
         Spacer(modifier = Modifier.height(16.dp))
         Row(
@@ -117,31 +126,20 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
             Text("Login")
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = loginState)
-        Spacer(modifier = Modifier.height(16.dp))
-        TextButton(
-            onClick = {
-                navController.navigate(Screen.Register.route) //Navigate to register screen
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Sign Up")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
         AlternativeLoginOptions(
             onIconClick = { index ->
                 when (index) {
                     0 -> {
-                        Toast.makeText(context, "Instagram Login Click", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, " Coming Soon", Toast.LENGTH_SHORT).show()
                     }
 
                     1 -> {
-                        Toast.makeText(context, "Github Login Click", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Coming Soon", Toast.LENGTH_SHORT).show()
 
                     }
 
                     2 -> {
-                        Toast.makeText(context, "Google Login Click", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Coming Soon", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -170,6 +168,7 @@ fun AlternativeLoginOptions(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Or Sign in With")
+        Spacer(Modifier.height(itemSpacing))
         Row(horizontalArrangement = Arrangement.SpaceEvenly) {
             iconList.forEachIndexed { index, iconResId ->
                 Icon(
