@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.larrykin.chemistpos.R
 import com.larrykin.chemistpos.authentication.domain.getDeveloperWebsiteUrl
 import com.larrykin.chemistpos.core.naviagation.Screen
@@ -139,4 +140,11 @@ fun SplashText(modifier: Modifier=Modifier) {
             }
         )
     }
+}
+
+@Preview
+@Composable
+fun PreviewSplashScreen() {
+    val navController = rememberNavController()
+    SplashScreen(navController = navController)
 }

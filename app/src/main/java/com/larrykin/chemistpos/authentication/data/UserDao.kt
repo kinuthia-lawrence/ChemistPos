@@ -18,8 +18,8 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(user: User)
 
-    @Upsert
-    suspend fun upsertUser(user: User)
+//    @Upsert//combines both insertion and update. If the data is already present, it updates it, if not it inserts it(automatically handles the conflict)
+//    suspend fun upsertUser(user: User)
 
     //get users
     //flow is an observable data holder. it notifies the observer when the data changes(like LiveData)
