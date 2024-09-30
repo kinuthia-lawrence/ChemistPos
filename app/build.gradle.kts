@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("kapt")
+    alias(libs.plugins.google.dagger.hilt.android)
 }
 
 android {
@@ -68,4 +70,19 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     //navigation
     implementation(libs.androidx.navigation.compose)
+
+    // Arrow -used for functional programming(used to handle side effects in a functional way eg. error handling)
+    implementation("io.arrow-kt:arrow-core:1.2.0")
+    implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0")
+    // Retrofit -used to make network requests(used to fetch data from the server eg. json data from an api)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    //Coil -used to load images from the internet
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    //dagger hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
 }
