@@ -20,9 +20,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -74,6 +78,50 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
         CustomAlertDialog(title = "Error", message = "Please fill in all fields", onDismiss = {
             showDialog = false
         }, alertState = "error")
+    }
+    var showForgotPasswordDialog by remember { mutableStateOf(false) }
+
+    if (showForgotPasswordDialog) {
+        AlertDialog(
+            onDismissRequest = { showForgotPasswordDialog = false },
+            title = { Text("Confirmation") },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .fillMaxWidth()
+                        .background(Color(0xFF014605))
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Are you sure you want to  Forget the Password ?\nYou will require Admin Approval",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White,
+                        fontStyle = FontStyle.Italic
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showForgotPasswordDialog = false
+                        navController.navigate(Screen.ForgotPassword.route)
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF014605))
+                ) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showForgotPasswordDialog = false },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                ) {
+                    Text("No")
+                }
+            }
+        )
     }
 
     Column(
@@ -137,9 +185,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
                 Checkbox(checked = checked, onCheckedChange = onCheckedChange)
                 Text("Remember me")
             }
-            TextButton(onClick = {
-                navController.navigate(Screen.ForgotPassword.route)
-            }) {
+            TextButton(onClick = { showForgotPasswordDialog = true }) {
                 Text("Forgot Password?")
             }
         }
@@ -248,9 +294,11 @@ fun AlternativeLoginOptions(
             TextButton(
                 onClick = {
                     navController.navigate(Screen.Register.route)
-                }
+                },
+                colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF4003F1))
             ) {
                 Text("Sign Up")
+
             }
         }
     }
