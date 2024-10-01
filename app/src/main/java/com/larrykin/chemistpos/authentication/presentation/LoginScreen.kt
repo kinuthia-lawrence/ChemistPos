@@ -1,8 +1,11 @@
 package com.larrykin.chemistpos.authentication.presentation
 
+import CustomAlertDialog
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -21,7 +25,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,9 +45,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.larrykin.chemistpos.R
+import com.larrykin.chemistpos.authentication.data.LoginResult
 import com.larrykin.chemistpos.authentication.data.LoginViewModel
 import com.larrykin.chemistpos.components.HeaderText
-import com.larrykin.chemistpos.components.LoginTextField
+import com.larrykin.chemistpos.authentication.components.CustomTextField
 import com.larrykin.chemistpos.core.naviagation.Screen
 
 val defaultPadding = 16.dp
@@ -54,11 +59,22 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
     var loginState by remember {
         mutableStateOf("")
     }
+    val (isRed, setIsRed) = rememberSaveable {
+        mutableStateOf(false)
+    }
     val (checked, onCheckedChange) = rememberSaveable {
         mutableStateOf(false)
     }
 
     val context = LocalContext.current
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+    if (showDialog) {
+        CustomAlertDialog(title = "Error", message = "Please fill in all fields", onDismiss = {
+            showDialog = false
+        }, alertState = "error")
+    }
 
     Column(
         modifier = Modifier
@@ -70,26 +86,44 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
 
         HeaderText(
             text = "Login",
-            modifier = Modifier.padding(vertical = defaultPadding)
+            modifier = Modifier
+                .padding(vertical = defaultPadding)
                 .align(alignment = Alignment.CenterHorizontally)
         )
-        Spacer(modifier = Modifier.height(32.dp))
-        LoginTextField(
+        Spacer(modifier = Modifier.height(16.dp))
+        if (loginState.isNotBlank()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Red)
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = loginState,
+                    color = Color.White,
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        CustomTextField(
             value = viewModel.username,
             onValueChange = { viewModel.username = it },
             labelText = "Username",
             leadingIcon = Icons.Default.Person,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
         )
         Spacer(modifier = Modifier.height(8.dp))
-        LoginTextField(
+        CustomTextField(
             value = viewModel.password,
             onValueChange = { viewModel.password = it },
             labelText = "Password",
             leadingIcon = Icons.Default.Lock,
             modifier = Modifier.fillMaxWidth(),
             keyboardType = KeyboardType.Password,
-            visualTransformation = PasswordVisualTransformation() //is used to mask the original text with dot character
+            visualTransformation = PasswordVisualTransformation(), // mask the original text with dot character
+            enabled = true
         )
         Spacer(modifier = Modifier.height(16.dp))
         Row(
@@ -104,7 +138,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
                 Text("Remember me")
             }
             TextButton(onClick = {
-                //todo:  Navigate to Forgot Password Screen
+                navController.navigate(Screen.ForgotPassword.route)
             }) {
                 Text("Forgot Password?")
             }
@@ -112,13 +146,33 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
+                //check if fields are blank
+                if (viewModel.username.isBlank() || viewModel.password.isBlank()) {
+                    showDialog = true
+                    setIsRed(true)
+                    loginState = "Please fill in all fields"
+                    return@Button
+                }
                 // Authenticate user
-                viewModel.login()
-                if (viewModel.loginSuccess) {
-                    navController.navigate(Screen.Home.route) //Navigate to home screen
-                    loginState="Login Successful"
-                } else {
-                    loginState = "Login Failed"
+                viewModel.login { result ->
+                    when (result) {
+                        is LoginResult.Success -> {
+                            navController.navigate(Screen.Home.route)
+                            showDialog = false
+                            setIsRed(false)
+                            loginState = ""
+                        }
+
+                        is LoginResult.UserNotFound -> {
+                            loginState = "User not found"
+                            showDialog = true
+                        }
+
+                        is LoginResult.Error -> {
+                            loginState = "Error: ${result.message}"
+                            setIsRed(true)
+                        }
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -145,7 +199,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
             },
             navController = navController,
 
-        )
+            )
     }
 
 }
@@ -178,7 +232,8 @@ fun AlternativeLoginOptions(
                         .size(32.dp)
                         .clickable {
                             onIconClick(index)
-                        }.clip(CircleShape)
+                        }
+                        .clip(CircleShape)
                 )
                 Spacer(Modifier.width(defaultPadding))
             }

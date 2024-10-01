@@ -1,4 +1,4 @@
-package com.larrykin.chemistpos.components
+package com.larrykin.chemistpos.authentication.components
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -13,14 +13,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun LoginTextField(
+fun CustomTextField(
     modifier: Modifier = Modifier,
     value:String,
     onValueChange:(String) -> Unit,
     labelText:String,
     leadingIcon:ImageVector? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    enabled: Boolean
 ){
     OutlinedTextField(
         modifier = modifier,
@@ -30,17 +31,22 @@ fun LoginTextField(
         leadingIcon = {if (leadingIcon != null) Icon(imageVector = leadingIcon,null)},
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = visualTransformation,
-        shape = RoundedCornerShape(30)
+        shape = RoundedCornerShape(30),
+        enabled = enabled
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PrevTextField(){
-    LoginTextField(
+    CustomTextField(
         value = "",
         onValueChange = {},
-        labelText = "Password"
+        labelText = "Password",
+        leadingIcon = null,
+        keyboardType = KeyboardType.Text,
+        visualTransformation = VisualTransformation.None,
+        enabled = true
     )
 }
 
