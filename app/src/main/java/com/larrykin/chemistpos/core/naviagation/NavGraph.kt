@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.larrykin.chemistpos.authentication.data.LoginViewModel
+import com.larrykin.chemistpos.authentication.data.RegisterViewModel
 import com.larrykin.chemistpos.authentication.domain.ForgotPasswordViewModel
 import com.larrykin.chemistpos.authentication.presentation.ForgotPasswordScreen
 import com.larrykin.chemistpos.authentication.presentation.LoginScreen
@@ -39,7 +40,8 @@ fun NavGraph(navController: NavHostController) {
             ForgotPasswordScreen(viewModel,navController)
         }
         composable(route = Screen.Register.route) {
-            RegisterScreen(navController)
+            val viewModel: RegisterViewModel = hiltViewModel()
+            RegisterScreen(viewModel, navController)
         }
         composable(route = Screen.Home.route) {
             HomeScreen(navController)

@@ -20,12 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,90 +38,67 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.larrykin.chemistpos.R
 import com.larrykin.chemistpos.authentication.data.LoginResult
 import com.larrykin.chemistpos.authentication.data.LoginViewModel
 import com.larrykin.chemistpos.components.HeaderText
 import com.larrykin.chemistpos.authentication.components.CustomTextField
 import com.larrykin.chemistpos.core.naviagation.Screen
+import com.larrykin.chemistpos.core.presentation.CustomAlertDialogWithChoice
 
 val defaultPadding = 16.dp
 val itemSpacing = 16.dp
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavController) {
-    var loginState by remember {
-        mutableStateOf("")
-    }
-    val (isRed, setIsRed) = rememberSaveable {
-        mutableStateOf(false)
-    }
-    val (checked, onCheckedChange) = rememberSaveable {
-        mutableStateOf(false)
-    }
-
+    var loginState by remember {mutableStateOf("")}
+    val (isRed, setIsRed) = rememberSaveable {mutableStateOf(false)}
+    val (checked, onCheckedChange) = rememberSaveable {mutableStateOf(false)}
     val context = LocalContext.current
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
+    var showDialog by remember {mutableStateOf(false)}
+    var navigateToForgotPassword by remember { mutableStateOf(false) }
+    var navigateToRegister by remember { mutableStateOf(false) }
+
+    //show dialog if fields are blank
     if (showDialog) {
         CustomAlertDialog(title = "Error", message = "Please fill in all fields", onDismiss = {
             showDialog = false
         }, alertState = "error")
     }
-    var showForgotPasswordDialog by remember { mutableStateOf(false) }
 
-    if (showForgotPasswordDialog) {
-        AlertDialog(
-            onDismissRequest = { showForgotPasswordDialog = false },
-            title = { Text("Confirmation") },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .fillMaxWidth()
-                        .background(Color(0xFF014605))
-                        .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "Are you sure you want to  Forget the Password ?\nYou will require Admin Approval",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
-                        fontStyle = FontStyle.Italic
-                    )
-                }
+    //show dialog if user wants to forget password
+    if (navigateToForgotPassword) {
+        CustomAlertDialogWithChoice(
+            title = "Confirmation",
+            message = "Are you sure you want to  Forget the Password ?\nYou will require Admin Approval",
+            onDismiss = { navigateToForgotPassword = false },
+            onConfirm = {
+                navigateToForgotPassword = false
+                navController.navigate(Screen.ForgotPassword.route)
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showForgotPasswordDialog = false
-                        navController.navigate(Screen.ForgotPassword.route)
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF014605))
-                ) {
-                    Text("Yes")
-                }
+            alertState = "confirm"
+        )
+    }
+    //show dialog if user wants to register
+    if (navigateToRegister) {
+        CustomAlertDialogWithChoice(
+            title = "Confirmation",
+            message = "Are you sure you want to Register new account?\nYou will require Admin Approval",
+            onDismiss = { navigateToRegister = false },
+            onConfirm = {
+                navigateToRegister = false
+                navController.navigate(Screen.Register.route)
             },
-            dismissButton = {
-                TextButton(
-                    onClick = { showForgotPasswordDialog = false },
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
-                ) {
-                    Text("No")
-                }
-            }
+            alertState = "confirm"
         )
     }
 
+    //Login Screen
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -185,7 +160,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
                 Checkbox(checked = checked, onCheckedChange = onCheckedChange)
                 Text("Remember me")
             }
-            TextButton(onClick = { showForgotPasswordDialog = true }) {
+            TextButton(onClick = { navigateToForgotPassword = true }) {
                 Text("Forgot Password?")
             }
         }
@@ -211,7 +186,6 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
 
                         is LoginResult.UserNotFound -> {
                             loginState = "User not found"
-                            showDialog = true
                         }
 
                         is LoginResult.Error -> {
@@ -229,23 +203,14 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
         AlternativeLoginOptions(
             onIconClick = { index ->
                 when (index) {
-                    0 -> {
-                        Toast.makeText(context, " Coming Soon", Toast.LENGTH_SHORT).show()
-                    }
-
-                    1 -> {
-                        Toast.makeText(context, "Coming Soon", Toast.LENGTH_SHORT).show()
-
-                    }
-
-                    2 -> {
-                        Toast.makeText(context, "Coming Soon", Toast.LENGTH_SHORT).show()
-                    }
+                    0 -> Toast.makeText(context, "Instagram clicked", Toast.LENGTH_SHORT).show()
+                    1 -> Toast.makeText(context, "GitHub clicked", Toast.LENGTH_SHORT).show()
+                    2 -> Toast.makeText(context, "Google clicked", Toast.LENGTH_SHORT).show()
                 }
             },
-            navController = navController,
-
-            )
+            //passing the navigateToRegister state to the AlternativeLoginOptions
+            setNavigateToRegister = { navigateToRegister = it }
+        )
     }
 
 }
@@ -254,7 +219,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
 @Composable
 fun AlternativeLoginOptions(
     onIconClick: (index: Int) -> Unit,
-    navController: NavController,
+    setNavigateToRegister: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val iconList = listOf(
@@ -293,22 +258,14 @@ fun AlternativeLoginOptions(
             Spacer(Modifier.height(itemSpacing))
             TextButton(
                 onClick = {
-                    navController.navigate(Screen.Register.route)
+                    setNavigateToRegister(true)
                 },
                 colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF4003F1))
             ) {
                 Text("Sign Up")
-
             }
         }
     }
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewLoginScreen() {
-    // dummy NavController
-    val navController = rememberNavController()
-    LoginScreen(viewModel = hiltViewModel(), navController = navController)
-}

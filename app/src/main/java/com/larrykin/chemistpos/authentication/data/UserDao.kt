@@ -1,5 +1,6 @@
 package com.larrykin.chemistpos.authentication.data
 
+import android.provider.ContactsContract.CommonDataKinds.Email
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -16,10 +17,10 @@ interface UserDao {
     //    suspend keyword is used to make the function asynchronous, it is used to make the function run in a coroutine so that it doesn't block the main thread
     //todo: check whether to use insert or upsert
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(user: User)
+    suspend fun insert(user: User): Long
 
-//    @Upsert//combines both insertion and update. If the data is already present, it updates it, if not it inserts it(automatically handles the conflict)
-//    suspend fun upsertUser(user: User)
+    //    @Upsert//combines both insertion and update. If the data is already present, it updates it, if not it inserts it(automatically handles the conflict)
+    //    suspend fun upsertUser(user: User)
 
     //get users
     //flow is an observable data holder. it notifies the observer when the data changes(like LiveData)
@@ -36,9 +37,9 @@ interface UserDao {
 
     //update User
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateUser(user: User)
+    suspend fun updateUser(user: User): Int
 
     //delete user
     @Delete
-    suspend fun deleteUser(user: User)
+    suspend fun deleteUser(user: User): Int
 }
