@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,6 +43,8 @@ fun ForgotPasswordScreen(
     val (isRed, setIsRed) = rememberSaveable { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var isCodeSent by remember { mutableStateOf(false) }
+    var isAdminExists by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     if (showDialog) {
         CustomAlertDialog(
@@ -65,6 +68,7 @@ fun ForgotPasswordScreen(
     ) {
         HeaderText(text = "Reset Password")
         Spacer(modifier = Modifier.height(16.dp))
+        // Show message if there is any
         if (messageState.value.isNotBlank()) {
             Box(
                 modifier = Modifier
@@ -80,6 +84,7 @@ fun ForgotPasswordScreen(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
+        // Show message if there is any
         if (resetState.isNotBlank()) {
             Box(
                 modifier = Modifier
@@ -95,18 +100,31 @@ fun ForgotPasswordScreen(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
+
+        //check if admin exists
+        viewModel.checkIfAdminExists { adminExists: Boolean ->
+            if (!adminExists) {
+                // Use a state to show the message
+                messageState.value = "No admin user exists, contact developer"
+                setIsRed(true)
+            }else{
+                isAdminExists = true
+            }
+        }
         CustomTextField(
             value = adminEmailState.value,
-            onValueChange = { adminEmailState.value = it.trim()},
+            onValueChange = { adminEmailState.value = it.trim() },
             labelText = "Admin Email",
             leadingIcon = Icons.Default.Email,
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isCodeVerified && !isCodeSent
+            enabled = !isCodeVerified && !isCodeSent && isAdminExists
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
+                isLoading = true
                 viewModel.generateCodeAndSendCode(adminEmailState.value) { result ->
+                    isLoading = false
                     messageState.value = result
                     setIsRed(result.startsWith("Error"))
                     if (result.startsWith("Code sent")) {
@@ -115,9 +133,16 @@ fun ForgotPasswordScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isCodeVerified && !isCodeSent
+            enabled = !isCodeVerified && !isCodeSent && isAdminExists
         ) {
-            Text("Send Code")
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White
+                )
+            } else {
+                Text("Generate Code")
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         CustomTextField(
@@ -207,6 +232,5 @@ fun ForgotPasswordScreen(
                 Text("Reset Password")
             }
         }
-
     }
 }

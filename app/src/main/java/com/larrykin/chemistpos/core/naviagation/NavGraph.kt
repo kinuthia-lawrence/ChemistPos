@@ -5,10 +5,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.larrykin.chemistpos.authentication.presentation.ui.ForgotPasswordScreen
 import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
 import com.larrykin.chemistpos.authentication.presentation.viewModels.RegisterViewModel
 import com.larrykin.chemistpos.authentication.presentation.viewModels.ForgotPasswordViewModel
-import com.larrykin.chemistpos.authentication.presentation.ui.ForgotPasswordScreen
 import com.larrykin.chemistpos.authentication.presentation.ui.LoginScreen
 import com.larrykin.chemistpos.authentication.presentation.ui.RegisterScreen
 import com.larrykin.chemistpos.authentication.presentation.ui.SplashScreen
@@ -16,11 +16,11 @@ import com.larrykin.chemistpos.home.presentation.ui.HomeScreen
 
 //sealed class is a class that can only be inherited by classes declared in the same file
 sealed class Screen(val route: String) {
-    object Splash : Screen("splash")
-    object Login : Screen("login")
-    object ForgotPassword : Screen("forgot_password")
-    object Register : Screen("register")
-    object Home : Screen("home")
+    data object Splash : Screen("splash")
+    data object Login : Screen("login")
+    data object ForgotPassword : Screen("forgot_password")
+    data object Register : Screen("register")
+    data object Home : Screen("home")
 }
 
 @Composable

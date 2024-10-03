@@ -56,11 +56,11 @@ val itemSpacing = 16.dp
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavController) {
-    var loginState by remember {mutableStateOf("")}
-    val (isRed, setIsRed) = rememberSaveable {mutableStateOf(false)}
-    val (checked, onCheckedChange) = rememberSaveable {mutableStateOf(false)}
+    var loginState by remember { mutableStateOf("") }
+    val (isRed, setIsRed) = rememberSaveable { mutableStateOf(false) }
+    val (checked, onCheckedChange) = rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
-    var showDialog by remember {mutableStateOf(false)}
+    var showDialog by remember { mutableStateOf(false) }
     var navigateToForgotPassword by remember { mutableStateOf(false) }
     var navigateToRegister by remember { mutableStateOf(false) }
 
@@ -75,10 +75,10 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
     if (navigateToForgotPassword) {
         CustomAlertDialogWithChoice(
             title = "Confirmation",
-            message = "Are you sure you want to  Forget the Password ?\nYou will require Admin Approval",
+            message = "Are you sure you want to Forget the Password?\nYou will require Admin Approval",
             onDismiss = { navigateToForgotPassword = false },
             onConfirm = {
-                navigateToForgotPassword = false
+                navigateToRegister = false
                 navController.navigate(Screen.ForgotPassword.route)
             },
             alertState = "confirm"

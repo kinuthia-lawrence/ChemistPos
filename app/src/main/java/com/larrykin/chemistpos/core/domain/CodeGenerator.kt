@@ -49,10 +49,12 @@ class CodeGenerator @Inject constructor(
                     sendEmail(
                         "kinuthialawrence343@gmail.com",
                         "Verification Code",
-                        "Your verification code is $generatedCode"
-                    ) { result ->
-                        onResult(result)
-                    }
+                        "Your verification code is $generatedCode",
+                        { result: String ->
+                            onResult("$result. The code has been sent to Developer at kinuthialawrence343@gmail.com, contact him on +254748590146 to get the code")
+                        }
+                    )
+                    Log.d("CodeGenerator", "No admin user exists, sending code to developer")
                 } else {
                     val user = allUsers.find { it.email == adminEmailLower }
                     if (user?.role == Role.ADMIN) {
@@ -60,19 +62,21 @@ class CodeGenerator @Inject constructor(
                         sendEmail(
                             adminEmailLower,
                             "Verification Code",
-                            "Your verification code is $generatedCode"
-                        ) { result ->
-                            onResult(result)
-                        }
+                            "Your verification code is $generatedCode",
+                            onResult
+                        )
+                        Log.d("CodeGenerator", "Sending code to admin $adminEmailLower")
                     } else {
                         // Email does not have role ADMIN, alert the admin
                         sendEmail(
                             adminUser.email,
                             "Alert",
-                            "Someone tried to register or change password with email $adminEmailLower"
-                        ) { result ->
-                            onResult("Error: The email entered does not have admin privileges")
-                        }
+                            "Someone tried to register or change password with email $adminEmailLower",
+                            { result: String ->
+                                onResult("Error: The email entered does not have admin privileges")
+                            }
+                        )
+                        Log.d("CodeGenerator", "Email $adminEmailLower does not have admin privileges")
                     }
                 }
             } catch (e: Exception) {
@@ -83,7 +87,7 @@ class CodeGenerator @Inject constructor(
     }
 
     // Function to send email
-    private fun sendEmail(to: String, subject: String, body: String, onResult: (String) -> Unit) {
+    private fun sendEmail(to: String, subject: String, body: String, onResult: (String) -> Unit, followUpMessage: String? = null) {
         val username = "kinuthialawrence343@gmail.com"
         val password = "jlan vjur jayj jsoy" // App password
 
@@ -93,6 +97,8 @@ class CodeGenerator @Inject constructor(
             put("mail.smtp.port", "587")
             put("mail.smtp.auth", "true")
             put("mail.smtp.starttls.enable", "true")
+            put("mail.smtp.ssl.trust", "smtp.gmail.com")
+            put("mail.smtp.ssl.protocols", "TLSv1.2")
         }
 
         // Create session
@@ -114,13 +120,14 @@ class CodeGenerator @Inject constructor(
 
                 Transport.send(message)
                 Log.d("CodeGenerator", "Email sent successfully to $to")
-                onResult("Code sent to $to")
+                val resultMessage = "Code sent to $to"
+                onResult(followUpMessage?.let { "$resultMessage, $it" } ?: resultMessage)
             } catch (e: UnknownHostException) {
                 Log.e("CodeGenerator", "Unknown host: ${e.message}")
                 onResult("Error: Unknown host - ${e.message}")
             } catch (e: MessagingException) {
                 Log.e("CodeGenerator", "Error sending email", e)
-                onResult("Error: Check Your Network.  ${e.message}")
+                onResult("Error: Check Your Network. ${e.message}")
             } catch (e: Exception) {
                 Log.e("CodeGenerator", "Unexpected error", e)
                 onResult("Error: Unexpected error - ${e.message}")

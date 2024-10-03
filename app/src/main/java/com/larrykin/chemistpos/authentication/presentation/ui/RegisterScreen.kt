@@ -41,6 +41,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
     val codeState = remember { mutableStateOf("") }
     val messageState = remember { mutableStateOf("") }
     val (isRed, setIsRed) = rememberSaveable { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     //show dialog if user is created successfully
     if (showDialog) {
@@ -110,7 +111,9 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
+                isLoading = true
                 viewModel.generateAndSendCode(adminEmailState.value) { result ->
+                    isLoading = false
                     messageState.value = result
                     setIsRed(result.startsWith("Error"))
                     if (result.startsWith("Code sent" ) || result.startsWith("The code has been sent")) {
@@ -121,7 +124,14 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
             modifier = Modifier.fillMaxWidth(),
             enabled = !isCodeVerified && !isCodeSent
         ) {
-            Text("Send Code")
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text("Send Code")
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         CustomTextField(
