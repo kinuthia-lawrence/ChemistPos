@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.mail.Authenticator
 import javax.mail.Message
@@ -34,26 +35,44 @@ class CodeGenerator @Inject constructor(
                 generatedCode = Random.nextInt(100000, 999999).toString()
                 Log.d("CodeGenerator", "Generated code $generatedCode")
 
-                val allUsers: List<User> = when (val result = userRepository.getAllUsers().firstOrNull()) {
-                    is GetAllUsersResult.Success -> result.users
-                    else -> emptyList()
-                }
+                // Get all users
+                val allUsers: List<User> =
+                    when (val result = userRepository.getAllUsers().firstOrNull()) {
+                        is GetAllUsersResult.Success -> result.users
+                        else -> emptyList()
+                    }
+                // Find admin user
                 val adminUser = allUsers.find { it.role == Role.ADMIN }
 
                 if (adminUser == null) {
                     // No admin user exists, send code to developer email
-                    sendEmail("kinuthialawrence343@gmail.com", "Verification Code", "Your verification code is $generatedCode")
-                    onResult("The code has been sent to Developer at kinuthialawrence343@gmail.com, contact him on +254748590146 to get the code")
+                    sendEmail(
+                        "kinuthialawrence343@gmail.com",
+                        "Verification Code",
+                        "Your verification code is $generatedCode"
+                    ) { result ->
+                        onResult(result)
+                    }
                 } else {
                     val user = allUsers.find { it.email == adminEmailLower }
                     if (user?.role == Role.ADMIN) {
                         // Email has role ADMIN, send code to this email
-                        sendEmail(adminEmailLower, "Verification Code", "Your verification code is $generatedCode")
-                        onResult("Code sent to $adminEmail")
+                        sendEmail(
+                            adminEmailLower,
+                            "Verification Code",
+                            "Your verification code is $generatedCode"
+                        ) { result ->
+                            onResult(result)
+                        }
                     } else {
                         // Email does not have role ADMIN, alert the admin
-                        sendEmail(adminUser.email, "Alert", "Someone tried to register or change password with email $adminEmailLower")
-                        onResult("Error: The email entered does not have admin privileges")
+                        sendEmail(
+                            adminUser.email,
+                            "Alert",
+                            "Someone tried to register or change password with email $adminEmailLower"
+                        ) { result ->
+                            onResult("Error: The email entered does not have admin privileges")
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -64,7 +83,7 @@ class CodeGenerator @Inject constructor(
     }
 
     // Function to send email
-    private fun sendEmail(to: String, subject: String, body: String) {
+    private fun sendEmail(to: String, subject: String, body: String, onResult: (String) -> Unit) {
         val username = "kinuthialawrence343@gmail.com"
         val password = "jlan vjur jayj jsoy" // App password
 
@@ -95,9 +114,16 @@ class CodeGenerator @Inject constructor(
 
                 Transport.send(message)
                 Log.d("CodeGenerator", "Email sent successfully to $to")
+                onResult("Code sent to $to")
+            } catch (e: UnknownHostException) {
+                Log.e("CodeGenerator", "Unknown host: ${e.message}")
+                onResult("Error: Unknown host - ${e.message}")
             } catch (e: MessagingException) {
                 Log.e("CodeGenerator", "Error sending email", e)
-                throw RuntimeException(e)
+                onResult("Error: Check Your Network.  ${e.message}")
+            } catch (e: Exception) {
+                Log.e("CodeGenerator", "Unexpected error", e)
+                onResult("Error: Unexpected error - ${e.message}")
             }
         }
     }
