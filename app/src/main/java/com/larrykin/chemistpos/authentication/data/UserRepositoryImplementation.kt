@@ -35,6 +35,14 @@ class UserRepositoryImplementation @Inject constructor(private val userDao: User
         }
     }
 
+    override suspend fun loginUserByEmail(email: String, password: String): User? {
+        return try {
+            userDao.getUserByEmailAndPassword(email, password)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     //get user by email
     override suspend fun getUserByEmail(email: String): User? {
         return try {

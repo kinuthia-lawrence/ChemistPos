@@ -33,7 +33,14 @@ class LoginViewModel @Inject constructor(
                 if (user != null) {
                     onResult(LoginResult.Success)
                 } else {
-                    onResult(LoginResult.UserNotFound)
+                    //Try logging in with email
+                    val emailLower = username.trim().lowercase()
+                    val userByEmail = repository.loginUserByEmail(emailLower, password)
+                    if (userByEmail != null) {
+                        onResult(LoginResult.Success)
+                    } else {
+                        onResult(LoginResult.UserNotFound)
+                    }
                 }
             } catch (e: Exception) {
                 onResult(LoginResult.Error(e.message ?: "Unknown error"))

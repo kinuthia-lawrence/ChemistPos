@@ -35,6 +35,10 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE username=:loginUsername AND password=:loginPassword")
     suspend fun getUserByUsernameAndPassword(loginUsername: String, loginPassword: String): User?
 
+    //get by email and password
+    @Query("SELECT * FROM users WHERE email=:loginEmail AND password=:loginPassword")
+    suspend fun getUserByEmailAndPassword(loginEmail: String, loginPassword: String): User?
+
     //update User
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateUser(user: User): Int

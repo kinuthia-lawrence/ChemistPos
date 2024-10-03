@@ -75,7 +75,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
     if (navigateToForgotPassword) {
         CustomAlertDialogWithChoice(
             title = "Confirmation",
-            message = "Are you sure you want to Forget the Password?\nYou will require Admin Approval",
+            message = "Are you sure you want to Forget the Password?\nYou will require Internet Connection and Admin Approval",
             onDismiss = { navigateToForgotPassword = false },
             onConfirm = {
                 navigateToRegister = false
@@ -88,7 +88,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
     if (navigateToRegister) {
         CustomAlertDialogWithChoice(
             title = "Confirmation",
-            message = "Are you sure you want to Register new account?\nYou will require Admin Approval",
+            message = "Are you sure you want to Register new account?\nYou will require Internet Connection and Admin Approval",
             onDismiss = { navigateToRegister = false },
             onConfirm = {
                 navigateToRegister = false
@@ -132,7 +132,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
         CustomTextField(
             value = viewModel.username,
             onValueChange = { viewModel.username = it.trim() },
-            labelText = "Username",
+            labelText = "Username or Email",
             leadingIcon = Icons.Default.Person,
             modifier = Modifier.fillMaxWidth(),
             enabled = true
