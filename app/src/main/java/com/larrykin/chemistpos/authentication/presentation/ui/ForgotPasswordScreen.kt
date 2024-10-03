@@ -97,7 +97,7 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(16.dp))
         CustomTextField(
             value = adminEmailState.value,
-            onValueChange = { adminEmailState.value = it.trim().lowercase() },
+            onValueChange = { adminEmailState.value = it.trim()},
             labelText = "Admin Email",
             leadingIcon = Icons.Default.Email,
             modifier = Modifier.fillMaxWidth(),
@@ -106,7 +106,7 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                viewModel.generateAndSendCode(adminEmailState.value) { result ->
+                viewModel.generateCodeAndSendCode(adminEmailState.value) { result ->
                     messageState.value = result
                     setIsRed(result.startsWith("Error"))
                     if (result.startsWith("Code sent")) {
@@ -126,7 +126,7 @@ fun ForgotPasswordScreen(
             labelText = "Enter Code",
             leadingIcon = Icons.Default.Edit,
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isCodeVerified
+            enabled = !isCodeVerified && isCodeSent
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
@@ -138,7 +138,7 @@ fun ForgotPasswordScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isCodeVerified
+            enabled = !isCodeVerified && isCodeSent
         ) {
             Text("Verify Code")
         }
@@ -146,7 +146,7 @@ fun ForgotPasswordScreen(
         if (isCodeVerified) {
             CustomTextField(
                 value = emailState.value,
-                onValueChange = { emailState.value = it.trim().lowercase() },
+                onValueChange = { emailState.value = it.trim() },
                 labelText = "Email to Reset",
                 leadingIcon = Icons.Default.Email,
                 modifier = Modifier.fillMaxWidth(),

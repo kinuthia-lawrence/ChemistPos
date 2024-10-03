@@ -131,7 +131,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
         Spacer(modifier = Modifier.height(16.dp))
         CustomTextField(
             value = viewModel.username,
-            onValueChange = { viewModel.username = it },
+            onValueChange = { viewModel.username = it.trim() },
             labelText = "Username",
             leadingIcon = Icons.Default.Person,
             modifier = Modifier.fillMaxWidth(),

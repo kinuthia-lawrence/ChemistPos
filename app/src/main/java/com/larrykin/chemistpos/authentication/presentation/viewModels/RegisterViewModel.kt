@@ -9,6 +9,7 @@ import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.authentication.domain.UserRepository
 import com.larrykin.chemistpos.core.data.GetAllUsersResult
+import com.larrykin.chemistpos.core.domain.CodeGenerator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -32,6 +33,17 @@ class RegisterViewModel @Inject constructor(
     var phoneNumber by mutableStateOf("")
     var chemistName by mutableStateOf("")
 
+    //function to generate and send code to admin email
+    fun generateAndSendCode(adminEmail: String, onResult: (String) -> Unit) {
+        CodeGenerator.generateAndSendCode(viewModelScope, adminEmail, onResult)
+    }
+
+    //verify the input code
+    fun verifyCode(inputCode: String, onResult: (Boolean) -> Unit) {
+        CodeGenerator.verifyCode(inputCode, onResult)
+    }
+
+    // function to register a new user
     fun register(onResult: (RegisterResult) -> Unit) { // callback function to handle the result
         viewModelScope.launch {
             try {
