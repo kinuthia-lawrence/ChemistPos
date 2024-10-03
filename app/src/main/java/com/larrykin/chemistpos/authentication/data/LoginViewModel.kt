@@ -28,7 +28,8 @@ class LoginViewModel @Inject constructor(
     fun login(onResult: (LoginResult) -> Unit) { //callback function to return the result
         viewModelScope.launch {
             try {
-                val user = repository.loginUser(username, password)
+                val usernameLower = username.trim().lowercase()
+                val user = repository.loginUser(usernameLower, password)
                 if (user != null) {
                     onResult(LoginResult.Success)
                 } else {

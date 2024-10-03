@@ -148,16 +148,6 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
             enabled = true
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        CustomTextField(
-            value = viewModel.role.toString(),
-            onValueChange = { viewModel.role = Role.valueOf(it) },
-            labelText = "Role",
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = Icons.Default.Face,
-            enabled = true
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
