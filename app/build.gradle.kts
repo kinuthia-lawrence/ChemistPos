@@ -44,11 +44,13 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
+packaging {
+    resources {
+        excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        excludes += "META-INF/NOTICE.md"
+        excludes += "META-INF/LICENSE.md"
     }
+}
 }
 
 dependencies {
@@ -105,10 +107,14 @@ dependencies {
 
     // Room -used to access the database
     implementation(libs.androidx.room.runtime)
-    implementation (libs.androidx.room.ktx) // to support kotlin coroutines -used to access the database
+    implementation(libs.androidx.room.ktx) // to support kotlin coroutines -used to access the database
     annotationProcessor(libs.androidx.room.compiler)
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)
+
+    //JavaMail
+    implementation(libs.android.mail)
+    implementation(libs.android.activation)
 
 
 }

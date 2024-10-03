@@ -16,9 +16,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class RegisterResult {
-    object Success : RegisterResult()
+    data object Success : RegisterResult()
     data class Error(val message: String) : RegisterResult()
-    object UserExists : RegisterResult()
+    data object UserExists : RegisterResult()
 }
 
 @HiltViewModel
@@ -33,14 +33,16 @@ class RegisterViewModel @Inject constructor(
     var phoneNumber by mutableStateOf("")
     var chemistName by mutableStateOf("")
 
+    private val codeGenerator = CodeGenerator(repository)
+
     //function to generate and send code to admin email
     fun generateAndSendCode(adminEmail: String, onResult: (String) -> Unit) {
-        CodeGenerator.generateAndSendCode(viewModelScope, adminEmail, onResult)
+        codeGenerator.generateAndSendCode(viewModelScope, adminEmail, onResult)
     }
 
     //verify the input code
     fun verifyCode(inputCode: String, onResult: (Boolean) -> Unit) {
-        CodeGenerator.verifyCode(inputCode, onResult)
+        codeGenerator.verifyCode(inputCode, onResult)
     }
 
     // function to register a new user
@@ -62,7 +64,7 @@ class RegisterViewModel @Inject constructor(
                     is GetAllUsersResult.Error -> emptyList()
                     else -> emptyList()
                 }
-                val role = if (allUsers.isNullOrEmpty()) Role.ADMIN else Role.USER
+                val role = if (allUsers.isEmpty()) Role.ADMIN else Role.USER
                 val user = User(
                     emailProcessed,
                     usernameLower,

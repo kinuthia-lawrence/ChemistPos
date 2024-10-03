@@ -63,7 +63,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderText(
-            text = "Login",
+            text = "Register",
             modifier = Modifier
                 .padding(vertical = defaultPadding)
                 .align(alignment = Alignment.CenterHorizontally)
@@ -113,7 +113,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
                 viewModel.generateAndSendCode(adminEmailState.value) { result ->
                     messageState.value = result
                     setIsRed(result.startsWith("Error"))
-                    if (result.startsWith("Code sent")) {
+                    if (result.startsWith("Code sent" ) || result.startsWith("The code has been sent")) {
                         isCodeSent = true
                     }
                 }

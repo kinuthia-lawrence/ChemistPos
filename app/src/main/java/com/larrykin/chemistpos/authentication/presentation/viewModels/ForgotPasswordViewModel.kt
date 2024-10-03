@@ -3,21 +3,23 @@ package com.larrykin.chemistpos.authentication.presentation.viewModels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.larrykin.chemistpos.authentication.domain.UserRepository
 import com.larrykin.chemistpos.core.domain.CodeGenerator
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class ForgotPasswordViewModel : ViewModel() {
+class ForgotPasswordViewModel(private val userRepository: UserRepository) : ViewModel() {
     private var generatedCode: String? = null
+    private val codeGenerator = CodeGenerator(userRepository)
 
     // generate and send code to the admin email
     fun generateCodeAndSendCode(adminEmail: String, onResult: (String) -> Unit) {
-        CodeGenerator.generateAndSendCode(viewModelScope, adminEmail, onResult)
+        codeGenerator.generateAndSendCode(viewModelScope, adminEmail, onResult)
     }
 
     // verify the input code
     fun verifyCode(inputCode: String, onResult: (Boolean) -> Unit) {
-        CodeGenerator.verifyCode(inputCode, onResult)
+        codeGenerator.verifyCode(inputCode, onResult)
     }
 
     // reset the password
