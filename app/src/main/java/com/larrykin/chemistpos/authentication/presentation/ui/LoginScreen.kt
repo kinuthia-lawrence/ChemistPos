@@ -1,6 +1,6 @@
-package com.larrykin.chemistpos.authentication.presentation
+package com.larrykin.chemistpos.authentication.presentation.ui
 
-import CustomAlertDialog
+import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,12 +44,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.larrykin.chemistpos.R
-import com.larrykin.chemistpos.authentication.data.LoginResult
-import com.larrykin.chemistpos.authentication.data.LoginViewModel
 import com.larrykin.chemistpos.components.HeaderText
 import com.larrykin.chemistpos.authentication.components.CustomTextField
+import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginResult
+import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
 import com.larrykin.chemistpos.core.naviagation.Screen
-import com.larrykin.chemistpos.core.presentation.CustomAlertDialogWithChoice
+import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
 
 val defaultPadding = 16.dp
 val itemSpacing = 16.dp
@@ -178,6 +178,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
                 viewModel.login { result ->
                     when (result) {
                         is LoginResult.Success -> {
+                            navController.popBackStack()
                             navController.navigate(Screen.Home.route)
                             showDialog = false
                             setIsRed(false)
@@ -185,7 +186,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
                         }
 
                         is LoginResult.UserNotFound -> {
-                            loginState = "User not found"
+                            loginState = "Invalid Username or Password"
                         }
 
                         is LoginResult.Error -> {

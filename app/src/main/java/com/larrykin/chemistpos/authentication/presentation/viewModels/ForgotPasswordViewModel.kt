@@ -1,4 +1,4 @@
-package com.larrykin.chemistpos.authentication.domain
+package com.larrykin.chemistpos.authentication.presentation.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

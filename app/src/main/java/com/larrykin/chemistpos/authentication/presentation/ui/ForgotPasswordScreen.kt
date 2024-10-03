@@ -1,6 +1,6 @@
-package com.larrykin.chemistpos.authentication.presentation
+package com.larrykin.chemistpos.authentication.presentation.ui
 
-import CustomAlertDialog
+import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,8 +21,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.larrykin.chemistpos.authentication.domain.ForgotPasswordViewModel
 import com.larrykin.chemistpos.authentication.components.CustomTextField
+import com.larrykin.chemistpos.authentication.presentation.viewModels.ForgotPasswordViewModel
 import com.larrykin.chemistpos.components.HeaderText
 import kotlinx.coroutines.delay
 
@@ -38,27 +38,23 @@ fun ForgotPasswordScreen(
     val confirmPasswordState = remember { mutableStateOf("") }
     val messageState = remember { mutableStateOf("") }
     var isCodeVerified by remember { mutableStateOf(false) }
-    var resetState by remember {
-        mutableStateOf("")
+    var resetState by remember { mutableStateOf("") }
+    val (isRed, setIsRed) = rememberSaveable { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var isCodeSent by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        CustomAlertDialog(
+            title = "Success",
+            message = "Password reset successfully",
+            onDismiss = { showDialog = false },
+            alertState = "success"
+        )
+        LaunchedEffect(Unit) {
+            delay(5000)
+            showDialog = false
+        }
     }
-    val (isRed, setIsRed) = rememberSaveable {
-        mutableStateOf(false)
-    }
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
-  if (showDialog) {
-    CustomAlertDialog(
-        title = "Success",
-        message = "Password reset successfully",
-        onDismiss = { showDialog = false },
-        alertState = "success"
-    )
-    LaunchedEffect(Unit) {
-        delay(5000)
-        showDialog = false
-    }
-}
 
     Column(
         modifier = Modifier
@@ -101,11 +97,11 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(16.dp))
         CustomTextField(
             value = adminEmailState.value,
-            onValueChange = { adminEmailState.value = it },
+            onValueChange = { adminEmailState.value = it.trim().lowercase() },
             labelText = "Admin Email",
             leadingIcon = Icons.Default.Email,
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isCodeVerified
+            enabled = !isCodeVerified && !isCodeSent
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
@@ -113,17 +109,20 @@ fun ForgotPasswordScreen(
                 viewModel.generateAndSendCode(adminEmailState.value) { result ->
                     messageState.value = result
                     setIsRed(result.startsWith("Error"))
+                    if (result.startsWith("Code sent")) {
+                        isCodeSent = true
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isCodeVerified
+            enabled = !isCodeVerified && !isCodeSent
         ) {
             Text("Send Code")
         }
         Spacer(modifier = Modifier.height(16.dp))
         CustomTextField(
             value = codeState.value,
-            onValueChange = { codeState.value = it },
+            onValueChange = { codeState.value = it.trim() },
             labelText = "Enter Code",
             leadingIcon = Icons.Default.Edit,
             modifier = Modifier.fillMaxWidth(),
@@ -147,7 +146,7 @@ fun ForgotPasswordScreen(
         if (isCodeVerified) {
             CustomTextField(
                 value = emailState.value,
-                onValueChange = { emailState.value = it },
+                onValueChange = { emailState.value = it.trim().lowercase() },
                 labelText = "Email to Reset",
                 leadingIcon = Icons.Default.Email,
                 modifier = Modifier.fillMaxWidth(),
@@ -188,7 +187,7 @@ fun ForgotPasswordScreen(
                             if (result.startsWith("Success")) {
                                 setIsRed(false)
                                 navController.popBackStack()
-                                showDialog=true
+                                showDialog = true
                                 //fields and states
                                 resetState = result
                                 emailState.value = ""

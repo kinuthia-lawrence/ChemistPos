@@ -1,6 +1,6 @@
-package com.larrykin.chemistpos.authentication.presentation
+package com.larrykin.chemistpos.authentication.presentation.ui
 
-import CustomAlertDialog
+import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -21,19 +20,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.larrykin.chemistpos.authentication.components.CustomTextField
-import com.larrykin.chemistpos.authentication.data.RegisterResult
-import com.larrykin.chemistpos.authentication.data.RegisterViewModel
-import com.larrykin.chemistpos.authentication.data.Role
-import com.larrykin.chemistpos.authentication.data.UserRepositoryImplementation
+import com.larrykin.chemistpos.authentication.presentation.viewModels.RegisterResult
+import com.larrykin.chemistpos.authentication.presentation.viewModels.RegisterViewModel
 import com.larrykin.chemistpos.components.HeaderText
 import com.larrykin.chemistpos.core.naviagation.Screen
-import java.util.*
 
 
 @Composable
@@ -168,7 +162,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
                     when (result) {
                         is RegisterResult.Success -> {
                             showDialog = true
-                            navController.navigate("login")
+                            navController.popBackStack()
                         }
                         is RegisterResult.Error -> {
                            errorMessage = result.message

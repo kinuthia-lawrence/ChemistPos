@@ -1,4 +1,4 @@
-package com.larrykin.chemistpos.authentication.presentation
+package com.larrykin.chemistpos.authentication.presentation.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

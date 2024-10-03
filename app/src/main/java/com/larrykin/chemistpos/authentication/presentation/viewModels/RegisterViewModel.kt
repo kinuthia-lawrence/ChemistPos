@@ -1,10 +1,12 @@
-package com.larrykin.chemistpos.authentication.data
+package com.larrykin.chemistpos.authentication.presentation.viewModels
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.larrykin.chemistpos.authentication.data.Role
+import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.authentication.domain.UserRepository
 import com.larrykin.chemistpos.core.data.GetAllUsersResult
 import dagger.hilt.android.lifecycle.HiltViewModel

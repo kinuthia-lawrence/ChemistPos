@@ -5,14 +5,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.larrykin.chemistpos.authentication.data.LoginViewModel
-import com.larrykin.chemistpos.authentication.data.RegisterViewModel
-import com.larrykin.chemistpos.authentication.domain.ForgotPasswordViewModel
-import com.larrykin.chemistpos.authentication.presentation.ForgotPasswordScreen
-import com.larrykin.chemistpos.authentication.presentation.LoginScreen
-import com.larrykin.chemistpos.authentication.presentation.RegisterScreen
-import com.larrykin.chemistpos.authentication.presentation.SplashScreen
-import com.larrykin.chemistpos.home.presentation.HomeScreen
+import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
+import com.larrykin.chemistpos.authentication.presentation.viewModels.RegisterViewModel
+import com.larrykin.chemistpos.authentication.presentation.viewModels.ForgotPasswordViewModel
+import com.larrykin.chemistpos.authentication.presentation.ui.ForgotPasswordScreen
+import com.larrykin.chemistpos.authentication.presentation.ui.LoginScreen
+import com.larrykin.chemistpos.authentication.presentation.ui.RegisterScreen
+import com.larrykin.chemistpos.authentication.presentation.ui.SplashScreen
+import com.larrykin.chemistpos.home.presentation.ui.HomeScreen
 
 //sealed class is a class that can only be inherited by classes declared in the same file
 sealed class Screen(val route: String) {
