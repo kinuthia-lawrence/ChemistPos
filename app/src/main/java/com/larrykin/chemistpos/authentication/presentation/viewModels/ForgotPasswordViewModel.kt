@@ -46,8 +46,18 @@ class ForgotPasswordViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val emailLower = email.trim().lowercase()
-                // todo: update password in database
-                onResult("Success: Password reset successfully for $email")
+                val user = repository.getUserByEmail(emailLower)
+                if (user != null) {
+                    val updatedUser = user.copy(password = newPassword)
+                    val result = repository.updateUser(updatedUser)
+                    if (result != null) {
+                        onResult("Success: Password reset successfully for $email")
+                    } else {
+                        onResult("Error: Failed to update password")
+                    }
+                } else {
+                    onResult("Error: User with email $email not found")
+                }
             } catch (e: Exception) {
                 onResult("Error: ${e.message}")
             }
