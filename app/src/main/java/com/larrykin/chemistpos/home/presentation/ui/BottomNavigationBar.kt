@@ -3,8 +3,10 @@ package com.larrykin.chemistpos.home.presentation.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.ShoppingCart
@@ -37,7 +39,7 @@ val items = listOf(
     ),
     BottomNavigationBarItems(
         title = "Menu",
-        icon = Icons.Rounded.Menu
+        icon = Icons.AutoMirrored.Rounded.List
     ),
 )
 
