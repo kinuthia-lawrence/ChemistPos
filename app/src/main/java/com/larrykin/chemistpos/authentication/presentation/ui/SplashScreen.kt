@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.larrykin.chemistpos.R
-import com.larrykin.chemistpos.authentication.domain.getDeveloperWebsiteUrl
+import com.larrykin.chemistpos.core.domain.getDeveloperWebsiteUrl
 import com.larrykin.chemistpos.core.naviagation.Screen
 import kotlinx.coroutines.delay
 

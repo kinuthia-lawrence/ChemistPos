@@ -1,8 +1,10 @@
 package com.larrykin.chemistpos.home.presentation.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,10 +15,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Text
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -56,7 +59,13 @@ fun HomeScreen(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = { SidebarContent() }
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier.padding(end = 120.dp)
+            ) {
+                MenuContent()
+            }
+        }
     ) {
         ModalNavigationDrawer(
             drawerState = profileDrawerState,
@@ -72,7 +81,7 @@ fun HomeScreen(
                         onLogout = { onLogout(parentNavController, authViewModel) }
                     )
                 } ?: run {
-                   //show placeholder
+                    //show placeholder
                     ProfileContent(
                         userProfile = LoggedInUser(
                             username = "Username",
@@ -82,6 +91,7 @@ fun HomeScreen(
                         onLogout = { /*TODO*/ }
                     )
                 }
+
             }
         ) {
             Scaffold(
@@ -100,20 +110,25 @@ fun HomeScreen(
                     )
                 }
             ) { padding ->
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
                 ) {
                     // Inner NavHost for handling inner navigation inside HomeScreen
-                    NavHost(navController = innerNavController, startDestination = "dashboard") {
-                        composable("dashboard") { DashboardScreen() }
-                        composable("notification") { NotificationScreen() }
-                        composable("help") { HelpScreen() }
-                        composable("sales") { SalesScreen() }
-                        composable("stock") { StockScreen() }
-                        composable("services") { ServicesScreen() }
-                        composable("cart") { CartScreen() }
+                    item {
+                        NavHost(
+                            navController = innerNavController,
+                            startDestination = "dashboard"
+                        ) {
+                            composable("dashboard") { DashboardScreen() }
+                            composable("notification") { NotificationScreen() }
+                            composable("help") { HelpScreen() }
+                            composable("sales") { SalesScreen() }
+                            composable("stock") { StockScreen() }
+                            composable("services") { ServicesScreen() }
+                            composable("cart") { CartScreen() }
+                        }
                     }
                 }
             }

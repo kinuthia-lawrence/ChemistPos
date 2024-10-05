@@ -15,13 +15,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -52,6 +56,7 @@ import com.larrykin.chemistpos.core.naviagation.Screen
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
 import com.larrykin.chemistpos.core.presentation.viewModels.AuthViewModel
 import com.larrykin.chemistpos.core.presentation.viewModels.LoggedInUser
+import com.larrykin.chemistpos.home.presentation.ui.HelpScreen
 
 val defaultPadding = 16.dp
 val itemSpacing = 16.dp
@@ -69,6 +74,7 @@ fun LoginScreen(
     var showDialog by remember { mutableStateOf(false) }
     var navigateToForgotPassword by remember { mutableStateOf(false) }
     var navigateToRegister by remember { mutableStateOf(false) }
+
 
     //show dialog if fields are blank
     if (showDialog) {
@@ -236,6 +242,7 @@ fun AlternativeLoginOptions(
     setNavigateToRegister: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showHelpDialog by remember { mutableStateOf(false) }
     val iconList = listOf(
         R.drawable.icon_instagram,
         R.drawable.icon_github,
@@ -278,6 +285,36 @@ fun AlternativeLoginOptions(
             ) {
                 Text("Sign Up")
             }
+        }
+        Spacer(Modifier.height(itemSpacing))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Need Help? Click")
+            TextButton(
+                onClick = { showHelpDialog = true },
+                colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF4003F1))
+            ) {
+                Text("Here")
+            }
+        }
+        if (showHelpDialog) {
+            AlertDialog(
+                onDismissRequest = { showHelpDialog = false },
+                confirmButton = {
+                    TextButton(onClick = { showHelpDialog = false }) {
+                        Text("Close")
+                    }
+                },
+                text = {
+                    LazyColumn(modifier = Modifier.padding(0.dp)) {
+                        item {
+                            HelpScreen()
+                        }
+                    }
+                }
+            )
         }
     }
 
