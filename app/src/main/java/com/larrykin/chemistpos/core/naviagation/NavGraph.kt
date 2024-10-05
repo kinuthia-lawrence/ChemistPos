@@ -12,7 +12,10 @@ import com.larrykin.chemistpos.authentication.presentation.viewModels.ForgotPass
 import com.larrykin.chemistpos.authentication.presentation.ui.LoginScreen
 import com.larrykin.chemistpos.authentication.presentation.ui.RegisterScreen
 import com.larrykin.chemistpos.authentication.presentation.ui.SplashScreen
+import com.larrykin.chemistpos.home.presentation.ui.DashboardScreen
+import com.larrykin.chemistpos.home.presentation.ui.HelpScreen
 import com.larrykin.chemistpos.home.presentation.ui.HomeScreen
+import com.larrykin.chemistpos.home.presentation.ui.NotificationScreen
 
 //sealed class is a class that can only be inherited by classes declared in the same file
 sealed class Screen(val route: String) {
@@ -24,7 +27,7 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(navController: NavHostController) { //Parent NavHostController, for High-level navigation
     NavHost(navController = navController, startDestination = Screen.Splash.route) {
         composable(route = Screen.Splash.route) {
             SplashScreen(navController)

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -22,7 +23,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun StatusBar() {
+fun StatusBar(
+    onMenuClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onNotificationClick: () -> Unit = {},
+    onInfoClick: () -> Unit = {}
+) {
     Spacer(modifier = Modifier.height(24.dp))
     Row(
         modifier = Modifier
@@ -32,8 +38,8 @@ fun StatusBar() {
     ) {
 
         //? Settings button on left
-        IconButton(onClick = { /*TODO*/ }) {
-            Icon(Icons.Filled.Settings, contentDescription = "Settings")
+        IconButton(onClick =onMenuClick) {
+            Icon(Icons.AutoMirrored.Rounded.List, contentDescription = "Menu")
         }
         // App name centered
         Text(
@@ -43,15 +49,15 @@ fun StatusBar() {
                 .wrapContentWidth(Alignment.CenterHorizontally)
         )
         // Tips icon
-        IconButton(onClick = { /* Handle notifications click */ }) {
-            Icon(Icons.Sharp.Info, contentDescription = "Notifications")
+        IconButton(onClick = onInfoClick) {
+            Icon(Icons.Sharp.Info, contentDescription = "Information")
         }
         // Notification icon
-        IconButton(onClick = { /* Handle notifications click */ }) {
+        IconButton(onClick = onNotificationClick) {
             Icon(Icons.Sharp.Notifications, contentDescription = "Notifications")
         }
         // Profile icon
-        IconButton(onClick = { /* Handle profile click */ }) {
+        IconButton(onClick = onProfileClick) {
             Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
         }
 
