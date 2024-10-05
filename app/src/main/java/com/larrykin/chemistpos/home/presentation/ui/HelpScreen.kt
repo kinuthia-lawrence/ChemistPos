@@ -35,7 +35,7 @@ fun HelpScreen() {
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(4.dp),
+            .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
