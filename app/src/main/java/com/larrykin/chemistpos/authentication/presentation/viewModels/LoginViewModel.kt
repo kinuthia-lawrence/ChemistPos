@@ -5,16 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.authentication.domain.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class LoginResult {
-    object Success : LoginResult()
+    data class Success(val user: User) : LoginResult()
     data class Error(val message: String) : LoginResult()
     object UserNotFound : LoginResult()
 }
+
 
 @HiltViewModel //this marks the viewModel for Hilt to inject dependencies
 class LoginViewModel @Inject constructor(
@@ -25,19 +27,18 @@ class LoginViewModel @Inject constructor(
     var password by mutableStateOf("")
 
 
-    fun login(onResult: (LoginResult) -> Unit) { //callback function to return the result
+    fun login(onResult: (LoginResult) -> Unit) {
         viewModelScope.launch {
             try {
                 val usernameLower = username.trim().lowercase()
                 val user = repository.loginUser(usernameLower, password)
                 if (user != null) {
-                    onResult(LoginResult.Success)
+                    onResult(LoginResult.Success(user)) // Return user details
                 } else {
-                    //Try logging in with email
                     val emailLower = username.trim().lowercase()
                     val userByEmail = repository.loginUserByEmail(emailLower, password)
                     if (userByEmail != null) {
-                        onResult(LoginResult.Success)
+                        onResult(LoginResult.Success(userByEmail)) // Return user details
                     } else {
                         onResult(LoginResult.UserNotFound)
                     }
@@ -47,4 +48,5 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
 }

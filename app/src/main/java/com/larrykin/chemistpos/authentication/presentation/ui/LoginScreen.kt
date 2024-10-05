@@ -50,12 +50,18 @@ import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginResul
 import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
 import com.larrykin.chemistpos.core.naviagation.Screen
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
+import com.larrykin.chemistpos.core.presentation.viewModels.AuthViewModel
+import com.larrykin.chemistpos.core.presentation.viewModels.LoggedInUser
 
 val defaultPadding = 16.dp
 val itemSpacing = 16.dp
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavController) {
+fun LoginScreen(
+    viewModel: LoginViewModel = hiltViewModel(),
+    navController: NavController,
+    authViewModel: AuthViewModel = hiltViewModel()
+) {
     var loginState by remember { mutableStateOf("") }
     val (isRed, setIsRed) = rememberSaveable { mutableStateOf(false) }
     val (checked, onCheckedChange) = rememberSaveable { mutableStateOf(false) }
@@ -178,6 +184,13 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
                 viewModel.login { result ->
                     when (result) {
                         is LoginResult.Success -> {
+                            val user = result.user
+                            authViewModel.setLoggedInUser(
+                                LoggedInUser(
+                                    username = user.username,
+                                    email = user.email,
+                                )
+                            )
                             navController.popBackStack()
                             navController.navigate(Screen.Home.route)
                             showDialog = false
