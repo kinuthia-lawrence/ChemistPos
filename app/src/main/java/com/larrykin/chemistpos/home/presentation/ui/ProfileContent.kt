@@ -23,12 +23,17 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.larrykin.chemistpos.authentication.data.Role
+import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
 import com.larrykin.chemistpos.core.presentation.viewModels.LoggedInUser
+import java.util.Date
 
 @Composable
 fun ProfileContent(
@@ -37,6 +42,16 @@ fun ProfileContent(
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showLogoutDialog = remember { mutableStateOf(false) }
+    if (showLogoutDialog.value) {
+       CustomAlertDialogWithChoice(
+           title = "Logout",
+           message = "Are you sure you want to logout?",
+           onDismiss = { showLogoutDialog.value = false },
+           onConfirm = { onLogout() },
+           alertState = "confirm"
+       )
+    }
     Card(
         modifier = modifier
             .padding(top = 80.dp, bottom = 0.dp, start = 80.dp, end = 0.dp)
@@ -74,7 +89,18 @@ fun ProfileContent(
                 color = Color.Black,
                 fontStyle =  FontStyle.Italic
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Email : ${userProfile.email}", color = Color.Black,fontStyle =  FontStyle.Italic)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Role : ${userProfile.role}", color = Color.Black,fontStyle =  FontStyle.Italic)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Chemist Name : ${userProfile.chemistName}", color = Color.Black,fontStyle =  FontStyle.Italic)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Phone Number : ${userProfile.phoneNumber}", color = Color.Black,fontStyle =  FontStyle.Italic)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Created At : ${userProfile.createdAt}", color = Color.Black,fontStyle =  FontStyle.Italic)
+
+
 
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedButton(onClick = onEdit) {
@@ -85,7 +111,7 @@ fun ProfileContent(
             HorizontalDivider()
             Spacer(modifier = Modifier.height(4.dp))
             // Button for logout
-            ElevatedButton(onClick = onLogout) {
+            ElevatedButton(onClick = { showLogoutDialog.value = true }) {
                 Text(text = "Logout")
             }
         }
@@ -98,7 +124,11 @@ fun ProfileContentPreview() {
     ProfileContent(
         userProfile = LoggedInUser(
             username = "JohnDoe",
-            email = "johndoe@gmail.com"
+            email = "johndoe@gmail.com",
+            role = Role.ADMIN,
+            chemistName = "Chemist Name",
+            phoneNumber = 748590146,
+            createdAt = Date(2024, 10, 10)
         ),
         onEdit = {},
         onLogout = {}

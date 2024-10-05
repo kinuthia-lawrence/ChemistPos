@@ -25,10 +25,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.core.presentation.viewModels.AuthViewModel
 import com.larrykin.chemistpos.core.presentation.viewModels.LoggedInUser
 import com.larrykin.chemistpos.home.presentation.viewModels.ProfileViewModel
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @Composable
 fun HomeScreen(
@@ -53,6 +55,10 @@ fun HomeScreen(
         profileViewModel.user.value = LoggedInUser(
             username = user.username,
             email = user.email,
+            role = user.role,
+            chemistName = user.chemistName,
+            phoneNumber = user.phoneNumber,
+            createdAt = user.createdAt,
 //            profilePictureUrl = user.profilePictureUrl //todo: fetch profile picture
         )
     }
@@ -75,6 +81,10 @@ fun HomeScreen(
                         userProfile = LoggedInUser(
                             username = user.username,
                             email = user.email,
+                            role = user.role,
+                            chemistName = user.chemistName,
+                            phoneNumber = user.phoneNumber,
+                            createdAt = user.createdAt,
 //                            profilePictureUrl = user.profilePictureUrl
                         ),
                         onEdit = { /*todo: Navigate to edit profile screen */ },
@@ -86,9 +96,13 @@ fun HomeScreen(
                         userProfile = LoggedInUser(
                             username = "Username",
                             email = "example@gmail.com",
+                            role = Role.ADMIN,
+                            chemistName = "Chemist Name",
+                            phoneNumber = 748590146,
+                            createdAt =  Date(2024, 10, 10),
                         ),
                         onEdit = { /*TODO*/ },
-                        onLogout = { /*TODO*/ }
+                        onLogout = { onLogout(parentNavController, authViewModel) }
                     )
                 }
 
@@ -138,6 +152,8 @@ fun HomeScreen(
 
 // Logout method
 fun onLogout(navController: NavController, authViewModel: AuthViewModel) {
+
+
     authViewModel.clearLoggedInUser() // Clear user session
     navController.navigate("login") {
         popUpTo(0) // Clear the back stack

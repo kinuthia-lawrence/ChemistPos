@@ -195,6 +195,10 @@ fun LoginScreen(
                                 LoggedInUser(
                                     username = user.username,
                                     email = user.email,
+                                    role = user.role,
+                                    chemistName = user.chemistName,
+                                    phoneNumber = user.phoneNumber,
+                                    createdAt = user.createdAt
                                 )
                             )
                             navController.popBackStack()
