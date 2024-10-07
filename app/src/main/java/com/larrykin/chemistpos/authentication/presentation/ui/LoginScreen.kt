@@ -1,5 +1,6 @@
 package com.larrykin.chemistpos.authentication.presentation.ui
 
+import android.util.Log
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -24,8 +25,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -54,18 +53,17 @@ import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginResul
 import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
 import com.larrykin.chemistpos.core.naviagation.Screen
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
-import com.larrykin.chemistpos.core.presentation.viewModels.AuthViewModel
-import com.larrykin.chemistpos.core.presentation.viewModels.LoggedInUser
+import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.home.presentation.ui.HelpScreen
+import com.larrykin.chemistpos.home.presentation.viewModels.ProfileViewModel
 
 val defaultPadding = 16.dp
 val itemSpacing = 16.dp
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = hiltViewModel(),
-    navController: NavController,
-    authViewModel: AuthViewModel = hiltViewModel()
+    viewModel: LoginViewModel,
+    navController: NavController
 ) {
     var loginState by remember { mutableStateOf("") }
     val (isRed, setIsRed) = rememberSaveable { mutableStateOf(false) }
@@ -191,17 +189,8 @@ fun LoginScreen(
                     when (result) {
                         is LoginResult.Success -> {
                             val user = result.user
-                            authViewModel.setLoggedInUser(
-                                LoggedInUser(
-                                    username = user.username,
-                                    email = user.email,
-                                    role = user.role,
-                                    chemistName = user.chemistName,
-                                    phoneNumber = user.phoneNumber,
-                                    createdAt = user.createdAt
-                                )
-                            )
-                            navController.popBackStack()
+                            Log.d("LoggedInUser", " in LoginScreen: Email: ${user.email}, username: ${user.username}, role: ${user.role}")
+//                            navController.popBackStack()
                             navController.navigate(Screen.Home.route)
                             showDialog = false
                             setIsRed(false)

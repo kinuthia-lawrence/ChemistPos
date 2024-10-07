@@ -1,58 +1,47 @@
 package com.larrykin.chemistpos.home.presentation.viewModels
 
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.larrykin.chemistpos.authentication.domain.UserRepository
-import com.larrykin.chemistpos.core.presentation.viewModels.LoggedInUser
+import com.larrykin.chemistpos.core.data.LoggedInUser
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository // Repository to interact with user data
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
-    // State for the user profile
-    var user = mutableStateOf<LoggedInUser?>(null)
-        private set
+    // Variable to hold the user profile
+    private var _user: LoggedInUser? = null
 
-    init {
-        // Load the current user's profile when the view model is initialized
-        loadUserProfile()
+    // Function to set the user profile
+    fun setUser(loggedInUser: LoggedInUser) {
+        _user = loggedInUser
+        Log.d("LoggedInUser", " in setUser LoggedIn User set: $_user")
+        checkUser()
     }
 
-    // Function to load user profile data
-    private fun loadUserProfile() {
-        viewModelScope.launch {
-            // Fetch the currently logged-in user (implementation may vary)
-//            user.value = userRepository.getCurrentUser() // Assume this method retrieves the current user
+    private fun checkUser() {
+        Log.d("LoggedInUser", "Checking user: $_user")
+    }
+
+    // Function to get the user profile
+    fun getUser(): LoggedInUser? {
+        return _user
+        checkUser()
+    }
+
+    // Function to clear the user profile
+    fun onLogout(navController: NavController) {
+        Log.d("LoggedInUser", "Logging out user: $_user")
+        _user = null
+        navController.navigate("login") {
+            popUpTo(0) // Clear the back stack
+            launchSingleTop = true // Prevents creating duplicate instances of the login screen
         }
+        Log.d("LoggedInUser", "Logout successful in profileViewModel")
+        checkUser()
     }
-
-    // Function to handle user edit action
-    fun editUserDetails(newUsername: String, newEmail: String) {
-        viewModelScope.launch {
-            // Update user details in the repository
-//            userRepository.updateUserDetails(newUsername, newEmail)
-            // Reload the user profile to get updated data
-            loadUserProfile()
-        }
-    }
-
-    // Function to handle user logout
-    fun logout(onLogout: () -> Unit) {
-        viewModelScope.launch {
-//            userRepository.logoutUser()
-            onLogout() // Call the logout callback
-        }
-    }
-//    fun onLogout(navController: NavController, authViewModel: AuthViewModel) {
-//        authViewModel.clearLoggedInUser() // Clear user session
-//        navController.navigate("login") {
-//            popUpTo(0) // Clear the back stack
-//        }
-//    }
-
 }

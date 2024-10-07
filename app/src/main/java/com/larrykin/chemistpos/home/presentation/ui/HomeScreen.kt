@@ -1,33 +1,31 @@
 package com.larrykin.chemistpos.home.presentation.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.larrykin.chemistpos.authentication.data.Role
-import com.larrykin.chemistpos.core.presentation.viewModels.AuthViewModel
-import com.larrykin.chemistpos.core.presentation.viewModels.LoggedInUser
+import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
+import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.home.presentation.viewModels.ProfileViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -35,8 +33,7 @@ import java.util.Date
 @Composable
 fun HomeScreen(
     parentNavController: NavHostController = rememberNavController(),
-    authViewModel: AuthViewModel = hiltViewModel(),
-    profileViewModel: ProfileViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel ,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val profileDrawerState = rememberDrawerState(DrawerValue.Closed)
@@ -47,21 +44,8 @@ fun HomeScreen(
     val currentBackStackEntry = innerNavController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry.value?.destination?.route ?: "dashboard"
 
-    // Collect the logged-in user from the AuthViewModel
-    val loggedInUser by authViewModel.loggedInUser.collectAsState()
-
-    // Load the user profile in the ProfileViewModel
-    loggedInUser?.let { user ->
-        profileViewModel.user.value = LoggedInUser(
-            username = user.username,
-            email = user.email,
-            role = user.role,
-            chemistName = user.chemistName,
-            phoneNumber = user.phoneNumber,
-            createdAt = user.createdAt,
-//            profilePictureUrl = user.profilePictureUrl //todo: fetch profile picture
-        )
-    }
+// Get user profile from profileViewModel
+    val loggedInUser = loginViewModel.loggedInUser
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -76,22 +60,16 @@ fun HomeScreen(
         ModalNavigationDrawer(
             drawerState = profileDrawerState,
             drawerContent = {
+                Log.d("LoggedInUser", "HomeScreen 1: ${loggedInUser.toString()}")
                 loggedInUser?.let { user ->
                     ProfileContent(
-                        userProfile = LoggedInUser(
-                            username = user.username,
-                            email = user.email,
-                            role = user.role,
-                            chemistName = user.chemistName,
-                            phoneNumber = user.phoneNumber,
-                            createdAt = user.createdAt,
-//                            profilePictureUrl = user.profilePictureUrl
-                        ),
+                        userProfile = user,
                         onEdit = { /*todo: Navigate to edit profile screen */ },
-                        onLogout = { onLogout(parentNavController, authViewModel) }
+                        onLogout = { loginViewModel.onLogout(parentNavController) }
                     )
+                    Log.d("LoggedInUser", "HomeScreen 2: ${user.toString()}")
                 } ?: run {
-                    //show placeholder
+                    // Show placeholder
                     ProfileContent(
                         userProfile = LoggedInUser(
                             username = "Username",
@@ -99,13 +77,12 @@ fun HomeScreen(
                             role = Role.ADMIN,
                             chemistName = "Chemist Name",
                             phoneNumber = 748590146,
-                            createdAt =  Date(2024, 10, 10),
+                            createdAt = Date(2024, 10, 10),
                         ),
                         onEdit = { /*TODO*/ },
-                        onLogout = { onLogout(parentNavController, authViewModel) }
+                        onLogout = { loginViewModel.onLogout(parentNavController) }
                     )
                 }
-
             }
         ) {
             Scaffold(
@@ -150,22 +127,10 @@ fun HomeScreen(
     }
 }
 
-// Logout method
-fun onLogout(navController: NavController, authViewModel: AuthViewModel) {
-
-
-    authViewModel.clearLoggedInUser() // Clear user session
-    navController.navigate("login") {
-        popUpTo(0) // Clear the back stack
-        launchSingleTop = true // Prevents creating duplicate instances of the login screen
-    }
-}
-
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    val context = LocalContext.current
-    val navController = rememberNavController()
-    HomeScreen(navController)
-}
+//@Preview
+//@Composable
+//fun HomeScreenPreview() {
+//    val context = LocalContext.current
+//    val navController = rememberNavController()
+//    HomeScreen(navController)
+//}

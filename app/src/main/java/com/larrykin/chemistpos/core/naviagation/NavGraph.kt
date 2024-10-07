@@ -27,27 +27,27 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun NavGraph(navController: NavHostController) { //Parent NavHostController, for High-level navigation
+fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Screen.Splash.route) {
         composable(route = Screen.Splash.route) {
             SplashScreen(navController)
         }
         composable(route = Screen.Login.route) {
-            //Obtain the loginViewModel within the composable function
-            val viewModel: LoginViewModel = hiltViewModel()
-            LoginScreen(viewModel, navController)
+           val loginViewModel: LoginViewModel = hiltViewModel()
+            LoginScreen(loginViewModel, navController)
         }
-        composable(route = Screen.ForgotPassword.route){
-            //Obtain the forgotPasswordViewModel within the composable function
+        composable(route = Screen.ForgotPassword.route) {
             val viewModel: ForgotPasswordViewModel = hiltViewModel()
-            ForgotPasswordScreen(viewModel,navController)
+            ForgotPasswordScreen(viewModel, navController)
         }
         composable(route = Screen.Register.route) {
             val viewModel: RegisterViewModel = hiltViewModel()
             RegisterScreen(viewModel, navController)
         }
         composable(route = Screen.Home.route) {
-            HomeScreen(navController)
+            // Obtain the LoginViewModel from the parent NavBackStackEntry
+            val loginViewModel: LoginViewModel = hiltViewModel(navController.getBackStackEntry(Screen.Login.route))
+            HomeScreen(navController, loginViewModel)
         }
     }
 }

@@ -1,12 +1,15 @@
 package com.larrykin.chemistpos.authentication.presentation.viewModels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.authentication.domain.UserRepository
+import com.larrykin.chemistpos.core.data.LoggedInUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,15 +20,13 @@ sealed class LoginResult {
     object UserNotFound : LoginResult()
 }
 
-
-@HiltViewModel //this marks the viewModel for Hilt to inject dependencies
+@HiltViewModel
 class LoginViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
-    //hold states
     var username by mutableStateOf("")
     var password by mutableStateOf("")
-
+    var loggedInUser by mutableStateOf<LoggedInUser?>(null) // Add this property
 
     fun login(onResult: (LoginResult) -> Unit) {
         viewModelScope.launch {
@@ -33,12 +34,28 @@ class LoginViewModel @Inject constructor(
                 val usernameLower = username.trim().lowercase()
                 val user = repository.loginUser(usernameLower, password)
                 if (user != null) {
-                    onResult(LoginResult.Success(user)) // Return user details
+                    loggedInUser = LoggedInUser(
+                        username = user.username,
+                        email = user.email,
+                        role = user.role,
+                        chemistName = user.chemistName,
+                        phoneNumber = user.phoneNumber,
+                        createdAt = user.createdAt
+                    )
+                    onResult(LoginResult.Success(user))
                 } else {
                     val emailLower = username.trim().lowercase()
                     val userByEmail = repository.loginUserByEmail(emailLower, password)
                     if (userByEmail != null) {
-                        onResult(LoginResult.Success(userByEmail)) // Return user details
+                        loggedInUser = LoggedInUser(
+                            username = userByEmail.username,
+                            email = userByEmail.email,
+                            role = userByEmail.role,
+                            chemistName = userByEmail.chemistName,
+                            phoneNumber = userByEmail.phoneNumber,
+                            createdAt = userByEmail.createdAt
+                        )
+                        onResult(LoginResult.Success(userByEmail))
                     } else {
                         onResult(LoginResult.UserNotFound)
                     }
@@ -48,5 +65,13 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
-
+    fun onLogout(navController: NavController) {
+        Log.d("LoggedInUser", "Logging out user: $loggedInUser")
+        loggedInUser = null
+        navController.navigate("login") {
+            popUpTo(0) // Clear the back stack
+            launchSingleTop = true // Prevents creating duplicate instances of the login screen
+        }
+        Log.d("LoggedInUser", "Logout successful in profileViewModel")
+    }
 }

@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     kotlin("kapt")
+    id ("org.jetbrains.kotlin.plugin.parcelize")
     alias(libs.plugins.google.dagger.hilt.android)
+
 }
 
 android {
@@ -63,6 +65,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.runtime.livedata)//live data
     //testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

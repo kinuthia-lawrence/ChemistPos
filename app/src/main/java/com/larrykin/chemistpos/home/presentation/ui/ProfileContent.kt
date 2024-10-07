@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
-import com.larrykin.chemistpos.core.presentation.viewModels.LoggedInUser
+import com.larrykin.chemistpos.core.data.LoggedInUser
 import java.util.Date
 
 @Composable
@@ -43,6 +42,8 @@ fun ProfileContent(
     modifier: Modifier = Modifier
 ) {
     var showLogoutDialog = remember { mutableStateOf(false) }
+    var showEditProfileDialog = remember { mutableStateOf(false) }
+
     if (showLogoutDialog.value) {
        CustomAlertDialogWithChoice(
            title = "Logout",
@@ -51,6 +52,11 @@ fun ProfileContent(
            onConfirm = { onLogout() },
            alertState = "confirm"
        )
+    }
+    if (showEditProfileDialog.value) {
+        AlertDialog(
+            onDismissRequest = { /*TODO*/ },
+            confirmButton = { /*TODO*/ })
     }
     Card(
         modifier = modifier
@@ -99,8 +105,6 @@ fun ProfileContent(
             Text(text = "Phone Number : ${userProfile.phoneNumber}", color = Color.Black,fontStyle =  FontStyle.Italic)
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Created At : ${userProfile.createdAt}", color = Color.Black,fontStyle =  FontStyle.Italic)
-
-
 
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedButton(onClick = onEdit) {
