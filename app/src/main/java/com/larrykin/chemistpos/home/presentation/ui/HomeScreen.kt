@@ -33,7 +33,7 @@ import java.util.Date
 @Composable
 fun HomeScreen(
     parentNavController: NavHostController = rememberNavController(),
-    loginViewModel: LoginViewModel ,
+    loginViewModel: LoginViewModel,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val profileDrawerState = rememberDrawerState(DrawerValue.Closed)
@@ -90,8 +90,20 @@ fun HomeScreen(
                     StatusBar(
                         onMenuClick = { scope.launch { drawerState.open() } },
                         onProfileClick = { scope.launch { profileDrawerState.open() } },
-                        onNotificationClick = { innerNavController.navigate("notification") },
-                        onInfoClick = { innerNavController.navigate("help") }
+                        onNotificationClick = {
+                            innerNavController.navigate("notification") {
+                                popUpTo(innerNavController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                            }
+                        },
+                        onInfoClick = {
+                            innerNavController.navigate("help") {
+                                popUpTo(innerNavController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                            }
+                        }
                     )
                 },
                 bottomBar = {
@@ -127,10 +139,11 @@ fun HomeScreen(
     }
 }
 
-//@Preview
-//@Composable
-//fun HomeScreenPreview() {
-//    val context = LocalContext.current
-//    val navController = rememberNavController()
-//    HomeScreen(navController)
-//}
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    val context = LocalContext.current
+    val navController = rememberNavController()
+    val loginViewModel: LoginViewModel = hiltViewModel()
+    HomeScreen(navController, loginViewModel)
+}
