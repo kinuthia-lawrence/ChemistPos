@@ -105,9 +105,24 @@ class UserRepositoryImplementation @Inject constructor(private val userDao: User
             AuthResult.Error(e.message ?: "Unknown error")
         }
     }
-   /*      //   in view model
-        when (val result = repository.insertUser(user)) {
-            is Result.Success -> onResult(RegisterResult.Success)
-            is Result.Error -> onResult(RegisterResult.Error(result.message))
-        }*/
+
+    override suspend fun updateProfilePicture(email: String, newUrl: String): User? {
+        return try {
+            val user = userDao.getUserByEmail(email).firstOrNull()
+            if (user != null) {
+                user.profilePictureUrl = newUrl
+                userDao.updateUser(user)
+                userDao.getUserByEmail(email).firstOrNull()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+    /*      //   in view model
+         when (val result = repository.insertUser(user)) {
+             is Result.Success -> onResult(RegisterResult.Success)
+             is Result.Error -> onResult(RegisterResult.Error(result.message))
+         }*/
 }

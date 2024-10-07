@@ -17,4 +17,5 @@ interface UserRepository{
     suspend fun getAllUsers(): Flow<GetAllUsersResult>
     suspend fun updateUser(user: User): User?
     suspend fun deleteUser(user: User): AuthResult<String>
+    suspend fun updateProfilePicture(email: String, newUrl: String): User?
 }

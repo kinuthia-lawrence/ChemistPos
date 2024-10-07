@@ -1,5 +1,6 @@
 package com.larrykin.chemistpos.home.presentation.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,12 +27,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
 import com.larrykin.chemistpos.core.data.LoggedInUser
+import com.larrykin.chemistpos.home.presentation.viewModels.ProfileViewModel
 import java.util.Date
 
 @Composable
@@ -39,10 +43,15 @@ fun ProfileContent(
     userProfile: LoggedInUser,
     onEdit: () -> Unit,
     onLogout: () -> Unit,
-    modifier: Modifier = Modifier
+    profileViewModel: ProfileViewModel,
+    parentNavController: NavController,
+    modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     var showLogoutDialog = remember { mutableStateOf(false) }
     var showEditProfileDialog = remember { mutableStateOf(false) }
+
+
 
     if (showLogoutDialog.value) {
        CustomAlertDialogWithChoice(
@@ -54,9 +63,13 @@ fun ProfileContent(
        )
     }
     if (showEditProfileDialog.value) {
-        AlertDialog(
-            onDismissRequest = { /*TODO*/ },
-            confirmButton = { /*TODO*/ })
+       CustomAlertDialogWithChoice(
+           title = "Edit Profile",
+           message = "Are you sure you want to edit your profile?, you will require Admin privileges",
+           onDismiss = { showEditProfileDialog.value = false },
+           onConfirm = { parentNavController.navigate("settings") },
+           alertState = "confirm"
+       )
     }
     Card(
         modifier = modifier
@@ -80,7 +93,7 @@ fun ProfileContent(
                     contentDescription = "Profile Picture",
                     modifier = Modifier.size(80.dp)
                 )
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { Toast.makeText(context, "Adding Profile Picture Coming Soon!", Toast.LENGTH_SHORT).show() }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Edit Profile Picture"
@@ -122,19 +135,3 @@ fun ProfileContent(
     }
 }
 
-@Preview
-@Composable
-fun ProfileContentPreview() {
-    ProfileContent(
-        userProfile = LoggedInUser(
-            username = "JohnDoe",
-            email = "johndoe@gmail.com",
-            role = Role.ADMIN,
-            chemistName = "Chemist Name",
-            phoneNumber = 748590146,
-            createdAt = Date(2024, 10, 10)
-        ),
-        onEdit = {},
-        onLogout = {}
-    )
-}

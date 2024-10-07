@@ -16,6 +16,7 @@ import com.larrykin.chemistpos.home.presentation.ui.DashboardScreen
 import com.larrykin.chemistpos.home.presentation.ui.HelpScreen
 import com.larrykin.chemistpos.home.presentation.ui.HomeScreen
 import com.larrykin.chemistpos.home.presentation.ui.NotificationScreen
+import com.larrykin.chemistpos.home.presentation.ui.SettingsScreen
 
 //sealed class is a class that can only be inherited by classes declared in the same file
 sealed class Screen(val route: String) {
@@ -24,6 +25,7 @@ sealed class Screen(val route: String) {
     data object ForgotPassword : Screen("forgot_password")
     data object Register : Screen("register")
     data object Home : Screen("home")
+    data object Settings: Screen("settings")
 }
 
 @Composable
@@ -48,6 +50,9 @@ fun NavGraph(navController: NavHostController) {
             // Obtain the LoginViewModel from the parent NavBackStackEntry
             val loginViewModel: LoginViewModel = hiltViewModel(navController.getBackStackEntry(Screen.Login.route))
             HomeScreen(navController, loginViewModel)
+        }
+        composable(route= Screen.Settings.route){
+            SettingsScreen()
         }
     }
 }

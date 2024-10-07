@@ -46,6 +46,7 @@ fun HomeScreen(
 
 // Get user profile from profileViewModel
     val loggedInUser = loginViewModel.loggedInUser
+    val profileViewModel: ProfileViewModel = hiltViewModel()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -53,21 +54,23 @@ fun HomeScreen(
             ModalDrawerSheet(
                 modifier = Modifier.padding(end = 120.dp)
             ) {
-                MenuContent()
+                MenuContent(
+                    parentNavController = parentNavController
+                )
             }
         }
     ) {
         ModalNavigationDrawer(
             drawerState = profileDrawerState,
             drawerContent = {
-                Log.d("LoggedInUser", "HomeScreen 1: ${loggedInUser.toString()}")
                 loggedInUser?.let { user ->
                     ProfileContent(
                         userProfile = user,
                         onEdit = { /*todo: Navigate to edit profile screen */ },
-                        onLogout = { loginViewModel.onLogout(parentNavController) }
+                        onLogout = { loginViewModel.onLogout(parentNavController) },
+                        profileViewModel = profileViewModel,
+                        parentNavController = parentNavController
                     )
-                    Log.d("LoggedInUser", "HomeScreen 2: ${user.toString()}")
                 } ?: run {
                     // Show placeholder
                     ProfileContent(
@@ -80,7 +83,9 @@ fun HomeScreen(
                             createdAt = Date(2024, 10, 10),
                         ),
                         onEdit = { /*TODO*/ },
-                        onLogout = { loginViewModel.onLogout(parentNavController) }
+                        onLogout = { loginViewModel.onLogout(parentNavController) },
+                        profileViewModel = profileViewModel,
+                        parentNavController = parentNavController
                     )
                 }
             }

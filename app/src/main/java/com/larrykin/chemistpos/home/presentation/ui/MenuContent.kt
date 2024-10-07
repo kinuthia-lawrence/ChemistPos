@@ -13,11 +13,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 
 @Composable
-fun MenuContent() {
+fun MenuContent(
+    parentNavController: NavHostController
+) {
     Spacer(modifier = Modifier.height(48.dp))
     Text("Menu", modifier = Modifier.padding(16.dp))
     HorizontalDivider()
@@ -32,5 +36,6 @@ fun MenuContent() {
 @Preview
 @Composable
 fun SidebarContentPreview() {
-    MenuContent()
+    val parentNavController = NavHostController(LocalContext.current)
+    MenuContent(parentNavController)
 }

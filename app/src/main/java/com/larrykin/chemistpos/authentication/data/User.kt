@@ -5,6 +5,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.Date
 
 //this file contains the data classes that represent the tables in the database, just @entity in springboot
@@ -29,4 +31,6 @@ data class User(
     val role: Role,
     @ColumnInfo(name = "created_at")
     val createdAt: Date = Date(),
+    @ColumnInfo(name = "profile_Picture_url")
+    var profilePictureUrl: String? = null
 )

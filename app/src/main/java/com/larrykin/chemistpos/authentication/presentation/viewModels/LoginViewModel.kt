@@ -66,12 +66,10 @@ class LoginViewModel @Inject constructor(
         }
     }
     fun onLogout(navController: NavController) {
-        Log.d("LoggedInUser", "Logging out user: $loggedInUser")
         loggedInUser = null
         navController.navigate("login") {
             popUpTo(0) // Clear the back stack
             launchSingleTop = true // Prevents creating duplicate instances of the login screen
         }
-        Log.d("LoggedInUser", "Logout successful in profileViewModel")
     }
 }

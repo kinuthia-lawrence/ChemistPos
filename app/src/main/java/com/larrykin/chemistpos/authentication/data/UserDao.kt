@@ -46,4 +46,9 @@ interface UserDao {
     //delete user
     @Delete
     suspend fun deleteUser(user: User): Int
+
+    //update profile picture
+    @Query("UPDATE users SET profile_picture_url = :newUrl WHERE email = :email")
+    suspend fun updateProfilePicture(email: String, newUrl: String) : Int
+
 }

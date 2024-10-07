@@ -189,7 +189,6 @@ fun LoginScreen(
                     when (result) {
                         is LoginResult.Success -> {
                             val user = result.user
-                            Log.d("LoggedInUser", " in LoginScreen: Email: ${user.email}, username: ${user.username}, role: ${user.role}")
 //                            navController.popBackStack()
                             navController.navigate(Screen.Home.route)
                             showDialog = false
