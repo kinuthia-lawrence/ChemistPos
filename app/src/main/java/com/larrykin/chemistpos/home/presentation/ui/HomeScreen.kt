@@ -66,7 +66,6 @@ fun HomeScreen(
                 loggedInUser?.let { user ->
                     ProfileContent(
                         userProfile = user,
-                        onEdit = { /*todo: Navigate to edit profile screen */ },
                         onLogout = { loginViewModel.onLogout(parentNavController) },
                         profileViewModel = profileViewModel,
                         parentNavController = parentNavController
@@ -82,7 +81,6 @@ fun HomeScreen(
                             phoneNumber = 748590146,
                             createdAt = Date(2024, 10, 10),
                         ),
-                        onEdit = { /*TODO*/ },
                         onLogout = { loginViewModel.onLogout(parentNavController) },
                         profileViewModel = profileViewModel,
                         parentNavController = parentNavController

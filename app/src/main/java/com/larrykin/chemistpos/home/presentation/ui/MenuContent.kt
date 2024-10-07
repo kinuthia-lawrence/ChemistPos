@@ -29,7 +29,7 @@ fun MenuContent(
         label = { Text(text = "Settings") },
         icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings Icon") },
         selected = false,
-        onClick = { /*TODO*/ }
+        onClick = { parentNavController.navigate("settings") }
     )
 }
 

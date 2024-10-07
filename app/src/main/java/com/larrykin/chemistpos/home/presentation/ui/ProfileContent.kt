@@ -41,7 +41,6 @@ import java.util.Date
 @Composable
 fun ProfileContent(
     userProfile: LoggedInUser,
-    onEdit: () -> Unit,
     onLogout: () -> Unit,
     profileViewModel: ProfileViewModel,
     parentNavController: NavController,
@@ -120,7 +119,7 @@ fun ProfileContent(
             Text(text = "Created At : ${userProfile.createdAt}", color = Color.Black,fontStyle =  FontStyle.Italic)
 
             Spacer(modifier = Modifier.height(16.dp))
-            OutlinedButton(onClick = onEdit) {
+            OutlinedButton(onClick = { showEditProfileDialog.value = true }) {
                 Text(text = "Edit Profile")
             }
 
