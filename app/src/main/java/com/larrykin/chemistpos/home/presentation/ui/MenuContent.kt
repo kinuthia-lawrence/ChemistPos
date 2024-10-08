@@ -29,7 +29,7 @@ fun MenuContent(
         label = { Text(text = "Settings") },
         icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings Icon") },
         selected = false,
-        onClick = { parentNavController.navigate("settings") }
+        onClick = { parentNavController.navigate("login_as_admin") }
     )
 }
 

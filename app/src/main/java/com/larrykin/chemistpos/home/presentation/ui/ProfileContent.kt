@@ -66,7 +66,7 @@ fun ProfileContent(
            title = "Edit Profile",
            message = "Are you sure you want to edit your profile?, you will require Admin privileges",
            onDismiss = { showEditProfileDialog.value = false },
-           onConfirm = { parentNavController.navigate("settings") },
+           onConfirm = { parentNavController.navigate("login_as_admin") },
            alertState = "confirm"
        )
     }

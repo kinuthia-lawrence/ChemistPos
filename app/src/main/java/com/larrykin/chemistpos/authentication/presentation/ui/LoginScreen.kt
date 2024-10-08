@@ -69,7 +69,7 @@ fun LoginScreen(
     val (isRed, setIsRed) = rememberSaveable { mutableStateOf(false) }
     val (checked, onCheckedChange) = rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
-    var showDialog by remember { mutableStateOf(false) }
+        var showDialog by remember { mutableStateOf(false) }
     var navigateToForgotPassword by remember { mutableStateOf(false) }
     var navigateToRegister by remember { mutableStateOf(false) }
 
@@ -202,6 +202,11 @@ fun LoginScreen(
 
                         is LoginResult.Error -> {
                             loginState = "Error: ${result.message}"
+                            setIsRed(true)
+                        }
+
+                        else -> {
+                            loginState = "Unknown error"
                             setIsRed(true)
                         }
                     }
