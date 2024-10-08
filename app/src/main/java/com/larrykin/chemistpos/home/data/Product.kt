@@ -9,8 +9,10 @@ import java.util.Date
 data class Product(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "category") val category: String,
-    @ColumnInfo(name = "min_quantity") val minQuantity: Int,
+    @ColumnInfo(name = "company") val company: String,
+    @ColumnInfo(name = "formulation") val formulation: String,
+    @ColumnInfo(name = "min_stock") val minStock: Int,
+    @ColumnInfo(name = "min_measure") val minMeasure: Int,
     @ColumnInfo(name = "quantity_available") val quantityAvailable: Int,
     @ColumnInfo(name = "buying_price") val buyingPrice: Double,
     @ColumnInfo(name = "retail_selling_price") val retailSellingPrice: Double,

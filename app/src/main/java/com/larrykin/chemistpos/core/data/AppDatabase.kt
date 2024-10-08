@@ -11,7 +11,7 @@ import com.larrykin.chemistpos.home.data.Product
 
 @Database(
     entities =[User::class, Product::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class) //specifying the type converter class
