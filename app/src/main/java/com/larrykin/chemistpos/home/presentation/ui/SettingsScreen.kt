@@ -83,23 +83,59 @@ fun SettingsScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    IconButton(onClick = { scope.launch { listState.scrollToItem(0) } }) {
-                        Icon(imageVector = Icons.Default.Person, contentDescription = "Users")
+                    IconButton(
+                        onClick = { scope.launch { listState.scrollToItem(0) } },
+                        modifier = Modifier.size(80.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Person, contentDescription = null)
+                            Text(text = "Users", modifier = Modifier.padding(top = 8.dp))
+                        }
                     }
-                    IconButton(onClick = {
-                        scope.launch { listState.scrollToItem(1) }
-                        isCreateUser = true
-                    }) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Create User")
+                    IconButton(
+                        onClick = {
+                            scope.launch { listState.scrollToItem(1) }
+                            isCreateUser = true
+                        },
+                        modifier = Modifier.size(80.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                            Text(text = "Create", modifier = Modifier.padding(top = 8.dp))
+                        }
                     }
-                    IconButton(onClick = {
-                        scope.launch { listState.scrollToItem(1) }
-                        isCreateUser = false
-                    }) {
-                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Update User")
+                    IconButton(
+                        onClick = {
+                            scope.launch { listState.scrollToItem(1) }
+                            isCreateUser = false
+                        },
+                        modifier = Modifier.size(80.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                            Text(text = "Update", modifier = Modifier.padding(top = 8.dp))
+                        }
                     }
-                    IconButton(onClick = { scope.launch { listState.scrollToItem(2) } }) {
-                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More")
+                    IconButton(
+                        onClick = { scope.launch { listState.scrollToItem(2) } },
+                        modifier = Modifier.size(80.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                            Text(text = "More", modifier = Modifier.padding(top = 8.dp))
+                        }
                     }
                 }
             }
@@ -150,7 +186,7 @@ fun Users(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp),
 
-    ) {
+        ) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
@@ -168,7 +204,7 @@ fun Users(
                 Text(text = "No users found")
             } else {
                 users.forEach { user ->
-                    UserCard( settingsViewModel = settingsViewModel, user = user)
+                    UserCard(settingsViewModel = settingsViewModel, user = user)
                 }
             }
 
@@ -187,7 +223,7 @@ fun UserCard(
     var showSuccessDialog by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf(false) }
 
-    if(showSuccessDialog){
+    if (showSuccessDialog) {
         CustomAlertDialog(
             title = "Success",
             message = "User deleted successfully",
@@ -195,7 +231,7 @@ fun UserCard(
             alertState = "success"
         )
     }
-    if(showErrorDialog){
+    if (showErrorDialog) {
         CustomAlertDialog(
             title = "Error",
             message = "Error deleting user",
@@ -204,17 +240,17 @@ fun UserCard(
         )
     }
 
-    if(isDeleteUser){
+    if (isDeleteUser) {
         CustomAlertDialogWithChoice(
             title = "Delete User",
             message = "Are you sure you want to delete this user?, this action cannot be undone!!",
             onDismiss = { isDeleteUser = false },
             onConfirm = {
                 settingsViewModel.deleteUser(user) { result ->
-                  if(result){
-                      showSuccessDialog = true
-                    }else{
-                       showErrorDialog = true
+                    if (result) {
+                        showSuccessDialog = true
+                    } else {
+                        showErrorDialog = true
                     }
                 }
             },
@@ -241,12 +277,12 @@ fun UserCard(
             Text(text = "Role: ${user.role}", style = MaterialTheme.typography.bodyLarge)
             Text(text = "Password: ${user.password}", style = MaterialTheme.typography.bodyLarge)
 
-            if(user.role != Role.ADMIN){
+            if (user.role != Role.ADMIN) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = {isDeleteUser = true},
+                    onClick = { isDeleteUser = true },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                ){
+                ) {
                     Text(text = "Delete User", color = Color.White)
                 }
             }
@@ -505,7 +541,10 @@ fun More(
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "More")
+            Text(
+                text = "No more settings available for now :)",
+                style = MaterialTheme.typography.titleLarge
+            )
         }
     }
 }
