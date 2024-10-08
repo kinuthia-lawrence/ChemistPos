@@ -7,13 +7,11 @@ import androidx.room.TypeConverters
 import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.authentication.data.UserDao
 import com.larrykin.chemistpos.core.converters.Converters
+import com.larrykin.chemistpos.home.data.Product
 
 @Database(
-    entities =[User::class],
-    version = 2,
-//    autoMigrations = [
-//        AutoMigration (from = 1, to = 2)
-//    ],
+    entities =[User::class, Product::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class) //specifying the type converter class
