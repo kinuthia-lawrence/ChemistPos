@@ -1,20 +1,36 @@
 package com.larrykin.chemistpos.home.presentation.ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.larrykin.chemistpos.core.data.LoggedInUser
-import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
-import com.larrykin.chemistpos.home.data.Product
-import java.util.*
 import android.app.DatePickerDialog
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import com.larrykin.chemistpos.authentication.components.CustomTextField
+import com.larrykin.chemistpos.components.HeaderText
+import com.larrykin.chemistpos.core.data.LoggedInUser
+import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
+import com.larrykin.chemistpos.home.data.Product
+import com.larrykin.chemistpos.home.presentation.viewModels.StockResult
+import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
+import kotlinx.coroutines.launch
+import java.util.*
 
 @Composable
 fun StockScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
@@ -43,7 +59,10 @@ fun StockScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hil
 }
 
 @Composable
-fun AvailableStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
+fun AvailableStockContent(
+    loggedInUser: LoggedInUser,
+    stockViewModel: StockViewModel = hiltViewModel()
+) {
     val stockItems = listOf(
         "Item 1", "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1",
         "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1",
@@ -74,80 +93,184 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
     var expiryDate by remember { mutableStateOf<Date?>(null) }
     var description by remember { mutableStateOf("") }
 
+    var showErrorAlert by remember { mutableStateOf(false) }
+    var showSuccessAlert by remember { mutableStateOf(false) }
+    var errorAlert by remember { mutableStateOf(false) }
+
+
+    val formulations = listOf(
+        "Tablets", "Capsules", "Powders", "Granules", "Solutions", "Suspensions",
+        "Emulsions", "Gels", "Lotions", "Patches", "Inhalers", "Suppositories",
+        "Injectables", "Syrup", "Creams", "Ointments"
+    )
+    val isDropDownExpanded = remember {
+        mutableStateOf(false)
+    }
+
+    val itemPosition = remember {
+        mutableStateOf(0)
+    }
+
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
     val month = calendar.get(Calendar.MONTH)
     val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-    Column(modifier = Modifier.padding(16.dp)) {
+
+    if (showErrorAlert) {
+        CustomAlertDialog(
+            title = "Error",
+            message = "Please fill all fields",
+            onDismiss = { showErrorAlert = false },
+            alertState = "Error"
+        )
+    }
+    if (showSuccessAlert) {
+        CustomAlertDialog(
+            title = "Success",
+            message = "Product added successfully",
+            onDismiss = { showSuccessAlert = false },
+            alertState = "success"
+        )
+    }
+    if (errorAlert) {
+        CustomAlertDialog(
+            title = "Error",
+            message = "An error occurred",
+            onDismiss = { errorAlert = false },
+            alertState = "Error"
+        )
+    }
+
+    Column(
+        modifier = Modifier
+        .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HeaderText(
+            text = "Add Stock",
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
         TextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") },
+            label = { Text("Medicine Name") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        CustomTextField(
             value = company,
             onValueChange = { company = it },
-            label = { Text("Company") },
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Company Name",
+            leadingIcon = Icons.Default.CheckCircle,
+            keyboardType = KeyboardType.Text,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = formulation,
-            onValueChange = { formulation = it },
-            label = { Text("Formulation") },
-            modifier = Modifier.fillMaxWidth()
-        )
+
+        Column(
+            modifier = Modifier
+                .clip(shape = RoundedCornerShape(10.dp))
+                .background(color = Color(0xFFD3D3D3))
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            Box {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .clickable {
+                        isDropDownExpanded.value = true
+                    }
+                ) {
+                    Text(text = "Formulation : "+formulations[itemPosition.value])
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                }
+                DropdownMenu(
+                    expanded = isDropDownExpanded.value,
+                    onDismissRequest = {
+                        isDropDownExpanded.value = false
+                    }) {
+                    formulations.forEachIndexed { index, selectedFormulation ->
+                        DropdownMenuItem(text = {
+                            Text(text =selectedFormulation)
+                        },
+                            onClick = {
+                                isDropDownExpanded.value = false
+                                itemPosition.value = index
+                                formulation = formulations[index]
+                            })
+                    }
+                }
+            }
+
+        }
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        CustomTextField(
             value = minStock,
             onValueChange = { minStock = it },
-            label = { Text("Min Stock") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Minimum Stock",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        CustomTextField(
             value = minMeasure,
             onValueChange = { minMeasure = it },
-            label = { Text("Min Measure") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Minimum sellable Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        CustomTextField(
             value = quantityAvailable,
             onValueChange = { quantityAvailable = it },
-            label = { Text("Quantity Available") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Total number of Minimum Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        CustomTextField(
             value = buyingPrice,
             onValueChange = { buyingPrice = it },
-            label = { Text("Buying Price") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Buying Price per Minimum Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        CustomTextField(
             value = retailSellingPrice,
             onValueChange = { retailSellingPrice = it },
-            label = { Text("Retail Selling Price") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Retail Selling Price per Minimum Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        CustomTextField(
             value = wholesaleSellingPrice,
             onValueChange = { wholesaleSellingPrice = it },
-            label = { Text("Wholesale Selling Price") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Wholesale Selling Price per Minimum Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
@@ -168,15 +291,25 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
             Text(text = expiryDate?.toString() ?: "Select Expiry Date")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        CustomTextField(
             value = description,
             onValueChange = { description = it },
-            label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth()
+            labelText = "Description(optional)",
+            leadingIcon = Icons.Default.Edit,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
         )
-
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
+            //check if all fields are filled
+            if (name.isBlank() || company.isBlank() || formulation.isBlank() || minStock.isBlank() ||
+                minMeasure.isBlank() || quantityAvailable.isBlank() || buyingPrice.isBlank() ||
+                retailSellingPrice.isBlank() || wholesaleSellingPrice.isBlank() || supplierName.isBlank() ||
+                expiryDate == null
+            ) {
+                showErrorAlert = true
+                return@Button
+            }
             val product = Product(
                 name = name,
                 company = company,
@@ -192,10 +325,33 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
                 updatedAt = null,
                 addedBy = loggedInUser.username,
                 expiryDate = expiryDate ?: Date(),
-                description = description.ifEmpty { null }
+                description = if (description.isBlank()) null else description
             )
-//            stockViewModel.addProduct(product)
-            Log.d("StockViewModel", "Product added: $product")
+            stockViewModel.viewModelScope.launch {
+                stockViewModel.addProduct(product, onResult = {
+                    when (it) {
+                        is StockResult.Success -> {
+                            showSuccessAlert = true
+                            // clear all fields
+                            name = ""
+                            company = ""
+                            formulation = ""
+                            minStock = ""
+                            minMeasure = ""
+                            quantityAvailable = ""
+                            buyingPrice = ""
+                            retailSellingPrice = ""
+                            wholesaleSellingPrice = ""
+                            supplierName = ""
+                            expiryDate = null
+                            description = ""
+                        }
+                        is StockResult.Error -> {
+                            errorAlert = true
+                        }
+                    }
+                })
+            }
         }) {
             Text("Add Product")
         }
