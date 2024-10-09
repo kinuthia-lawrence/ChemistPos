@@ -78,4 +78,23 @@ class StockViewModel @Inject constructor(
             }
         }
     }
+
+    // Update product in the database
+    suspend fun updateProduct(product: Product, onResult: (StockResult) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val result = repository.updateProduct(product)
+                if (result != null) {
+                    // Refresh the UI by fetching the updated list of products
+                    getAllProducts { stockResult, _ ->
+                        onResult(stockResult)
+                    }
+                } else {
+                    onResult(StockResult.Error("Failed to update product"))
+                }
+            } catch (e: Exception) {
+                onResult(StockResult.Error(e.message ?: "Unknown error"))
+            }
+        }
+    }
 }

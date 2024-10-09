@@ -139,6 +139,7 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
         var showDeleteChoiceDialog by remember { mutableStateOf(false) }
         var showDeleteSuccessDialog by remember { mutableStateOf(false) }
         var showDeleteErrorDialog by remember { mutableStateOf(false) }
+        var showEditDialog by remember { mutableStateOf(false) }
 
         // Delete choice dialog
         if (showDeleteChoiceDialog) {
@@ -183,6 +184,30 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
                 message = "An error occurred deleting the product",
                 onDismiss = { showDeleteErrorDialog = false },
                 alertState = "error"
+            )
+        }
+
+        // Edit dialog
+        if (showEditDialog) {
+//            CustomAlertDialogWithChoice(
+//                title = "Edit Product",
+//                message = "Are you sure you want to edit this product?",
+//                onDismiss = { showEditDialog = false },
+//                onConfirm = {
+//                    EditProductDialog(
+//                        product = product,
+//                        loggedInUser = loggedInUser,
+//                        stockViewModel = stockViewModel,
+//                        onDismiss = { showEditDialog = false }
+//                    )
+//                },
+//                alertState = "confirm"
+//            )
+            EditProductDialog(
+                product = product,
+                loggedInUser = loggedInUser,
+                stockViewModel = stockViewModel,
+                onDismiss = { showEditDialog = false }
             )
         }
 
@@ -244,7 +269,7 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    IconButton(onClick = { /* Open edit dialog */ }) {
+                    IconButton(onClick = { showEditDialog = true }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
                     IconButton(onClick = { showDeleteChoiceDialog = true }) {
@@ -256,6 +281,269 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
     }
 }
 
+//Edit Stock Content
+@Composable
+fun EditProductDialog(
+    product: Product,
+    loggedInUser: LoggedInUser,
+    stockViewModel: StockViewModel,
+    onDismiss: () -> Unit
+) {
+    var name by remember { mutableStateOf(product.name) }
+    var company by remember { mutableStateOf(product.company) }
+    var minStock by remember { mutableStateOf(product.minStock.toString()) }
+    var minMeasure by remember { mutableStateOf(product.minMeasure.toString()) }
+    var quantityAvailable by remember { mutableStateOf(product.quantityAvailable.toString()) }
+    var buyingPrice by remember { mutableStateOf(product.buyingPrice.toString()) }
+    var retailSellingPrice by remember { mutableStateOf(product.retailSellingPrice.toString()) }
+    var wholesaleSellingPrice by remember { mutableStateOf(product.wholesaleSellingPrice.toString()) }
+    var supplierName by remember { mutableStateOf(product.supplierName) }
+    var expiryDate by remember { mutableStateOf(product.expiryDate) }
+    var description by remember { mutableStateOf(product.description ?: "") }
+
+    var showErrorAlert by remember { mutableStateOf(false) }
+    var showSuccessAlert by remember { mutableStateOf(false) }
+    var errorAlert by remember { mutableStateOf(false) }
+
+    val formulations = listOf(
+        "Tablets", "Capsules", "Powders", "Granules", "Solutions", "Suspensions",
+        "Emulsions", "Gels", "Lotions", "Patches", "Inhalers", "Suppositories",
+        "Injectables", "Syrup", "Creams", "Ointments"
+    )
+    val isDropDownExpanded = remember { mutableStateOf(false) }
+    var formulation by remember { mutableStateOf(product.formulation) }
+    val itemPosition = remember { mutableStateOf(formulations.indexOf(product.formulation)) }
+
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+    if (showErrorAlert) {
+        CustomAlertDialog(
+            title = "Error",
+            message = "Please fill all fields",
+            onDismiss = { showErrorAlert = false },
+            alertState = "Error"
+        )
+    }
+    if (showSuccessAlert) {
+        CustomAlertDialog(
+            title = "Success",
+            message = "Product updated successfully",
+            onDismiss = { showSuccessAlert = false },
+            alertState = "success"
+        )
+    }
+    if (errorAlert) {
+        CustomAlertDialog(
+            title = "Error",
+            message = "An error occurred",
+            onDismiss = { errorAlert = false },
+            alertState = "Error"
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HeaderText(
+            text = "Edit Product",
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        TextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Medicine Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        CustomTextField(
+            value = company,
+            onValueChange = { company = it },
+            labelText = "Company Name",
+            leadingIcon = Icons.Default.CheckCircle,
+            keyboardType = KeyboardType.Text,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Column(
+            modifier = Modifier
+                .clip(shape = RoundedCornerShape(10.dp))
+                .background(color = Color(0xFFD3D3D3))
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .clickable {
+                            isDropDownExpanded.value = true
+                        }
+                ) {
+                    Text(text = "Formulation : " + formulations[itemPosition.value])
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                }
+                DropdownMenu(
+                    expanded = isDropDownExpanded.value,
+                    onDismissRequest = {
+                        isDropDownExpanded.value = false
+                    }) {
+                    formulations.forEachIndexed { index, selectedFormulation ->
+                        DropdownMenuItem(
+                            text = { Text(text = selectedFormulation) },
+                            onClick = {
+                                isDropDownExpanded.value = false
+                                itemPosition.value = index
+                                formulation = formulations[index]
+                            })
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        CustomTextField(
+            value = minStock,
+            onValueChange = { minStock = it },
+            labelText = "Minimum Stock",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        CustomTextField(
+            value = minMeasure,
+            onValueChange = { minMeasure = it },
+            labelText = "Minimum sellable Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        CustomTextField(
+            value = quantityAvailable,
+            onValueChange = { quantityAvailable = it },
+            labelText = "Total number of Minimum Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        CustomTextField(
+            value = buyingPrice,
+            onValueChange = { buyingPrice = it },
+            labelText = "Buying Price per Minimum Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        CustomTextField(
+            value = retailSellingPrice,
+            onValueChange = { retailSellingPrice = it },
+            labelText = "Retail Selling Price per Minimum Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        CustomTextField(
+            value = wholesaleSellingPrice,
+            onValueChange = { wholesaleSellingPrice = it },
+            labelText = "Wholesale Selling Price per Minimum Measure",
+            leadingIcon = Icons.Default.Create,
+            keyboardType = KeyboardType.Number,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = supplierName,
+            onValueChange = { supplierName = it },
+            label = { Text("Supplier Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        // DatePicker for expiry date
+        Button(onClick = {
+            DatePickerDialog(context, { _, selectedYear, selectedMonth, selectedDay ->
+                expiryDate = Calendar.getInstance().apply {
+                    set(selectedYear, selectedMonth, selectedDay)
+                }.time
+            }, year, month, day).show()
+        }) {
+            Text(text = expiryDate?.toString() ?: "Select Expiry Date")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        CustomTextField(
+            value = description,
+            onValueChange = { description = it },
+            labelText = "Description(optional)",
+            leadingIcon = Icons.Default.Edit,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+            //check if all fields are filled
+            if (name.isBlank() || company.isBlank() || formulation.isBlank() || minStock.isBlank() ||
+                minMeasure.isBlank() || quantityAvailable.isBlank() || buyingPrice.isBlank() ||
+                retailSellingPrice.isBlank() || wholesaleSellingPrice.isBlank() || supplierName.isBlank() ||
+                expiryDate == null
+            ) {
+                showErrorAlert = true
+                return@Button
+            }
+            val updatedProduct = product.copy(
+                name = name,
+                company = company,
+                formulation = formulation,
+                minStock = minStock.toIntOrNull() ?: 0,
+                minMeasure = minMeasure.toIntOrNull() ?: 0,
+                quantityAvailable = quantityAvailable.toIntOrNull() ?: 0,
+                buyingPrice = buyingPrice.toDoubleOrNull() ?: 0.0,
+                retailSellingPrice = retailSellingPrice.toDoubleOrNull() ?: 0.0,
+                wholesaleSellingPrice = wholesaleSellingPrice.toDoubleOrNull() ?: 0.0,
+                supplierName = supplierName,
+                expiryDate = expiryDate ?: Date(),
+                description = if (description.isBlank()) null else description,
+                updatedAt = Date()
+            )
+            stockViewModel.viewModelScope.launch {
+                stockViewModel.updateProduct(updatedProduct, onResult = {
+                    when (it) {
+                        is StockResult.Success -> {
+                            showSuccessAlert = true
+                            onDismiss()
+                        }
+
+                        is StockResult.Error -> {
+                            errorAlert = true
+                        }
+                    }
+                })
+            }
+        }) {
+            Text("Update Product")
+        }
+    }
+}
+
+// Add Stock Content
 @Composable
 fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
     var name by remember { mutableStateOf("") }
