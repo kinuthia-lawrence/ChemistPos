@@ -12,7 +12,7 @@ import com.larrykin.chemistpos.home.data.ProductDao
 
 @Database(
     entities =[User::class, Product::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class) //specifying the type converter class

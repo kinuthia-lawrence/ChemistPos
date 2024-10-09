@@ -108,12 +108,66 @@ object AppModule {
             database.execSQL("ALTER TABLE `products_new` RENAME TO `products`")
         }
     }
+
     //migration after adding updated_at and added_by columns to products table
     private val MIGRATION_4_5 = object : Migration(4, 5) {
         override fun migrate(database: SupportSQLiteDatabase) {
             // Add the new columns to the existing table
             database.execSQL("ALTER TABLE `products` ADD COLUMN `updated_at` INTEGER NOT NULL DEFAULT 0")
             database.execSQL("ALTER TABLE `products` ADD COLUMN `added_by` TEXT NOT NULL DEFAULT ''")
+        }
+    }
+
+    //migration after altering with updated_at and added_by columns to products table
+    private val MIGRATION_5_6 = object : Migration(5, 6) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create a new table with the correct schema
+            database.execSQL(
+                """
+            CREATE TABLE `products_new` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `name` TEXT NOT NULL,
+                `company` TEXT NOT NULL,
+                `formulation` TEXT NOT NULL,
+                `min_stock` INTEGER NOT NULL,
+                `min_measure` INTEGER NOT NULL,
+                `quantity_available` INTEGER NOT NULL,
+                `buying_price` REAL NOT NULL,
+                `retail_selling_price` REAL NOT NULL,
+                `wholesale_selling_price` REAL NOT NULL,
+                `supplier_name` TEXT NOT NULL,
+                `date_added` INTEGER NOT NULL,
+                `updated_at` INTEGER,
+                `added_by` TEXT NOT NULL,
+                `expiry_date` INTEGER NOT NULL,
+                `description` TEXT
+            )
+        """
+            )
+
+            // Copy the data from the old table to the new table
+            database.execSQL(
+                """
+            INSERT INTO `products_new` (
+                `id`, `name`, `company`, `formulation`, `min_stock`, `min_measure`,
+                `quantity_available`, `buying_price`, `retail_selling_price`,
+                `wholesale_selling_price`, `supplier_name`, `date_added`,
+                `updated_at`, `added_by`, `expiry_date`, `description`
+            )
+            SELECT
+                `id`, `name`, `company`, `formulation`, `min_stock`, `min_measure`,
+                `quantity_available`, `buying_price`, `retail_selling_price`,
+                `wholesale_selling_price`, `supplier_name`, `date_added`,
+                `updated_at`, `added_by`, `expiry_date`, `description`
+            FROM `products`
+        """
+            )
+
+            // Remove the old table
+            database.execSQL("DROP TABLE `products`")
+
+            // Rename the new table to the old table name
+            database.execSQL("ALTER TABLE `products_new` RENAME TO `products`")
         }
     }
 
@@ -133,7 +187,7 @@ object AppModule {
                     "Database created"
                 )
             }
-        }).addMigrations(MIGRATION_4_5)
+        }).addMigrations(MIGRATION_5_6)
             .build()
     }
 
@@ -141,6 +195,7 @@ object AppModule {
     fun providesUserDao(appDatabase: AppDatabase): UserDao {
         return appDatabase.userDao()
     }
+
     @Provides // Provide ProductDao instance
     fun providesProductDao(appDatabase: AppDatabase): com.larrykin.chemistpos.home.data.ProductDao {
         return appDatabase.productDao()
