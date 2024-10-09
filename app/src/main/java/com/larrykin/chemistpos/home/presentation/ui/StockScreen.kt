@@ -31,6 +31,7 @@ import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.components.HeaderText
 import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
+import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.presentation.viewModels.StockResult
 import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
@@ -135,41 +136,109 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
+        var showDeleteChoiceDialog by remember { mutableStateOf(false) }
+        var showDeleteSuccessDialog by remember { mutableStateOf(false) }
+        var showDeleteErrorDialog by remember { mutableStateOf(false) }
+
+        // Delete choice dialog
+        if (showDeleteChoiceDialog) {
+            CustomAlertDialogWithChoice(
+                title = "Delete Product",
+                message = "Are you sure you want to delete this product?, this action cannot be undone",
+                onDismiss = { showDeleteChoiceDialog = false },
+                onConfirm = {
+                    stockViewModel.viewModelScope.launch {
+                        stockViewModel.deleteProduct(product.id) { isDeleted ->
+                            if (isDeleted) {
+                                Log.d("ProductCard", "Product delete dialog")
+                                showDeleteSuccessDialog = true
+                            } else {
+                                Log.d("ProductCard", "Product delete dialog2")
+                                showDeleteErrorDialog = true
+                            }
+                            Log.d("ProductCard", "Product delete dialog3")
+                            showDeleteChoiceDialog = false
+                        }
+                    }
+                },
+                alertState = "confirm"
+            )
+        }
+
+        // Delete success dialog
+        if (showDeleteSuccessDialog) {
+            Log.d("ProductCard", "Product deleted successfully")
+            CustomAlertDialog(
+                title = "Success",
+                message = "Product deleted successfully",
+                onDismiss = { showDeleteSuccessDialog = false },
+                alertState = "success"
+            )
+        }
+
+        // Delete error dialog
+        if (showDeleteErrorDialog) {
+            CustomAlertDialog(
+                title = "Error",
+                message = "An error occurred deleting the product",
+                onDismiss = { showDeleteErrorDialog = false },
+                alertState = "error"
+            )
+        }
+
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Name: ${product.name}", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = "Company: ${product.company}", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = "Formulation: ${product.formulation}", style = MaterialTheme
-                .typography.bodyMedium)
+            Text(
+                text = "Formulation: ${product.formulation}",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = "Min Measure: ${product.minMeasure}", style = MaterialTheme.typography
-                .bodyMedium)
+            Text(
+                text = "Min Measure: ${product.minMeasure}",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = "Quantity Available: ${product.quantityAvailable}", style = MaterialTheme
-                .typography.bodyMedium)
+            Text(
+                text = "Quantity Available: ${product.quantityAvailable}",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = "Retail Price: @Ksh${product.retailSellingPrice}", style = MaterialTheme
-                .typography.bodyMedium)
+            Text(
+                text = "Retail Price: @Ksh${product.retailSellingPrice}",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = "Wholesale Price: @Ksh${product.wholesaleSellingPrice}", style =
-            MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Wholesale Price: @Ksh${product.wholesaleSellingPrice}",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = "Supplier Name: ${product.supplierName}", style = MaterialTheme
-                .typography.bodyMedium)
+            Text(
+                text = "Supplier Name: ${product.supplierName}",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = "Expiry Date: ${product.expiryDate}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Expiry Date: ${product.expiryDate}",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = "Description: ${product.description ?: "N/A"}", style = MaterialTheme
-                .typography.labelSmall)
+            Text(
+                text = "Description: ${product.description ?: "N/A"}",
+                style = MaterialTheme.typography.labelSmall
+            )
             Spacer(modifier = Modifier.height(2.dp))
             if (loggedInUser.role == Role.ADMIN) {
-                Text(text = "Buying Price: @Ksh${product.buyingPrice}", style = MaterialTheme
-                    .typography.bodyMedium)
                 Text(
-                    text = "Date: ${
-                        product.updatedAt?.toString() ?: product.dateAdded.toString()
-                    }", style = MaterialTheme.typography.bodyMedium
+                    text = "Buying Price: @Ksh${product.buyingPrice}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Date: ${product.updatedAt?.toString() ?: product.dateAdded.toString()}",
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -178,7 +247,7 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
                     IconButton(onClick = { /* Open edit dialog */ }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
-                    IconButton(onClick = { /* Open delete confirmation */ }) {
+                    IconButton(onClick = { showDeleteChoiceDialog = true }) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete")
                     }
                 }
@@ -191,7 +260,6 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
 fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
     var name by remember { mutableStateOf("") }
     var company by remember { mutableStateOf("") }
-    var formulation by remember { mutableStateOf("") }
     var minStock by remember { mutableStateOf("") }
     var minMeasure by remember { mutableStateOf("") }
     var quantityAvailable by remember { mutableStateOf("") }
@@ -212,13 +280,9 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         "Emulsions", "Gels", "Lotions", "Patches", "Inhalers", "Suppositories",
         "Injectables", "Syrup", "Creams", "Ointments"
     )
-    val isDropDownExpanded = remember {
-        mutableStateOf(false)
-    }
-
-    val itemPosition = remember {
-        mutableStateOf(0)
-    }
+    val isDropDownExpanded = remember { mutableStateOf(false) }
+    var formulation by remember { mutableStateOf(formulations.firstOrNull() ?: "") }
+    val itemPosition = remember { mutableStateOf(0) }
 
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -307,9 +371,8 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
                         isDropDownExpanded.value = false
                     }) {
                     formulations.forEachIndexed { index, selectedFormulation ->
-                        DropdownMenuItem(text = {
-                            Text(text = selectedFormulation)
-                        },
+                        DropdownMenuItem(
+                            text = { Text(text = selectedFormulation) },
                             onClick = {
                                 isDropDownExpanded.value = false
                                 itemPosition.value = index

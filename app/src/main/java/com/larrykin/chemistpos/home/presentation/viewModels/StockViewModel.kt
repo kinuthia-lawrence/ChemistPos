@@ -39,23 +39,43 @@ class StockViewModel @Inject constructor(
         }
     }
 
-//gets all products from the database
-suspend fun getAllProducts(onResult: (StockResult, List<Product>) -> Unit) {
-    viewModelScope.launch {
-        try {
-            repository.getAllProducts().collect { result ->
-                when (result) {
-                    is GetAllProductsResult.Success -> {
-                        onResult(StockResult.Success, result.products)
-                    }
-                    is GetAllProductsResult.Error -> {
-                        onResult(StockResult.Error(result.message), emptyList())
+    //gets all products from the database
+    suspend fun getAllProducts(onResult: (StockResult, List<Product>) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.getAllProducts().collect { result ->
+                    when (result) {
+                        is GetAllProductsResult.Success -> {
+                            onResult(StockResult.Success, result.products)
+                        }
+
+                        is GetAllProductsResult.Error -> {
+                            onResult(StockResult.Error(result.message), emptyList())
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                onResult(StockResult.Error(e.message ?: "An error occurred"), emptyList())
             }
-        } catch (e: Exception) {
-            onResult(StockResult.Error(e.message ?: "An error occurred"), emptyList())
         }
     }
-}
+
+    // Delete product from the database
+    suspend fun deleteProduct(productId: Int, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val result = repository.deleteProduct(productId)
+                if (result) {
+                    // Refresh the UI by fetching the updated list of products
+                    getAllProducts { stockResult, _ ->
+                        onResult(stockResult is StockResult.Success)
+                    }
+                } else {
+                    onResult(false)
+                }
+            } catch (e: Exception) {
+                onResult(false)
+            }
+        }
+    }
 }
