@@ -140,6 +140,7 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
         var showDeleteSuccessDialog by remember { mutableStateOf(false) }
         var showDeleteErrorDialog by remember { mutableStateOf(false) }
         var showEditDialog by remember { mutableStateOf(false) }
+        var showEditProductDialog by remember { mutableStateOf(false) }
 
         // Delete choice dialog
         if (showDeleteChoiceDialog) {
@@ -189,25 +190,24 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
 
         // Edit dialog
         if (showEditDialog) {
-//            CustomAlertDialogWithChoice(
-//                title = "Edit Product",
-//                message = "Are you sure you want to edit this product?",
-//                onDismiss = { showEditDialog = false },
-//                onConfirm = {
-//                    EditProductDialog(
-//                        product = product,
-//                        loggedInUser = loggedInUser,
-//                        stockViewModel = stockViewModel,
-//                        onDismiss = { showEditDialog = false }
-//                    )
-//                },
-//                alertState = "confirm"
-//            )
+            CustomAlertDialogWithChoice(
+                title = "Edit Product",
+                message = "Are you sure you want to edit this product?",
+                onDismiss = { showEditDialog = false },
+                onConfirm = {
+                    showEditDialog = false
+                    showEditProductDialog = true
+                },
+                alertState = "confirm"
+            )
+        }
+
+        if (showEditProductDialog) {
             EditProductDialog(
                 product = product,
                 loggedInUser = loggedInUser,
                 stockViewModel = stockViewModel,
-                onDismiss = { showEditDialog = false }
+                onDismiss = { showEditProductDialog = false }
             )
         }
 
@@ -498,47 +498,53 @@ fun EditProductDialog(
             enabled = true
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            //check if all fields are filled
-            if (name.isBlank() || company.isBlank() || formulation.isBlank() || minStock.isBlank() ||
-                minMeasure.isBlank() || quantityAvailable.isBlank() || buyingPrice.isBlank() ||
-                retailSellingPrice.isBlank() || wholesaleSellingPrice.isBlank() || supplierName.isBlank() ||
-                expiryDate == null
-            ) {
-                showErrorAlert = true
-                return@Button
+        Row {
+            Button(onClick = { onDismiss() }) {
+                Text("Cancel")
             }
-            val updatedProduct = product.copy(
-                name = name,
-                company = company,
-                formulation = formulation,
-                minStock = minStock.toIntOrNull() ?: 0,
-                minMeasure = minMeasure.toIntOrNull() ?: 0,
-                quantityAvailable = quantityAvailable.toIntOrNull() ?: 0,
-                buyingPrice = buyingPrice.toDoubleOrNull() ?: 0.0,
-                retailSellingPrice = retailSellingPrice.toDoubleOrNull() ?: 0.0,
-                wholesaleSellingPrice = wholesaleSellingPrice.toDoubleOrNull() ?: 0.0,
-                supplierName = supplierName,
-                expiryDate = expiryDate ?: Date(),
-                description = if (description.isBlank()) null else description,
-                updatedAt = Date()
-            )
-            stockViewModel.viewModelScope.launch {
-                stockViewModel.updateProduct(updatedProduct, onResult = {
-                    when (it) {
-                        is StockResult.Success -> {
-                            showSuccessAlert = true
-                            onDismiss()
-                        }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = {
+                //check if all fields are filled
+                if (name.isBlank() || company.isBlank() || formulation.isBlank() || minStock.isBlank() ||
+                    minMeasure.isBlank() || quantityAvailable.isBlank() || buyingPrice.isBlank() ||
+                    retailSellingPrice.isBlank() || wholesaleSellingPrice.isBlank() || supplierName.isBlank() ||
+                    expiryDate == null
+                ) {
+                    showErrorAlert = true
+                    return@Button
+                }
+                val updatedProduct = product.copy(
+                    name = name,
+                    company = company,
+                    formulation = formulation,
+                    minStock = minStock.toIntOrNull() ?: 0,
+                    minMeasure = minMeasure.toIntOrNull() ?: 0,
+                    quantityAvailable = quantityAvailable.toIntOrNull() ?: 0,
+                    buyingPrice = buyingPrice.toDoubleOrNull() ?: 0.0,
+                    retailSellingPrice = retailSellingPrice.toDoubleOrNull() ?: 0.0,
+                    wholesaleSellingPrice = wholesaleSellingPrice.toDoubleOrNull() ?: 0.0,
+                    supplierName = supplierName,
+                    expiryDate = expiryDate ?: Date(),
+                    description = if (description.isBlank()) null else description,
+                    updatedAt = Date()
+                )
+                stockViewModel.viewModelScope.launch {
+                    stockViewModel.updateProduct(updatedProduct, onResult = {
+                        when (it) {
+                            is StockResult.Success -> {
+                                showSuccessAlert = true
+                                onDismiss()
+                            }
 
-                        is StockResult.Error -> {
-                            errorAlert = true
+                            is StockResult.Error -> {
+                                errorAlert = true
+                            }
                         }
-                    }
-                })
+                    })
+                }
+            }) {
+                Text("Update Product")
             }
-        }) {
-            Text("Update Product")
         }
     }
 }
