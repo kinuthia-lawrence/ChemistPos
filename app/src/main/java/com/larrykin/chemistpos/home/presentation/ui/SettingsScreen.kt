@@ -3,6 +3,7 @@ package com.larrykin.chemistpos.home.presentation.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
 import com.larrykin.chemistpos.home.presentation.viewModels.SettingsViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.settingsResult
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -155,7 +157,9 @@ fun SettingsScreen(
             item {
                 CreateUserOrUpdate(
                     settingsViewModel = settingsViewModel,
-                    isCreateUser = isCreateUser
+                    isCreateUser = isCreateUser,
+                    scope ,
+                    listState
                 )
             }
             item {
@@ -295,6 +299,8 @@ fun UserCard(
 fun CreateUserOrUpdate(
     settingsViewModel: SettingsViewModel,
     isCreateUser: Boolean,
+    scope: CoroutineScope,
+    listState: LazyListState,
     modifier: Modifier = Modifier
 ) {
     val messageState = remember { mutableStateOf("") }
@@ -487,6 +493,7 @@ fun CreateUserOrUpdate(
                             }
                         }
                     }
+                    scope.launch { listState.scrollToItem(1) }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

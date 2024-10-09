@@ -5,12 +5,16 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.larrykin.chemistpos.authentication.components.CustomTextField
+import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.components.HeaderText
 import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
@@ -63,17 +68,121 @@ fun AvailableStockContent(
     loggedInUser: LoggedInUser,
     stockViewModel: StockViewModel = hiltViewModel()
 ) {
-    val stockItems = listOf(
-        "Item 1", "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1",
-        "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1",
-        "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1",
-        "Item 2", "Item 3", "Item 1", "Item 2", "Item 3"
-    ) //
+    var searchQuery by remember { mutableStateOf("") }
+    var products by remember { mutableStateOf<List<Product>>(emptyList()) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    Column {
-        stockItems.forEach { item ->
-            Text(text = item, modifier = Modifier.padding(vertical = 8.dp))
-            Spacer(modifier = Modifier.height(8.dp))
+    LaunchedEffect(Unit) {
+        stockViewModel.getAllProducts { result, productList ->
+            when (result) {
+                is StockResult.Success -> {
+                    products = productList
+                }
+
+                is StockResult.Error -> {
+                    errorMessage = result.message
+                }
+            }
+        }
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        CustomTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            labelText = "Search Products",
+            leadingIcon = Icons.Default.Search,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val filteredProducts = products.filter { it.name.contains(searchQuery, ignoreCase = true) }
+
+        if (errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Red)
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = errorMessage ?: "An error occurred",
+                    color = Color.White,
+                )
+            }
+        } else {
+            Column {
+                filteredProducts.forEach { product ->
+                    ProductCard(
+                        product = product,
+                        loggedInUser = loggedInUser,
+                        stockViewModel = stockViewModel
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: StockViewModel) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Name: ${product.name}", style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = "Company: ${product.company}", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = "Formulation: ${product.formulation}", style = MaterialTheme
+                .typography.bodyMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = "Min Measure: ${product.minMeasure}", style = MaterialTheme.typography
+                .bodyMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = "Quantity Available: ${product.quantityAvailable}", style = MaterialTheme
+                .typography.bodyMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = "Retail Price: @Ksh${product.retailSellingPrice}", style = MaterialTheme
+                .typography.bodyMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = "Wholesale Price: @Ksh${product.wholesaleSellingPrice}", style =
+            MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = "Supplier Name: ${product.supplierName}", style = MaterialTheme
+                .typography.bodyMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = "Expiry Date: ${product.expiryDate}", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = "Description: ${product.description ?: "N/A"}", style = MaterialTheme
+                .typography.labelSmall)
+            Spacer(modifier = Modifier.height(2.dp))
+            if (loggedInUser.role == Role.ADMIN) {
+                Text(text = "Buying Price: @Ksh${product.buyingPrice}", style = MaterialTheme
+                    .typography.bodyMedium)
+                Text(
+                    text = "Date: ${
+                        product.updatedAt?.toString() ?: product.dateAdded.toString()
+                    }", style = MaterialTheme.typography.bodyMedium
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(onClick = { /* Open edit dialog */ }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    }
+                    IconButton(onClick = { /* Open delete confirmation */ }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    }
+                }
+            }
         }
     }
 }
@@ -145,7 +254,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
 
     Column(
         modifier = Modifier
-        .padding(16.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderText(
@@ -186,10 +295,10 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
                     modifier = Modifier
                         .padding(10.dp)
                         .clickable {
-                        isDropDownExpanded.value = true
-                    }
+                            isDropDownExpanded.value = true
+                        }
                 ) {
-                    Text(text = "Formulation : "+formulations[itemPosition.value])
+                    Text(text = "Formulation : " + formulations[itemPosition.value])
                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                 }
                 DropdownMenu(
@@ -199,7 +308,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
                     }) {
                     formulations.forEachIndexed { index, selectedFormulation ->
                         DropdownMenuItem(text = {
-                            Text(text =selectedFormulation)
+                            Text(text = selectedFormulation)
                         },
                             onClick = {
                                 isDropDownExpanded.value = false
@@ -346,6 +455,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
                             expiryDate = null
                             description = ""
                         }
+
                         is StockResult.Error -> {
                             errorAlert = true
                         }

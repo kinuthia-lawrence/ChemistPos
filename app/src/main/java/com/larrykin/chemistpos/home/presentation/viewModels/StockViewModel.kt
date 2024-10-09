@@ -2,6 +2,7 @@ package com.larrykin.chemistpos.home.presentation.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.larrykin.chemistpos.core.data.GetAllProductsResult
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.domain.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,4 +38,24 @@ class StockViewModel @Inject constructor(
             }
         }
     }
+
+//gets all products from the database
+suspend fun getAllProducts(onResult: (StockResult, List<Product>) -> Unit) {
+    viewModelScope.launch {
+        try {
+            repository.getAllProducts().collect { result ->
+                when (result) {
+                    is GetAllProductsResult.Success -> {
+                        onResult(StockResult.Success, result.products)
+                    }
+                    is GetAllProductsResult.Error -> {
+                        onResult(StockResult.Error(result.message), emptyList())
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            onResult(StockResult.Error(e.message ?: "An error occurred"), emptyList())
+        }
+    }
+}
 }
