@@ -262,7 +262,11 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Date: ${product.updatedAt?.toString() ?: product.dateAdded.toString()}",
+                    text = if (product.updatedAt != null) {
+                        "Updated at: ${product.updatedAt}"
+                    } else {
+                        "Added at: ${product.dateAdded}"
+                    },
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Row(
