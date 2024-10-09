@@ -11,6 +11,8 @@ import com.larrykin.chemistpos.authentication.data.UserDao
 import com.larrykin.chemistpos.authentication.data.UserRepositoryImplementation
 import com.larrykin.chemistpos.authentication.domain.UserRepository
 import com.larrykin.chemistpos.core.data.AppDatabase
+import com.larrykin.chemistpos.home.data.ProductRepositoryImplementation
+import com.larrykin.chemistpos.home.domain.ProductRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -29,6 +31,8 @@ object AppModule {
                 database.execSQL("ALTER TABLE users ADD COLUMN 'profile_Picture_url' TEXT")
             }
         }
+
+    //migration after adding products table
     private val MIGRATION_2_3 =
         object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -53,10 +57,13 @@ object AppModule {
                 )
             }
         }
+
+    //migration after modifying products table
     private val MIGRATION_3_4 = object : Migration(3, 4) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        // Create the new table
-        database.execSQL("""
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create the new table
+            database.execSQL(
+                """
             CREATE TABLE IF NOT EXISTS `products_new` (
                 `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 `name` TEXT NOT NULL,
@@ -73,10 +80,12 @@ object AppModule {
                 `expiry_date` INTEGER,
                 `description` TEXT
             )
-        """)
+        """
+            )
 
-        // Copy the data from the old table to the new table
-        database.execSQL("""
+            // Copy the data from the old table to the new table
+            database.execSQL(
+                """
             INSERT INTO `products_new` (
                 `id`, `name`, `company`, `formulation`, `min_stock`, `min_measure`, 
                 `quantity_available`, `buying_price`, `retail_selling_price`, 
@@ -89,15 +98,24 @@ object AppModule {
                 `wholesale_selling_price`, `supplier_name`, `date_added`, 
                 `expiry_date`, `description`
             FROM `products`
-        """)
+        """
+            )
 
-        // Remove the old table
-        database.execSQL("DROP TABLE `products`")
+            // Remove the old table
+            database.execSQL("DROP TABLE `products`")
 
-        // Rename the new table to the old table name
-        database.execSQL("ALTER TABLE `products_new` RENAME TO `products`")
+            // Rename the new table to the old table name
+            database.execSQL("ALTER TABLE `products_new` RENAME TO `products`")
+        }
     }
-}
+    //migration after adding updated_at and added_by columns to products table
+    private val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Add the new columns to the existing table
+            database.execSQL("ALTER TABLE `products` ADD COLUMN `updated_at` INTEGER NOT NULL DEFAULT 0")
+            database.execSQL("ALTER TABLE `products` ADD COLUMN `added_by` TEXT NOT NULL DEFAULT ''")
+        }
+    }
 
     @Provides // Annotates a method that returns a dependency instance (AppDatabase instance)
     @Singleton // Ensure only one instance is created
@@ -115,13 +133,17 @@ object AppModule {
                     "Database created"
                 )
             }
-        }).addMigrations(MIGRATION_3_4)
+        }).addMigrations(MIGRATION_4_5)
             .build()
     }
 
     @Provides // Provide UserDao instance
     fun providesUserDao(appDatabase: AppDatabase): UserDao {
         return appDatabase.userDao()
+    }
+    @Provides // Provide ProductDao instance
+    fun providesProductDao(appDatabase: AppDatabase): com.larrykin.chemistpos.home.data.ProductDao {
+        return appDatabase.productDao()
     }
 
     @Provides // Provide Context instance
@@ -138,4 +160,13 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         userRepositoryImplementation: UserRepositoryImplementation
     ): UserRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class ProductRepositoryModule {
+    @Binds // Bind the ProductRepositoryImplementation to ProductRepository
+    abstract fun bindProductRepository(
+        productRepositoryImplementation: ProductRepositoryImplementation
+    ): ProductRepository
 }

@@ -27,6 +27,7 @@ import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
 import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.home.presentation.viewModels.ProfileViewModel
+import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -47,6 +48,7 @@ fun HomeScreen(
 // Get user profile from profileViewModel
     val loggedInUser = loginViewModel.loggedInUser
     val profileViewModel: ProfileViewModel = hiltViewModel()
+    val stockViewModel: StockViewModel = hiltViewModel()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -131,7 +133,7 @@ fun HomeScreen(
                             composable("notification") { NotificationScreen() }
                             composable("help") { HelpScreen() }
                             composable("sales") { SalesScreen() }
-                            composable("stock") { StockScreen() }
+                            composable("stock") { loggedInUser?.let { StockScreen(it,stockViewModel)} }
                             composable("services") { ServicesScreen() }
                             composable("cart") { CartScreen() }
                         }

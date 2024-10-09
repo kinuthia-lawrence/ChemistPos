@@ -19,6 +19,8 @@ data class Product(
     @ColumnInfo(name = "wholesale_selling_price") val wholesaleSellingPrice: Double,
     @ColumnInfo(name = "supplier_name") val supplierName: String,
     @ColumnInfo(name = "date_added") val dateAdded: Date,
+    @ColumnInfo(name="updated_at") val updatedAt: Date,
+    @ColumnInfo(name ="added_by") val addedBy: String,
     @ColumnInfo(name = "expiry_date") val expiryDate: Date?,
     @ColumnInfo(name = "description") val description: String?
 )

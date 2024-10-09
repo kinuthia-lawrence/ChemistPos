@@ -5,11 +5,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.larrykin.chemistpos.core.data.LoggedInUser
+import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
 
 @Composable
-fun StockScreen() {
+fun StockScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Available Stock", "Add Stock")
 
@@ -27,19 +28,21 @@ fun StockScreen() {
         // Use Box to avoid infinite height constraints
         Box(modifier = Modifier.fillMaxSize()) {
             when (selectedTabIndex) {
-                0 -> AvailableStockContent()
-                1 -> AddStockContent()
+                0 -> AvailableStockContent(loggedInUser, stockViewModel)
+                1 -> AddStockContent(loggedInUser, stockViewModel)
             }
         }
     }
 }
 
 @Composable
-fun AvailableStockContent() {
-    val stockItems = listOf("Item 1", "Item 2", "Item 3","Item 1", "Item 2", "Item 3","Item 1",
-        "Item 2", "Item 3","Item 1", "Item 2", "Item 3","Item 1", "Item 2", "Item 3","Item 1",
-        "Item 2", "Item 3","Item 1", "Item 2", "Item 3","Item 1", "Item 2", "Item 3","Item 1",
-        "Item 2", "Item 3","Item 1", "Item 2", "Item 3") //
+fun AvailableStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
+    val stockItems = listOf(
+        "Item 1", "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1",
+        "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1",
+        "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1", "Item 2", "Item 3", "Item 1",
+        "Item 2", "Item 3", "Item 1", "Item 2", "Item 3"
+    ) //
 
     Column {
         stockItems.forEach { item ->
@@ -50,7 +53,7 @@ fun AvailableStockContent() {
 }
 
 @Composable
-fun AddStockContent() {
+fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
     // Replace with your content for adding stock
     Text(text = "Add Stock Content", modifier = Modifier.padding(16.dp))
 }
