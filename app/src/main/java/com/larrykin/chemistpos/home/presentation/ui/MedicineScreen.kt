@@ -40,7 +40,6 @@ fun MedicineScreen(
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    var isCreateMedicine by remember { mutableStateOf(true) }
 
     Scaffold(
         topBar = {
@@ -93,7 +92,6 @@ fun MedicineScreen(
                     IconButton(
                         onClick = {
                             scope.launch { listState.scrollToItem(1) }
-                            isCreateMedicine = true
                         },
                         modifier = Modifier.size(80.dp)
                     ) {
@@ -103,21 +101,6 @@ fun MedicineScreen(
                         ) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = null)
                             Text(text = "Create", modifier = Modifier.padding(top = 8.dp))
-                        }
-                    }
-                    IconButton(
-                        onClick = {
-                            scope.launch { listState.scrollToItem(1) }
-                            isCreateMedicine = false
-                        },
-                        modifier = Modifier.size(80.dp)
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(8.dp)
-                        ) {
-                            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
-                            Text(text = "Update", modifier = Modifier.padding(top = 8.dp))
                         }
                     }
                     IconButton(
@@ -148,9 +131,8 @@ fun MedicineScreen(
                 )
             }
             item {
-                CreateOrUpdateMedicine(
+                CreateMedicine(
                     medicineViewModel = medicineViewModel,
-                    isCreateMedicine = isCreateMedicine,
                     scope,
                     listState
                 )
@@ -281,9 +263,8 @@ fun MedicineCard(
 }
 
 @Composable
-fun CreateOrUpdateMedicine(
+fun CreateMedicine(
     medicineViewModel: MedicineViewModel,
-    isCreateMedicine: Boolean,
     scope: CoroutineScope,
     listState: LazyListState,
     modifier: Modifier = Modifier
@@ -305,7 +286,7 @@ fun CreateOrUpdateMedicine(
                 .padding(16.dp)
         ) {
             HeaderText(
-                text = if (isCreateMedicine) "Create Medicine" else "Update Medicine",
+                text =  "Create Medicine",
                 modifier = Modifier
                     .padding(vertical = 16.dp)
                     .align(alignment = Alignment.CenterHorizontally)
@@ -368,7 +349,6 @@ fun CreateOrUpdateMedicine(
                         errorMessage = "Please fill all fields"
                         return@Button
                     }
-                    if (isCreateMedicine) {
                         //invoke the create medicine method
                         medicineViewModel.createMedicine { result ->
                             when (result) {
@@ -392,36 +372,11 @@ fun CreateOrUpdateMedicine(
                                 else -> {}
                             }
                         }
-                    } else {
-                        //invoke the update method
-                        medicineViewModel.updateMedicine { result ->
-                            when (result) {
-                                is MedicineResult.Success -> {
-                                    errorMessage = ""
-                                    setIsRed(false)
-                                    messageState.value = "Medicine updated successfully"
-                                    //clear the fields
-                                    medicineViewModel.name = ""
-                                    medicineViewModel.company = ""
-                                }
-
-                                is MedicineResult.Error -> {
-                                    errorMessage = result.message
-                                }
-
-                                is MedicineResult.MedicineNotFound -> {
-                                    errorMessage = "Medicine with name not found"
-                                }
-
-                                else -> {}
-                            }
-                        }
-                    }
                     scope.launch { listState.scrollToItem(1) }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = if (isCreateMedicine) "Create Medicine" else "Update Medicine")
+                Text(text =  "Create Medicine")
             }
         }
     }
