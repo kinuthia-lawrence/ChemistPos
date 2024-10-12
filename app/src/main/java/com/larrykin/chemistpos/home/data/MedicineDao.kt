@@ -3,6 +3,9 @@ package com.larrykin.chemistpos.home.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MedicineDao{
@@ -12,5 +15,25 @@ interface MedicineDao{
     //insert product
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(medicine: Medicine): Long
+
+    //get all medicines
+    @Query("SELECT * FROM medicines")
+    fun getAllMedicines(): Flow<List<Medicine>>
+
+    //get medicine by id
+    @Query("SELECT * FROM  medicines WHERE  id=:medicineId")
+    fun getMedicineById(medicineId: Int): Flow<Medicine>
+
+    //get medicine by name
+    @Query("SELECT * FROM  medicines WHERE  name=:medicineName")
+    fun getMedicineByName(medicineName: String): Flow<Medicine>
+
+    //update a medicine by id
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateMedicine(medicine: Medicine): Int
+
+    //delete a medicine
+    @Query("DELETE FROM medicines WHERE id=:medicineId")
+    suspend fun deleteMedicine(medicineId: Int): Int
 
 }
