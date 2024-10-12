@@ -11,8 +11,15 @@ import com.larrykin.chemistpos.authentication.data.UserDao
 import com.larrykin.chemistpos.authentication.data.UserRepositoryImplementation
 import com.larrykin.chemistpos.authentication.domain.UserRepository
 import com.larrykin.chemistpos.core.data.AppDatabase
+import com.larrykin.chemistpos.home.data.MedicineDao
+import com.larrykin.chemistpos.home.data.MedicineRepositoryImplementation
+import com.larrykin.chemistpos.home.data.ProductDao
 import com.larrykin.chemistpos.home.data.ProductRepositoryImplementation
+import com.larrykin.chemistpos.home.data.SupplierDao
+import com.larrykin.chemistpos.home.data.SupplierRepositoryImplementation
+import com.larrykin.chemistpos.home.domain.MedicineRepository
 import com.larrykin.chemistpos.home.domain.ProductRepository
+import com.larrykin.chemistpos.home.domain.SupplierRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -171,6 +178,38 @@ object AppModule {
         }
     }
 
+    //migration after adding suppliers table and medicines table
+    // Migration to add suppliers and medicines tables
+    private val MIGRATION_6_7 = object : Migration(6, 7) { // Replace X and Y with the appropriate
+        // version
+        // numbers
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create the suppliers table
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `suppliers` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `name` TEXT NOT NULL,
+                `Phone` TEXT NOT NULL,
+                `email` TEXT NOT NULL,
+                `medicines` TEXT NOT NULL
+            )
+            """
+            )
+
+            // Create the medicines table
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `medicines` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `name` TEXT NOT NULL,
+                `company` TEXT NOT NULL
+            )
+            """
+            )
+        }
+    }
+
     @Provides // Annotates a method that returns a dependency instance (AppDatabase instance)
     @Singleton // Ensure only one instance is created
     fun provideDatabase(app: Application): AppDatabase {
@@ -187,7 +226,14 @@ object AppModule {
                     "Database created"
                 )
             }
-        }).addMigrations(MIGRATION_5_6)
+        }).addMigrations(
+            MIGRATION_1_2,
+            MIGRATION_2_3,
+            MIGRATION_3_4,
+            MIGRATION_4_5,
+            MIGRATION_5_6,
+            MIGRATION_6_7
+        )
             .build()
     }
 
@@ -197,8 +243,18 @@ object AppModule {
     }
 
     @Provides // Provide ProductDao instance
-    fun providesProductDao(appDatabase: AppDatabase): com.larrykin.chemistpos.home.data.ProductDao {
+    fun providesProductDao(appDatabase: AppDatabase): ProductDao {
         return appDatabase.productDao()
+    }
+
+    @Provides // Provide SupplierDao instance
+    fun providesSupplierDao(appDatabase: AppDatabase): SupplierDao {
+        return appDatabase.supplierDao()
+    }
+
+    @Provides // Provide MedicineDao instance
+    fun providesMedicineDao(appDatabase: AppDatabase): MedicineDao {
+        return appDatabase.medicineDao()
     }
 
     @Provides // Provide Context instance
@@ -224,4 +280,22 @@ abstract class ProductRepositoryModule {
     abstract fun bindProductRepository(
         productRepositoryImplementation: ProductRepositoryImplementation
     ): ProductRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class SupplierRepositoryModule {
+    @Binds // Bind the SupplierRepositoryImplementation to SupplierRepository
+    abstract fun bindSupplierRepository(
+        supplierRepositoryImplementation: SupplierRepositoryImplementation
+    ): SupplierRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class MedicineRepositoryModule {
+    @Binds // Bind the MedicineRepositoryImplementation to MedicineRepository
+    abstract fun bindMedicineRepository(
+        medicineRepositoryImplementation: MedicineRepositoryImplementation
+    ): MedicineRepository
 }

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationDrawerItem
@@ -25,9 +27,27 @@ fun MenuContent(
     Spacer(modifier = Modifier.height(48.dp))
     Text("Menu", modifier = Modifier.padding(16.dp))
     HorizontalDivider()
+    Spacer(modifier = Modifier.height(16.dp))
+    NavigationDrawerItem(
+        label = { Text(text = "Suppliers") },
+        icon = { Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = "Supplier " +
+                "Icon") },
+        selected = false,
+        onClick = { parentNavController.navigate("suppliers") }
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    NavigationDrawerItem(
+        label = { Text(text = "Medicines") },
+        icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Medicines Icon") },
+        selected = false,
+        onClick = { parentNavController.navigate("medicines") }
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    HorizontalDivider()
     NavigationDrawerItem(
         label = { Text(text = "Settings") },
-        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings Icon") },
+        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings Icon", tint = Color.Red)
+             },
         selected = false,
         onClick = { parentNavController.navigate("login_as_admin") }
     )

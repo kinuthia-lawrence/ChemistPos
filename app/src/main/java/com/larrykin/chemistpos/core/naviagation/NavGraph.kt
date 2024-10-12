@@ -2,24 +2,25 @@ package com.larrykin.chemistpos.core.naviagation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.larrykin.chemistpos.authentication.presentation.ui.ForgotPasswordScreen
 import com.larrykin.chemistpos.authentication.presentation.ui.LoginAsAdminScreen
-import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
-import com.larrykin.chemistpos.authentication.presentation.viewModels.RegisterViewModel
-import com.larrykin.chemistpos.authentication.presentation.viewModels.ForgotPasswordViewModel
 import com.larrykin.chemistpos.authentication.presentation.ui.LoginScreen
 import com.larrykin.chemistpos.authentication.presentation.ui.RegisterScreen
 import com.larrykin.chemistpos.authentication.presentation.ui.SplashScreen
+import com.larrykin.chemistpos.authentication.presentation.viewModels.ForgotPasswordViewModel
 import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginAsAdminViewModel
-import com.larrykin.chemistpos.home.presentation.ui.DashboardScreen
-import com.larrykin.chemistpos.home.presentation.ui.HelpScreen
+import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
+import com.larrykin.chemistpos.authentication.presentation.viewModels.RegisterViewModel
 import com.larrykin.chemistpos.home.presentation.ui.HomeScreen
-import com.larrykin.chemistpos.home.presentation.ui.NotificationScreen
+import com.larrykin.chemistpos.home.presentation.ui.MedicineScreen
 import com.larrykin.chemistpos.home.presentation.ui.SettingsScreen
+import com.larrykin.chemistpos.home.presentation.ui.SupplierScreen
+import com.larrykin.chemistpos.home.presentation.viewModels.MedicineViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.SettingsViewModel
+import com.larrykin.chemistpos.home.presentation.viewModels.SupplierViewModel
 
 //sealed class is a class that can only be inherited by classes declared in the same file
 sealed class Screen(val route: String) {
@@ -30,6 +31,8 @@ sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Settings: Screen("settings")
     data object LoginAsAdmin : Screen("login_as_admin")
+    data object Medicines : Screen("medicines")
+    data object Suppliers : Screen("suppliers")
 }
 
 @Composable
@@ -62,6 +65,14 @@ fun NavGraph(navController: NavHostController) {
         composable(route = Screen.LoginAsAdmin.route) {
             val viewModel: LoginAsAdminViewModel = hiltViewModel()
             LoginAsAdminScreen(viewModel, navController)
+        }
+        composable(route= Screen.Medicines.route){
+            val viewModel : MedicineViewModel = hiltViewModel()
+            MedicineScreen(viewModel, navController)
+        }
+        composable(route= Screen.Suppliers.route){
+            val viewModel : SupplierViewModel = hiltViewModel()
+            SupplierScreen(viewModel, navController)
         }
     }
 }
