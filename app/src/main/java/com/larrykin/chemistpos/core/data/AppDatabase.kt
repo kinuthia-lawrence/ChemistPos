@@ -7,13 +7,15 @@ import androidx.room.TypeConverters
 import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.authentication.data.UserDao
 import com.larrykin.chemistpos.core.converters.Converters
+import com.larrykin.chemistpos.home.data.Medicine
 import com.larrykin.chemistpos.home.data.MedicineDao
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.data.ProductDao
+import com.larrykin.chemistpos.home.data.Supplier
 import com.larrykin.chemistpos.home.data.SupplierDao
 
 @Database(
-    entities =[User::class, Product::class],
+    entities =[User::class, Product::class, Supplier::class, Medicine::class],
     version = 7,
     exportSchema = false
 )

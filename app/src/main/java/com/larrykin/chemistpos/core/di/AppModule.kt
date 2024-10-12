@@ -210,6 +210,71 @@ object AppModule {
         }
     }
 
+    // Migration after modifying suppliers table
+    private val MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create a new table with the updated schema
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `suppliers_new` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `name` TEXT NOT NULL,
+                `Phone` TEXT NOT NULL,
+                `email` TEXT NOT NULL,
+                `medicines` TEXT NOT NULL
+            )
+            """
+            )
+
+            // Copy the data from the old table to the new table
+            database.execSQL(
+                """
+            INSERT INTO `suppliers_new` (`id`, `name`, `Phone`, `email`, `medicines`)
+            SELECT `id`, `name`, `Phone`, `email`, `medicines`
+            FROM `suppliers`
+            """
+            )
+
+            // Remove the old table
+            database.execSQL("DROP TABLE `suppliers`")
+
+            // Rename the new table to the old table name
+            database.execSQL("ALTER TABLE `suppliers_new` RENAME TO `suppliers`")
+        }
+    }
+
+    private val MIGRATION_8_7 = object : Migration(8, 7) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create a new table with the previous schema
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `suppliers_old` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `name` TEXT NOT NULL,
+                `Phone` TEXT NOT NULL,
+                `email` TEXT NOT NULL,
+                `medicines` TEXT NOT NULL
+            )
+            """
+            )
+
+            // Copy the data from the current table to the old table
+            database.execSQL(
+                """
+            INSERT INTO `suppliers_old` (`id`, `name`, `Phone`, `email`, `medicines`)
+            SELECT `id`, `name`, `Phone`, `email`, `medicines`
+            FROM `suppliers`
+            """
+            )
+
+            // Remove the current table
+            database.execSQL("DROP TABLE `suppliers`")
+
+            // Rename the old table to the current table name
+            database.execSQL("ALTER TABLE `suppliers_old` RENAME TO `suppliers`")
+        }
+    }
+
     @Provides // Annotates a method that returns a dependency instance (AppDatabase instance)
     @Singleton // Ensure only one instance is created
     fun provideDatabase(app: Application): AppDatabase {
@@ -232,7 +297,10 @@ object AppModule {
             MIGRATION_3_4,
             MIGRATION_4_5,
             MIGRATION_5_6,
-            MIGRATION_6_7
+            MIGRATION_6_7,
+            MIGRATION_7_8,
+            MIGRATION_8_7
+
         )
             .build()
     }
