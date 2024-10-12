@@ -52,24 +52,18 @@ class MedicineViewModel @Inject constructor(
     }
 
     // update medicine
-    fun updateMedicine(onResult: (MedicineResult) -> Unit) {
+    fun updateMedicine(updatedMedicine: Medicine,medicineId: Int, onResult: (MedicineResult) ->
+    Unit) {
         viewModelScope.launch {
             try {
-                val nameTrim = name.trim()
-                val companyTrim = company.trim()
 
-                val medicineExists = medicineRepository.getMedicineByName(nameTrim)
+                val medicineExists = medicineRepository.getMedicineById(medicineId)
                 if (medicineExists == null) {
                     onResult(MedicineResult.MedicineNotFound)
                     return@launch
                 }
 
-                val medicine = Medicine(
-                    id = medicineExists.id,
-                    name = nameTrim,
-                    company = companyTrim
-                )
-                val result = medicineRepository.updateMedicine(medicine)
+                val result = medicineRepository.updateMedicine(updatedMedicine)
                 if (result != null) {
                     onResult(MedicineResult.Success)
                 } else {
