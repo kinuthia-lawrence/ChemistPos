@@ -19,6 +19,7 @@ import com.larrykin.chemistpos.authentication.components.CustomTextField
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.presentation.viewModels.StockResult
 import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun SalesScreen(stockViewModel: StockViewModel = hiltViewModel()) {
@@ -36,7 +37,6 @@ fun SalesScreen(stockViewModel: StockViewModel = hiltViewModel()) {
             }
         }
 
-        //use box to avoid infinite height constraints
         Box(modifier = Modifier.fillMaxSize()) {
             when (selectedTabIndex) {
                 0 -> StockTabContent(stockViewModel)
@@ -58,6 +58,7 @@ fun StockTabContent(stockViewModel: StockViewModel = hiltViewModel()) {
                 is StockResult.Success -> {
                     products = productList
                 }
+
                 is StockResult.Error -> {
                     errorMessage = result.message
                 }
@@ -92,8 +93,8 @@ fun StockTabContent(stockViewModel: StockViewModel = hiltViewModel()) {
                 )
             }
         } else {
-            LazyColumn {
-                items(filteredProducts) { product ->
+            Column {
+                filteredProducts.forEach { product ->
                     MedicineCard(product, stockViewModel)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -104,6 +105,21 @@ fun StockTabContent(stockViewModel: StockViewModel = hiltViewModel()) {
 
 @Composable
 fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Alert") },
+            text = { Text("Quantity available is less than the minimum measure") }
+        )
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,23 +154,29 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(2.dp))
-            IconButton(
-                onClick = {
-                    if (product.quantityAvailable > product.minMeasure) {
-                        stockViewModel.addToCart(product)
-                    }
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Icon(
-                    Icons.Default.AddCircle,
-                    contentDescription = "Add to Cart",
-                    tint = Color.Green
-                )
+                IconButton(
+                    onClick = {
+                        if (product.quantityAvailable > product.minMeasure) {
+                            stockViewModel.addToCart(product)
+                        } else {
+                            showDialog = true
+                        }
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.AddCircle,
+                        contentDescription = "Add to Cart",
+                        tint = Color.Green
+                    )
+                }
             }
         }
     }
 }
-
 @Composable
 fun SalesTabContent(stockViewModel: StockViewModel) {
     Text(text = "Sales Tab Content")
