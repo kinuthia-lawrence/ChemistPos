@@ -6,10 +6,11 @@ import com.larrykin.chemistpos.core.data.GetAllProductsResult
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.domain.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//sealed classes are used to represent restricted class hierarchies, when a value can have one of the types from a limited set, but cannot have any other type.
 sealed class StockResult {
     data object Success : StockResult()
     data class Error(val message: String) : StockResult()
@@ -19,9 +20,13 @@ sealed class StockResult {
 class StockViewModel @Inject constructor(
     private val repository: ProductRepository
 ) : ViewModel() {
-    //suspend is a keyword that is used to tell the compiler that this function will be used in a coroutine
+    private val _cart = MutableStateFlow<List<Product>>(emptyList())
+    val cart: StateFlow<List<Product>> get() = _cart
 
-    //inserts a product into the database
+    fun addToCart(product: Product) {
+        _cart.value = _cart.value + product
+    }
+
     suspend fun addProduct(product: Product, onResult: (StockResult) -> Unit) {
         viewModelScope.launch {
             try {
@@ -39,7 +44,6 @@ class StockViewModel @Inject constructor(
         }
     }
 
-    //gets all products from the database
     suspend fun getAllProducts(onResult: (StockResult, List<Product>) -> Unit) {
         viewModelScope.launch {
             try {
@@ -60,13 +64,11 @@ class StockViewModel @Inject constructor(
         }
     }
 
-    // Delete product from the database
     suspend fun deleteProduct(productId: Int, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
                 val result = repository.deleteProduct(productId)
                 if (result) {
-                    // Refresh the UI by fetching the updated list of products
                     getAllProducts { stockResult, _ ->
                         onResult(stockResult is StockResult.Success)
                     }
@@ -79,13 +81,11 @@ class StockViewModel @Inject constructor(
         }
     }
 
-    // Update product in the database
     suspend fun updateProduct(product: Product, onResult: (StockResult) -> Unit) {
         viewModelScope.launch {
             try {
                 val result = repository.updateProduct(product)
                 if (result != null) {
-                    // Refresh the UI by fetching the updated list of products
                     getAllProducts { stockResult, _ ->
                         onResult(stockResult)
                     }

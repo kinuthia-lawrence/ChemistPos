@@ -1,6 +1,5 @@
 package com.larrykin.chemistpos.home.presentation.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,8 +9,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -132,10 +129,19 @@ fun HomeScreen(
                             composable("dashboard") { DashboardScreen() }
                             composable("notification") { NotificationScreen() }
                             composable("help") { HelpScreen() }
-                            composable("sales") { SalesScreen() }
-                            composable("stock") { loggedInUser?.let { StockScreen(it,stockViewModel)} }
                             composable("services") { ServicesScreen() }
-                            composable("cart") { CartScreen() }
+                            composable("sales") { SalesScreen(stockViewModel) }
+                            composable("stock") {
+                                loggedInUser?.let {
+                                    StockScreen(it, stockViewModel)
+                                }
+                            }
+                            composable("cart") {
+                                loggedInUser?.let {
+                                    CartScreen(it, stockViewModel)
+                                }
+                            }
+
                         }
                     }
                 }
