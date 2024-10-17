@@ -23,10 +23,16 @@ class StockViewModel @Inject constructor(
     private val _cart = MutableStateFlow<List<Product>>(emptyList())
     val cart: StateFlow<List<Product>> get() = _cart
 
+    // Function to add a product to the cart
     fun addToCart(product: Product) {
         _cart.value = _cart.value + product
     }
+    // Function to remove a product from the cart
+    fun removeFromCart(product: Product) {
+        _cart.value = _cart.value - product
+    }
 
+    // Function to add a product to the stock
     suspend fun addProduct(product: Product, onResult: (StockResult) -> Unit) {
         viewModelScope.launch {
             try {
@@ -44,6 +50,7 @@ class StockViewModel @Inject constructor(
         }
     }
 
+    // Function to get all products from the stock
     suspend fun getAllProducts(onResult: (StockResult, List<Product>) -> Unit) {
         viewModelScope.launch {
             try {
@@ -64,6 +71,7 @@ class StockViewModel @Inject constructor(
         }
     }
 
+    // Function to delete a product from the stock
     suspend fun deleteProduct(productId: Int, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
@@ -81,6 +89,7 @@ class StockViewModel @Inject constructor(
         }
     }
 
+    // Function to update a product in the stock
     suspend fun updateProduct(product: Product, onResult: (StockResult) -> Unit) {
         viewModelScope.launch {
             try {

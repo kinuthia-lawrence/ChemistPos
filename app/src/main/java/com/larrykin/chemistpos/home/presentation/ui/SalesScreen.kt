@@ -2,8 +2,6 @@ package com.larrykin.chemistpos.home.presentation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -19,7 +17,6 @@ import com.larrykin.chemistpos.authentication.components.CustomTextField
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.presentation.viewModels.StockResult
 import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun SalesScreen(stockViewModel: StockViewModel = hiltViewModel()) {
@@ -106,6 +103,7 @@ fun StockTabContent(stockViewModel: StockViewModel = hiltViewModel()) {
 @Composable
 fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
     var showDialog by remember { mutableStateOf(false) }
+    val cartItems = stockViewModel.cart.collectAsState().value
 
     if (showDialog) {
         AlertDialog(
@@ -160,10 +158,12 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
             ) {
                 IconButton(
                     onClick = {
-                        if (product.quantityAvailable > product.minMeasure) {
-                            stockViewModel.addToCart(product)
-                        } else {
-                            showDialog = true
+                        if(cartItems.none { it.id == product.id} ) {
+                            if (product.quantityAvailable > product.minMeasure) {
+                                stockViewModel.addToCart(product)
+                            } else {
+                                showDialog = true
+                            }
                         }
                     }
                 ) {
@@ -177,6 +177,7 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
         }
     }
 }
+
 @Composable
 fun SalesTabContent(stockViewModel: StockViewModel) {
     Text(text = "Sales Tab Content")
