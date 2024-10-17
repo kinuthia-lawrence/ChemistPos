@@ -87,7 +87,12 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Quantity Available: ${item.quantityAvailable}",
+                        text = "Stock Available: ${item.quantityAvailable}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Sellable Quantity: ${availableQuantity}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -120,11 +125,11 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    // Snackbar Host
-                    SnackbarHost(hostState = snackbarHostState)
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            // Snackbar Host
+            SnackbarHost(hostState = snackbarHostState)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
