@@ -37,4 +37,8 @@ interface SupplierDao {
     @Query("DELETE FROM suppliers WHERE id=:supplierId")
     suspend fun deleteSupplier(supplierId: Int): Int
 
+    //get supplier name
+    @Query("SELECT name FROM  SUPPLIERS")
+    suspend fun getAllSupplierNames(): List<String>
+
 }

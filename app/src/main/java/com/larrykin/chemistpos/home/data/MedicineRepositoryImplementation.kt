@@ -70,4 +70,12 @@ class MedicineRepositoryImplementation @Inject constructor(private val medicineD
             false
         }
     }
+
+    override suspend fun getAllCompanyNames(): List<String> {
+        return medicineDao.getAllCompanyNames()
+    }
+
+    override suspend fun getAllMedicineNames(): List<String> {
+        return medicineDao.getAllMedicineNames()
+    }
 }

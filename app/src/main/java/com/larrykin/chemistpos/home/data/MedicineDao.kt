@@ -36,4 +36,13 @@ interface MedicineDao{
     @Query("DELETE FROM medicines WHERE id=:medicineId")
     suspend fun deleteMedicine(medicineId: Int): Int
 
+    //get all medicine names
+    @Query("SELECT name FROM medicines")
+    suspend fun getAllMedicineNames(): List<String>
+
+    //get all company names
+    @Query("SELECT DISTINCT company FROM medicines")
+    suspend fun getAllCompanyNames(): List<String>
+
+
 }

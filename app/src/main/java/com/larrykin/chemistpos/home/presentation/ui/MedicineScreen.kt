@@ -472,7 +472,7 @@ fun CreateMedicine(
             Spacer(modifier = Modifier.height(16.dp))
             CustomTextField(
                 value = medicineViewModel.name,
-                onValueChange = { medicineViewModel.name = it.trim() },
+                onValueChange = { medicineViewModel.name = it },
                 labelText = "Medicine Name",
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = Icons.Default.Create,
@@ -482,7 +482,7 @@ fun CreateMedicine(
             Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
                 value = medicineViewModel.company,
-                onValueChange = { medicineViewModel.company = it.trim() },
+                onValueChange = { medicineViewModel.company = it },
                 labelText = "Company",
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = Icons.Default.Edit,

@@ -555,6 +555,11 @@ fun EditProductDialog(
 // Add Stock Content
 @Composable
 fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
+    //
+    val medicineNames by stockViewModel.medicineNames.collectAsState()
+    val companyNames by stockViewModel.companyNames.collectAsState()
+    val supplierNames by stockViewModel.supplierNames.collectAsState()
+
     var name by remember { mutableStateOf("") }
     var company by remember { mutableStateOf("") }
     var minStock by remember { mutableStateOf("") }
@@ -577,11 +582,6 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         "Emulsions", "Gels", "Lotions", "Patches", "Inhalers", "Suppositories",
         "Injectables", "Syrup", "Creams", "Ointments"
     )
-
-    // Medicine names fron database
-    var medicinesNames = listOf("Paracetamol", "Ibuprofen", "Aspirin", "Amoxicillin","Piriton","Viton")
-    var companyNames = listOf("Company A", "Company B", "Company C")
-    var suppliersNames = listOf("Supplier X", "Supplier Y", "Supplier Z")
 
 
 
@@ -631,7 +631,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
             modifier = Modifier.padding(bottom = 16.dp)
         )
         CustomFilterField(
-            namesList = medicinesNames,
+            namesList = medicineNames,
             name = name,
             onNameChange = { name = it },
             labelText = "Medicine Name",
@@ -752,7 +752,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         )
         Spacer(modifier = Modifier.height(8.dp))
         CustomFilterField(
-            namesList = suppliersNames,
+            namesList = supplierNames,
             name = supplierName,
             onNameChange = { supplierName = it },
             labelText = "Supplier Name",

@@ -11,4 +11,6 @@ interface MedicineRepository {
     suspend fun getMedicineByName(medicineName: String): Medicine?
     suspend fun updateMedicine(medicine: Medicine): Medicine?
     suspend fun deleteMedicine(medicineId: Int): Boolean
+    suspend fun getAllCompanyNames() : List<String>
+    suspend fun getAllMedicineNames() : List<String>
 }

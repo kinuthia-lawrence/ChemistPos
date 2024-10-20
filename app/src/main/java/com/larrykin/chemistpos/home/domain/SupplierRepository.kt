@@ -11,4 +11,5 @@ interface SupplierRepository {
     suspend fun getSupplierByName(supplierName: String) : Supplier?
     suspend fun updateSupplier(supplier: Supplier) : Supplier?
     suspend fun deleteSupplier(supplierId: Int) : Boolean
+    suspend fun  getSupplierNames() : List<String>
 }

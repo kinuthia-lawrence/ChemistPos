@@ -376,7 +376,7 @@ fun EditSupplierDialog(
         Spacer(modifier = Modifier.height(8.dp))
         CustomTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = { email = it.trim() },
             labelText = "Email",
             leadingIcon = Icons.Default.CheckCircle,
             keyboardType = KeyboardType.Email,
@@ -486,7 +486,7 @@ fun CreateSupplier(
             Spacer(modifier = Modifier.height(16.dp))
             CustomTextField(
                 value = supplierViewModel.name,
-                onValueChange = { supplierViewModel.name = it.trim() },
+                onValueChange = { supplierViewModel.name = it },
                 labelText = "Supplier Name",
                 keyboardType = KeyboardType.Text,
                 modifier = Modifier.fillMaxWidth(),

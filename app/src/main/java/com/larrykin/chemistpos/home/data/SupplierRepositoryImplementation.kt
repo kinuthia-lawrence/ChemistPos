@@ -70,4 +70,8 @@ class SupplierRepositoryImplementation @Inject constructor(private val supplierD
             false
         }
     }
+
+    override suspend fun getSupplierNames(): List<String> {
+        return supplierDao.getAllSupplierNames()
+    }
 }

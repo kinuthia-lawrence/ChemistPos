@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.larrykin.chemistpos.core.data.GetAllProductsResult
 import com.larrykin.chemistpos.home.data.Product
+import com.larrykin.chemistpos.home.domain.MedicineRepository
 import com.larrykin.chemistpos.home.domain.ProductRepository
+import com.larrykin.chemistpos.home.domain.SupplierRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +20,28 @@ sealed class StockResult {
 
 @HiltViewModel
 class StockViewModel @Inject constructor(
-    private val repository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val medicineRepository: MedicineRepository,
+    private val supplierRepository: SupplierRepository
 ) : ViewModel() {
+    // medicinesNames
+    private val _medicineNames = MutableStateFlow<List<String>>(emptyList())
+    val medicineNames: StateFlow<List<String>> get() = _medicineNames
+    //companyNames
+    private val _companyNames = MutableStateFlow<List<String>>(emptyList())
+    val companyNames: StateFlow<List<String>> get() = _companyNames
+    //supplierNames
+    private val _supplierNames = MutableStateFlow<List<String>>(emptyList())
+    val supplierNames: StateFlow<List<String>> get() = _supplierNames
+
+    init {
+        viewModelScope.launch{
+            _medicineNames.value = medicineRepository.getAllMedicineNames()
+            _companyNames.value = medicineRepository.getAllCompanyNames()
+            _supplierNames.value = supplierRepository.getSupplierNames()
+        }
+    }
+    //? Cart
     private val _cart = MutableStateFlow<List<Product>>(emptyList())
     val cart: StateFlow<List<Product>> get() = _cart
 
@@ -36,7 +58,7 @@ class StockViewModel @Inject constructor(
     suspend fun addProduct(product: Product, onResult: (StockResult) -> Unit) {
         viewModelScope.launch {
             try {
-                val result = repository.insertProduct(product)
+                val result = productRepository.insertProduct(product)
                 if (result != null) {
                     if (result > 0) {
                         onResult(StockResult.Success)
@@ -54,7 +76,7 @@ class StockViewModel @Inject constructor(
     suspend fun getAllProducts(onResult: (StockResult, List<Product>) -> Unit) {
         viewModelScope.launch {
             try {
-                repository.getAllProducts().collect { result ->
+                productRepository.getAllProducts().collect { result ->
                     when (result) {
                         is GetAllProductsResult.Success -> {
                             onResult(StockResult.Success, result.products)
@@ -75,7 +97,7 @@ class StockViewModel @Inject constructor(
     suspend fun deleteProduct(productId: Int, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
-                val result = repository.deleteProduct(productId)
+                val result = productRepository.deleteProduct(productId)
                 if (result) {
                     getAllProducts { stockResult, _ ->
                         onResult(stockResult is StockResult.Success)
@@ -93,7 +115,7 @@ class StockViewModel @Inject constructor(
     suspend fun updateProduct(product: Product, onResult: (StockResult) -> Unit) {
         viewModelScope.launch {
             try {
-                val result = repository.updateProduct(product)
+                val result = productRepository.updateProduct(product)
                 if (result != null) {
                     getAllProducts { stockResult, _ ->
                         onResult(stockResult)

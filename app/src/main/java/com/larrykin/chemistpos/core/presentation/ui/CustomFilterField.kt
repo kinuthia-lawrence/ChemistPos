@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -33,7 +34,7 @@ fun CustomFilterField(
     val filteredNames = remember { mutableStateOf(namesList) }
 
     Column {
-        TextField(
+        OutlinedTextField(
             value = name,
             onValueChange = {
                 onNameChange(it)
@@ -43,7 +44,12 @@ fun CustomFilterField(
                 expanded.value = true
             },
             label = { Text(labelText) },
-            leadingIcon = { if (leadingIcon != null) Icon(imageVector = leadingIcon, contentDescription = null) },
+            leadingIcon = {
+                if (leadingIcon != null) Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = null
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             visualTransformation = visualTransformation,
             shape = RoundedCornerShape(30),
@@ -79,5 +85,5 @@ fun PrevMedicineNameField() {
         keyboardType = KeyboardType.Text,
         visualTransformation = VisualTransformation.None,
 
-    )
+        )
 }
