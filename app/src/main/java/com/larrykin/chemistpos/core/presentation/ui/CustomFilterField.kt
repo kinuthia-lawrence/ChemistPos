@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun CustomFilterField(
-    medicineNames: List<String>,
+    namesList: List<String>,
     name: String,
     onNameChange: (String) -> Unit,
     labelText: String,
@@ -30,14 +30,14 @@ fun CustomFilterField(
 
 ) {
     val expanded = remember { mutableStateOf(false) }
-    val filteredNames = remember { mutableStateOf(medicineNames) }
+    val filteredNames = remember { mutableStateOf(namesList) }
 
     Column {
         TextField(
             value = name,
             onValueChange = {
                 onNameChange(it)
-                filteredNames.value = medicineNames.filter { medicineName ->
+                filteredNames.value = namesList.filter { medicineName ->
                     medicineName.contains(it, ignoreCase = true)
                 }
                 expanded.value = true
@@ -71,7 +71,7 @@ fun CustomFilterField(
 @Composable
 fun PrevMedicineNameField() {
     CustomFilterField(
-        medicineNames = listOf("Paracetamol", "Ibuprofen", "Aspirin"),
+        namesList = listOf("Paracetamol", "Ibuprofen", "Aspirin"),
         name = "",
         onNameChange = {},
         labelText = "Medicine Name",

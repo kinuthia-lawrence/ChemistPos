@@ -631,23 +631,21 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
             modifier = Modifier.padding(bottom = 16.dp)
         )
         CustomFilterField(
-            medicineNames = medicinesNames,
+            namesList = medicinesNames,
             name = name,
             onNameChange = { name = it },
             labelText = "Medicine Name",
             leadingIcon = Icons.Default.Edit,
             keyboardType = KeyboardType.Text
         )
-
         Spacer(modifier = Modifier.height(8.dp))
-        CustomTextField(
-            value = company,
-            onValueChange = { company = it },
+        CustomFilterField(
+            namesList = companyNames,
+            name = company,
+            onNameChange = { company = it },
             labelText = "Company Name",
-            leadingIcon = Icons.Default.CheckCircle,
-            keyboardType = KeyboardType.Text,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = true
+            leadingIcon = Icons.Default.Edit,
+            keyboardType = KeyboardType.Text
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -753,11 +751,13 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
 
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = supplierName,
-            onValueChange = { supplierName = it },
-            label = { Text("Supplier Name") },
-            modifier = Modifier.fillMaxWidth()
+        CustomFilterField(
+            namesList = suppliersNames,
+            name = supplierName,
+            onNameChange = { supplierName = it },
+            labelText = "Supplier Name",
+            leadingIcon = Icons.Default.Edit,
+            keyboardType = KeyboardType.Text
         )
         Spacer(modifier = Modifier.height(8.dp))
         // DatePicker for expiry date
