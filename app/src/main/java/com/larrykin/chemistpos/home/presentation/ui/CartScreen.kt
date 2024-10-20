@@ -38,20 +38,17 @@ import kotlinx.coroutines.launch
 @Composable
 fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hiltViewModel()) {
     val cartItems = stockViewModel.cart.collectAsState().value
-    var expectedAmount by remember { mutableStateOf(0.0) }
+    val expectedAmount by stockViewModel.expectedAmount.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
 
     Column(modifier = Modifier.padding(16.dp)) {
         cartItems.forEach { item ->
             var quantity by remember { mutableStateOf(1) }
             val availableQuantity = item.quantityAvailable / item.minMeasure
 
-
             LaunchedEffect(quantity) {
-                expectedAmount =
-                    cartItems.sumOf { it.retailSellingPrice * quantity * item.minMeasure }
+                stockViewModel.setExpectedAmount(cartItems.sumOf { it.retailSellingPrice * quantity })
             }
 
             Card(
@@ -100,7 +97,10 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Button(onClick = { stockViewModel.removeFromCart(item) }) {
+                        Button(onClick = {
+                            stockViewModel.removeFromCart(item, quantity)
+                            stockViewModel.setExpectedAmount(expectedAmount - (item.retailSellingPrice * quantity))
+                        }) {
                             Text("Remove")
                         }
                         Row(
@@ -108,13 +108,19 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                             horizontalArrangement = Arrangement.End,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { if (quantity > 1) quantity-- }) {
+                            IconButton(onClick = {
+                                if (quantity > 1) {
+                                    quantity--
+                                    stockViewModel.setExpectedAmount(expectedAmount - (item.retailSellingPrice))
+                                }
+                            }) {
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = "Decrement")
                             }
                             Text(text = "$quantity", modifier = Modifier.padding(horizontal = 8.dp))
                             IconButton(onClick = {
                                 if (quantity < availableQuantity) {
                                     quantity++
+                                    stockViewModel.setExpectedAmount(expectedAmount + (item.retailSellingPrice * quantity))
                                 } else {
                                     scope.launch {
                                         snackbarHostState.showSnackbar("Quantity exceeds available stock")
@@ -177,7 +183,5 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                 Text("Sell")
             }
         }
-
-
     }
 }

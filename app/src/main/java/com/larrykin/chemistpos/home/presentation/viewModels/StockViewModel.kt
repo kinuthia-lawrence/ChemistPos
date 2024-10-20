@@ -44,13 +44,21 @@ class StockViewModel @Inject constructor(
     //? Cart
     private val _cart = MutableStateFlow<List<Product>>(emptyList())
     val cart: StateFlow<List<Product>> get() = _cart
+    //expected amount
+    private val _expectedAmount = MutableStateFlow(0.0)
+    val expectedAmount: StateFlow<Double> get() = _expectedAmount
+
+    //function to set the expected amount
+    fun setExpectedAmount(amount: Double) {
+        _expectedAmount.value = amount
+    }
 
     // Function to add a product to the cart
     fun addToCart(product: Product) {
         _cart.value = _cart.value + product
     }
     // Function to remove a product from the cart
-    fun removeFromCart(product: Product) {
+    fun removeFromCart(product: Product, quantity: Int) {
         _cart.value = _cart.value - product
     }
 
