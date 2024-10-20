@@ -30,6 +30,7 @@ import com.larrykin.chemistpos.components.HeaderText
 import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
+import com.larrykin.chemistpos.core.presentation.ui.CustomFilterField
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.presentation.viewModels.StockResult
 import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
@@ -570,12 +571,20 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
     var showSuccessAlert by remember { mutableStateOf(false) }
     var errorAlert by remember { mutableStateOf(false) }
 
-
+    // Formulations
     val formulations = listOf(
         "Tablets", "Capsules", "Powders", "Granules", "Solutions", "Suspensions",
         "Emulsions", "Gels", "Lotions", "Patches", "Inhalers", "Suppositories",
         "Injectables", "Syrup", "Creams", "Ointments"
     )
+
+    // Medicine names fron database
+    var medicinesNames = listOf("Paracetamol", "Ibuprofen", "Aspirin", "Amoxicillin","Piriton","Viton")
+    var companyNames = listOf("Company A", "Company B", "Company C")
+    var suppliersNames = listOf("Supplier X", "Supplier Y", "Supplier Z")
+
+
+
     val isDropDownExpanded = remember { mutableStateOf(false) }
     var formulation by remember { mutableStateOf(formulations.firstOrNull() ?: "") }
     val itemPosition = remember { mutableStateOf(0) }
@@ -621,12 +630,15 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
             text = "Add Stock",
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Medicine Name") },
-            modifier = Modifier.fillMaxWidth()
+        CustomFilterField(
+            medicineNames = medicinesNames,
+            name = name,
+            onNameChange = { name = it },
+            labelText = "Medicine Name",
+            leadingIcon = Icons.Default.Edit,
+            keyboardType = KeyboardType.Text
         )
+
         Spacer(modifier = Modifier.height(8.dp))
         CustomTextField(
             value = company,
