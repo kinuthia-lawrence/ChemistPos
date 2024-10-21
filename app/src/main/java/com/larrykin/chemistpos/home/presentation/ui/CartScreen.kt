@@ -1,5 +1,6 @@
 package com.larrykin.chemistpos.home.presentation.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -153,6 +154,8 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
 
         // Payment Section
         Column(modifier = Modifier.padding(16.dp)) {
+            // Snackbar Host
+            SnackbarHost(hostState = snackbarHostState)
             Text(
                 text = "Expected Amount: @Ksh$expectedAmount",
                 style = MaterialTheme.typography.headlineMedium
@@ -220,6 +223,9 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                         scope.launch {
                             snackbarHostState.showSnackbar("Sale successful")
                         }
+                        //Log the data
+                        Log.d("CartScreen", "Sale successful: $saleItems")
+
                     } else {
                         scope.launch {
                             snackbarHostState.showSnackbar("Sale failed")

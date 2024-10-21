@@ -175,7 +175,7 @@ class StockViewModel @Inject constructor(
         credit: Double,
         seller: String,
         onResult: (Boolean) -> Unit
-    ){
+    ) {
         val sale = Sales(
             items = items,
             totalPrice = totalPrice,
@@ -189,15 +189,47 @@ class StockViewModel @Inject constructor(
         )
         viewModelScope.launch {
             val result = salesRepository.insertSale(sale)
-            onResult(result != null && result > 0)
+            if (result != null && result > 0) {
+                subtractFromStock(items){ stockSuccess ->
+                    onResult(stockSuccess)
+                }
+            } else {
+                onResult(false)
+            }
         }
 
     }
 
     // clear cart
-    fun clearCart(){
+    fun clearCart() {
         _cart.value = emptyList()
         _quantityMap.value = emptyMap()
         _expectedAmount.value = 0.0
     }
+
+    //subtract sales from stock
+    fun subtractFromStock(items: List<SaleItem>, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            var success = true
+            items.forEach { saleItem ->
+                val product = productRepository.getProductById(saleItem.productId)
+                product?.let {
+                    val newQuantity = it.quantityAvailable - (it.minMeasure * saleItem.quantity)
+                    if (newQuantity >= 0) {
+                        val updatedProduct = it.copy(quantityAvailable = newQuantity)
+                        val updateResult = productRepository.updateProduct(updatedProduct)
+                        if (updateResult == null) {
+                            success = false
+                        }
+                    } else {
+                        success = false
+                    }
+                } ?: run {
+                    success = false
+                }
+            }
+            onResult(success)
+        }
+    }
+
 }
