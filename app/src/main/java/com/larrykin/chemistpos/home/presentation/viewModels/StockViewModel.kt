@@ -245,4 +245,9 @@ class StockViewModel @Inject constructor(
             }
         }
     }
+
+    //get product by id
+    suspend  fun getProductById(productId: Int): Product? {
+        return productRepository.getProductById(productId)
+    }
 }

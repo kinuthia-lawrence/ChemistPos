@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.text.set
 
 @Composable
 fun SalesScreen(stockViewModel: StockViewModel = hiltViewModel()) {
@@ -202,8 +204,10 @@ fun SalesTabContent(stockViewModel: StockViewModel = hiltViewModel()) {
     Column(modifier = Modifier.padding(16.dp)) {
         // Date Pickers
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .padding(start = 32.dp, end = 32.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             DatePicker(label = "From Date", selectedDate = fromDate) { date ->
                 fromDate = date
@@ -251,10 +255,9 @@ fun DatePicker(label: String, selectedDate: Date, onDateSelected: (Date) -> Unit
     val context = LocalContext.current
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        Text(text = label, style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(4.dp))
         Button(onClick = {
             // Show date picker dialog
@@ -280,28 +283,36 @@ fun DatePicker(label: String, selectedDate: Date, onDateSelected: (Date) -> Unit
 }
 
 @Composable
-fun SaleItemCard(sale: Sales) {
+fun SaleItemCard(sale: Sales, stockViewModel: StockViewModel = hiltViewModel()) {
+        val products = remember { mutableStateMapOf<Int, String>() }
+
+        LaunchedEffect(sale.items) {
+            sale.items.forEach { saleItem ->
+                val product = stockViewModel.getProductById(saleItem.productId)
+                product?.let {
+                    products[saleItem.productId] = it.name
+                }
+            }
+        }
+
     Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "ID: ${sale.id}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Date: ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(sale.date)}", style = MaterialTheme.typography.bodyMedium)
             Text(text = "Seller: ${sale.seller}", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                text = "Expected Amount: ${sale.expectedAmount}", style = MaterialTheme.typography
-                    .bodyMedium
-            )
-            Text(
-                text = "Paid  Amount: ${sale.totalPrice}", style = MaterialTheme.typography
-                    .bodyMedium
-            )
-            Text(
-                text = "Date: ${
-                    SimpleDateFormat(
-                        "yyyy-MM-dd",
-                        Locale.getDefault()
-                    ).format(sale.date)
-                }", style = MaterialTheme.typography.bodyMedium
-            )
-            // Add more fields as needed
+            Spacer(modifier = Modifier.height(8.dp))
+            sale.items.forEach { saleItem ->
+                val productName = products[saleItem.productId] ?: "Unknown"
+                Text(text = "Item: $productName, Quantity: ${saleItem.quantity}", style = MaterialTheme.typography.bodyMedium)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Cash Amount: ${sale.cash}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Mpesa Amount: ${sale.mpesa}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Discount Amount: ${sale.discount}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Credit Amount: ${sale.credit}", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Paid Amount: ${sale.totalPrice}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Expected Amount: ${sale.expectedAmount}", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
