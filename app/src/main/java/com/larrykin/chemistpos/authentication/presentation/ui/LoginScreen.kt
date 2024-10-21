@@ -220,9 +220,9 @@ fun LoginScreen(
         AlternativeLoginOptions(
             onIconClick = { index ->
                 when (index) {
-                    0 -> Toast.makeText(context, "Instagram clicked", Toast.LENGTH_SHORT).show()
-                    1 -> Toast.makeText(context, "GitHub clicked", Toast.LENGTH_SHORT).show()
-                    2 -> Toast.makeText(context, "Google clicked", Toast.LENGTH_SHORT).show()
+                    0 -> Toast.makeText(context, "Instagram Coming Soon!", Toast.LENGTH_SHORT).show()
+                    1 -> Toast.makeText(context, "GitHub Coming Soon!", Toast.LENGTH_SHORT).show()
+                    2 -> Toast.makeText(context, "Google Coming Soon!", Toast.LENGTH_SHORT).show()
                 }
             },
             //passing the navigateToRegister state to the AlternativeLoginOptions

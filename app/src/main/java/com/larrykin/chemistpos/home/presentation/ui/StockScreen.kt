@@ -584,7 +584,6 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
     )
 
 
-
     val isDropDownExpanded = remember { mutableStateOf(false) }
     var formulation by remember { mutableStateOf(formulations.firstOrNull() ?: "") }
     val itemPosition = remember { mutableStateOf(0) }
@@ -652,7 +651,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         Column(
             modifier = Modifier
                 .clip(shape = RoundedCornerShape(10.dp))
-                .background(color = Color(0xFFD3D3D3))
+                .background(color = Color.DarkGray)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -668,7 +667,10 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
                             isDropDownExpanded.value = true
                         }
                 ) {
-                    Text(text = "Formulation : " + formulations[itemPosition.value])
+                    Text(
+                        text = "Formulation : " + formulations[itemPosition.value],
+                        color = Color.White
+                    )
                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                 }
                 DropdownMenu(
