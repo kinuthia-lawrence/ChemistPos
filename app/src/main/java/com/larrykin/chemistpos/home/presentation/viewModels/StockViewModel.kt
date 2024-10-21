@@ -2,15 +2,20 @@ package com.larrykin.chemistpos.home.presentation.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.computations.result
 import com.larrykin.chemistpos.core.data.GetAllProductsResult
 import com.larrykin.chemistpos.home.data.Product
+import com.larrykin.chemistpos.home.data.SaleItem
+import com.larrykin.chemistpos.home.data.Sales
 import com.larrykin.chemistpos.home.domain.MedicineRepository
 import com.larrykin.chemistpos.home.domain.ProductRepository
+import com.larrykin.chemistpos.home.domain.SalesRepository
 import com.larrykin.chemistpos.home.domain.SupplierRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 sealed class StockResult {
@@ -22,7 +27,8 @@ sealed class StockResult {
 class StockViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     private val medicineRepository: MedicineRepository,
-    private val supplierRepository: SupplierRepository
+    private val supplierRepository: SupplierRepository,
+    private val salesRepository: SalesRepository
 ) : ViewModel() {
     // medicinesNames
     private val _medicineNames = MutableStateFlow<List<String>>(emptyList())
@@ -156,5 +162,42 @@ class StockViewModel @Inject constructor(
                 onResult(StockResult.Error(e.message ?: "Unknown error"))
             }
         }
+    }
+
+    //save the sales
+    fun saveSales(
+        items: List<SaleItem>,
+        totalPrice: Double,
+        expectedAmount: Double,
+        cash: Double,
+        mpesa: Double,
+        discount: Double,
+        credit: Double,
+        seller: String,
+        onResult: (Boolean) -> Unit
+    ){
+        val sale = Sales(
+            items = items,
+            totalPrice = totalPrice,
+            expectedAmount = expectedAmount,
+            cash = cash,
+            mpesa = mpesa,
+            discount = discount,
+            credit = credit,
+            seller = seller,
+            date = Date()
+        )
+        viewModelScope.launch {
+            val result = salesRepository.insertSale(sale)
+            onResult(result != null && result > 0)
+        }
+
+    }
+
+    // clear cart
+    fun clearCart(){
+        _cart.value = emptyList()
+        _quantityMap.value = emptyMap()
+        _expectedAmount.value = 0.0
     }
 }

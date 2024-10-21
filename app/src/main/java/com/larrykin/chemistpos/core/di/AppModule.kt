@@ -15,10 +15,13 @@ import com.larrykin.chemistpos.home.data.MedicineDao
 import com.larrykin.chemistpos.home.data.MedicineRepositoryImplementation
 import com.larrykin.chemistpos.home.data.ProductDao
 import com.larrykin.chemistpos.home.data.ProductRepositoryImplementation
+import com.larrykin.chemistpos.home.data.SalesDao
+import com.larrykin.chemistpos.home.data.SalesRepositoryImplementation
 import com.larrykin.chemistpos.home.data.SupplierDao
 import com.larrykin.chemistpos.home.data.SupplierRepositoryImplementation
 import com.larrykin.chemistpos.home.domain.MedicineRepository
 import com.larrykin.chemistpos.home.domain.ProductRepository
+import com.larrykin.chemistpos.home.domain.SalesRepository
 import com.larrykin.chemistpos.home.domain.SupplierRepository
 import dagger.Binds
 import dagger.Module
@@ -243,6 +246,7 @@ object AppModule {
         }
     }
 
+    // Migration after downgrading to version 7
     private val MIGRATION_8_7 = object : Migration(8, 7) {
         override fun migrate(database: SupportSQLiteDatabase) {
             // Create a new table with the previous schema
@@ -275,6 +279,28 @@ object AppModule {
         }
     }
 
+    //migration after adding the sales table(upgraded from 7 to version 10)
+    val MIGRATION_7_10 = object : Migration(7, 10) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `sales` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `items` TEXT NOT NULL,
+                `total_price` REAL NOT NULL,
+                `expected_amount` REAL NOT NULL,
+                `cash` REAL NOT NULL,
+                `mpesa` REAL NOT NULL,
+                `discount` REAL NOT NULL,
+                `credit` REAL NOT NULL,
+                `seller` TEXT NOT NULL,
+                `date` INTEGER NOT NULL
+            )
+            """
+            )
+        }
+    }
+
     @Provides // Annotates a method that returns a dependency instance (AppDatabase instance)
     @Singleton // Ensure only one instance is created
     fun provideDatabase(app: Application): AppDatabase {
@@ -299,7 +325,8 @@ object AppModule {
             MIGRATION_5_6,
             MIGRATION_6_7,
             MIGRATION_7_8,
-            MIGRATION_8_7
+            MIGRATION_8_7,
+            MIGRATION_7_10
 
         )
             .build()
@@ -323,6 +350,11 @@ object AppModule {
     @Provides // Provide MedicineDao instance
     fun providesMedicineDao(appDatabase: AppDatabase): MedicineDao {
         return appDatabase.medicineDao()
+    }
+
+    @Provides // Provide SalesDao instance
+    fun providesSalesDao(appDatabase: AppDatabase): SalesDao {
+        return appDatabase.salesDao()
     }
 
     @Provides // Provide Context instance
@@ -366,4 +398,13 @@ abstract class MedicineRepositoryModule {
     abstract fun bindMedicineRepository(
         medicineRepositoryImplementation: MedicineRepositoryImplementation
     ): MedicineRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class SalesRepositoryModule {
+    @Binds // Bind the SalesRepositoryImplementation to SalesRepository
+    abstract fun bindSalesRepository(
+        salesRepositoryImplementation: SalesRepositoryImplementation
+    ): SalesRepository
 }

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.larrykin.chemistpos.authentication.components.CustomTextField
 import com.larrykin.chemistpos.core.data.LoggedInUser
+import com.larrykin.chemistpos.home.data.SaleItem
 import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
 import kotlinx.coroutines.launch
 
@@ -42,6 +43,11 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
     val expectedAmount by stockViewModel.expectedAmount.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    var cash by remember { mutableStateOf("") }
+    var mpesa by remember { mutableStateOf("") }
+    var discount by remember { mutableStateOf("") }
+    var credit by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.padding(16.dp)) {
         cartItems.forEach { item ->
@@ -103,8 +109,10 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                     ) {
                         Button(onClick = {
                             stockViewModel.removeFromCart(item, quantity)
-                            stockViewModel.setExpectedAmount(stockViewModel.cart.value.sumOf { it
-                                .retailSellingPrice * (quantityMap[it] ?: 1) })
+                            stockViewModel.setExpectedAmount(stockViewModel.cart.value.sumOf {
+                                it
+                                    .retailSellingPrice * (quantityMap[it] ?: 1)
+                            })
                         }) {
                             Text("Remove")
                         }
@@ -115,7 +123,7 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                         ) {
                             IconButton(onClick = {
                                 if (quantity > 1) {
-                                   stockViewModel.updateQuantity(item, quantity - 1)
+                                    stockViewModel.updateQuantity(item, quantity - 1)
                                 }
                             }) {
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = "Decrement")
@@ -151,38 +159,75 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
             )
             Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
-                value = "",
-                onValueChange = {},
+                value = cash,
+                onValueChange = { cash = it },
                 labelText = "Cash",
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true
             )
             Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
-                value = "",
-                onValueChange = {},
+                value = mpesa,
+                onValueChange = { mpesa = it },
                 labelText = "Mpesa",
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true
             )
             Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
-                value = "",
-                onValueChange = {},
+                value = discount,
+                onValueChange = { discount = it },
                 labelText = "Discount",
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true
             )
             Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
-                value = "",
-                onValueChange = {},
+                value = credit,
+                onValueChange = { credit = it },
                 labelText = "Credit",
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { /* Handle sell action */ }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = {
+                val saleItems = cartItems.map { item ->
+                    SaleItem(
+                        productId = item.id,
+                        quantity = quantityMap[item] ?: 1
+                    )
+                }
+                val cashAmount = cash.toDoubleOrNull() ?: 0.0
+                val mpesaAmount = mpesa.toDoubleOrNull() ?: 0.0
+                val totalPrice = cashAmount + mpesaAmount
+
+                stockViewModel.saveSales(
+                    items = saleItems,
+                    totalPrice = totalPrice,
+                    expectedAmount = expectedAmount,
+                    cash = cashAmount,
+                    mpesa = mpesaAmount,
+                    discount = discount.toDoubleOrNull() ?: 0.0,
+                    credit = credit.toDoubleOrNull() ?: 0.0,
+                    seller = loggedInUser.email
+                ) { success ->
+                    if (success) {
+                        stockViewModel.clearCart()
+                        cash = ""
+                        mpesa = ""
+                        discount = ""
+                        credit = ""
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Sale successful")
+                        }
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Sale failed")
+                        }
+                    }
+
+                }
+            }, modifier = Modifier.fillMaxWidth()) {
                 Text("Sell")
             }
         }

@@ -3,6 +3,7 @@ package com.larrykin.chemistpos.core.converters
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.larrykin.chemistpos.home.data.SaleItem
 import java.util.Date
 
 open class Converters {
@@ -39,4 +40,20 @@ open class Converters {
     fun fromList(list: List<String>): String {
         return Gson().toJson(list)
     }
+
+    //    convert the list of SaleItem to a string and vice versa
+    @TypeConverter
+    fun fromSaleItemList(value: List<SaleItem>): String {
+        val gson = Gson()
+        val type = object : TypeToken<List<SaleItem>>() {}.type
+        return gson.toJson(value, type)
+    }
+
+    @TypeConverter
+    fun toSaleItemList(value: String): List<SaleItem> {
+        val gson = Gson()
+        val type = object : TypeToken<List<SaleItem>>() {}.type
+        return gson.fromJson(value, type)
+    }
+
 }
