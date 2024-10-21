@@ -124,6 +124,8 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
+        val availableQuantity = product.quantityAvailable / product.minMeasure
+
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Name: ${product.name}", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(4.dp))
@@ -150,6 +152,11 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
             Text(
                 text = "Min Measure: ${product.minMeasure}",
                 style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Sellable Quantity: $availableQuantity",
+                style = MaterialTheme.typography.bodyLarge
             )
             Spacer(modifier = Modifier.height(2.dp))
             Row(

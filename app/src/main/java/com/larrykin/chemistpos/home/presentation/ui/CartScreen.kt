@@ -29,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.larrykin.chemistpos.authentication.components.CustomTextField
@@ -165,6 +166,8 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                 value = cash,
                 onValueChange = { cash = it },
                 labelText = "Cash",
+                keyboardType = KeyboardType.Number,
+                leadingIcon = Icons.Default.AddCircle,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true
             )
@@ -173,6 +176,8 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                 value = mpesa,
                 onValueChange = { mpesa = it },
                 labelText = "Mpesa",
+                keyboardType = KeyboardType.Number,
+                leadingIcon = Icons.Default.AddCircle,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true
             )
@@ -181,6 +186,8 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                 value = discount,
                 onValueChange = { discount = it },
                 labelText = "Discount",
+                keyboardType = KeyboardType.Number,
+                leadingIcon = Icons.Default.AddCircle,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true
             )
@@ -189,6 +196,8 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                 value = credit,
                 onValueChange = { credit = it },
                 labelText = "Credit",
+                keyboardType = KeyboardType.Number,
+                leadingIcon = Icons.Default.AddCircle,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true
             )
