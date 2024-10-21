@@ -54,11 +54,16 @@ class StockViewModel @Inject constructor(
     private val _quantityMap = MutableStateFlow<Map<Product, Int>>(emptyMap())
     val quantityMap: StateFlow<Map<Product, Int>> get() = _quantityMap
 
+    //sales
+    private val _sales = MutableStateFlow<List<Sales>>(emptyList())
+    val sales: StateFlow<List<Sales>> get() = _sales
+
     init {
         viewModelScope.launch {
             _medicineNames.value = medicineRepository.getAllMedicineNames()
             _companyNames.value = medicineRepository.getAllCompanyNames()
             _supplierNames.value = supplierRepository.getSupplierNames()
+            fetchSales()
         }
     }
 
@@ -190,7 +195,7 @@ class StockViewModel @Inject constructor(
         viewModelScope.launch {
             val result = salesRepository.insertSale(sale)
             if (result != null && result > 0) {
-                subtractFromStock(items){ stockSuccess ->
+                subtractFromStock(items) { stockSuccess ->
                     onResult(stockSuccess)
                 }
             } else {
@@ -232,4 +237,12 @@ class StockViewModel @Inject constructor(
         }
     }
 
+    // fetch sales
+    fun fetchSales() {
+        viewModelScope.launch {
+            salesRepository.getAllSales().collect { salesList ->
+                _sales.value = salesList
+            }
+        }
+    }
 }

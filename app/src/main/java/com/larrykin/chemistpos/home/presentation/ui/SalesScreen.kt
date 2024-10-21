@@ -1,7 +1,9 @@
 package com.larrykin.chemistpos.home.presentation.ui
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -11,12 +13,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.larrykin.chemistpos.authentication.components.CustomTextField
 import com.larrykin.chemistpos.home.data.Product
+import com.larrykin.chemistpos.home.data.Sales
 import com.larrykin.chemistpos.home.presentation.viewModels.StockResult
 import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun SalesScreen(stockViewModel: StockViewModel = hiltViewModel()) {
@@ -165,7 +173,7 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
             ) {
                 IconButton(
                     onClick = {
-                        if(cartItems.none { it.id == product.id} ) {
+                        if (cartItems.none { it.id == product.id }) {
                             if (product.quantityAvailable > product.minMeasure) {
                                 stockViewModel.addToCart(product)
                             } else {
@@ -186,6 +194,114 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
 }
 
 @Composable
-fun SalesTabContent(stockViewModel: StockViewModel) {
-    Text(text = "Sales Tab Content")
+fun SalesTabContent(stockViewModel: StockViewModel = hiltViewModel()) {
+    var fromDate by remember { mutableStateOf(Date()) }
+    var toDate by remember { mutableStateOf(Date()) }
+    val sales: List<Sales> by stockViewModel.sales.collectAsState(initial = emptyList())
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        // Date Pickers
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            DatePicker(label = "From Date", selectedDate = fromDate) { date ->
+                fromDate = date
+            }
+            DatePicker(label = "To Date", selectedDate = toDate) { date ->
+                toDate = date
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Normalize dates
+        val normalizedFromDate = Calendar.getInstance().apply {
+            time = fromDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.time
+
+        val normalizedToDate = Calendar.getInstance().apply {
+            time = toDate
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.time
+
+        // Filter and sort sales
+        val filteredSales =
+            sales.filter { sale -> sale.date in normalizedFromDate..normalizedToDate }
+
+        // Display sales
+        filteredSales.forEach { sale ->
+            SaleItemCard(sale)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+
+@Composable
+fun DatePicker(label: String, selectedDate: Date, onDateSelected: (Date) -> Unit) {
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+    val dateText = remember { mutableStateOf(dateFormat.format(selectedDate)) }
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        Spacer(modifier = Modifier.height(4.dp))
+        Button(onClick = {
+            // Show date picker dialog
+            val calendar = Calendar.getInstance()
+            calendar.time = selectedDate
+            DatePickerDialog(
+                context,
+                { _, year, month, dayOfMonth ->
+                    val newDate = Calendar.getInstance().apply {
+                        set(year, month, dayOfMonth)
+                    }.time
+                    dateText.value = dateFormat.format(newDate)
+                    onDateSelected(newDate)
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }) {
+            Text(text = dateText.value)
+        }
+    }
+}
+
+@Composable
+fun SaleItemCard(sale: Sales) {
+    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "ID: ${sale.id}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Seller: ${sale.seller}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Expected Amount: ${sale.expectedAmount}", style = MaterialTheme.typography
+                    .bodyMedium
+            )
+            Text(
+                text = "Paid  Amount: ${sale.totalPrice}", style = MaterialTheme.typography
+                    .bodyMedium
+            )
+            Text(
+                text = "Date: ${
+                    SimpleDateFormat(
+                        "yyyy-MM-dd",
+                        Locale.getDefault()
+                    ).format(sale.date)
+                }", style = MaterialTheme.typography.bodyMedium
+            )
+            // Add more fields as needed
+        }
+    }
 }
