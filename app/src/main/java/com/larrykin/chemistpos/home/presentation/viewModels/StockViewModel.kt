@@ -27,26 +27,45 @@ class StockViewModel @Inject constructor(
     // medicinesNames
     private val _medicineNames = MutableStateFlow<List<String>>(emptyList())
     val medicineNames: StateFlow<List<String>> get() = _medicineNames
+
     //companyNames
     private val _companyNames = MutableStateFlow<List<String>>(emptyList())
     val companyNames: StateFlow<List<String>> get() = _companyNames
+
     //supplierNames
     private val _supplierNames = MutableStateFlow<List<String>>(emptyList())
     val supplierNames: StateFlow<List<String>> get() = _supplierNames
 
+    //? Cart
+    private val _cart = MutableStateFlow<List<Product>>(emptyList())
+    val cart: StateFlow<List<Product>> get() = _cart
+
+    //expected amount
+    private val _expectedAmount = MutableStateFlow(0.0)
+    val expectedAmount: StateFlow<Double> get() = _expectedAmount
+
+    //quantity map
+    private val _quantityMap = MutableStateFlow<Map<Product, Int>>(emptyMap())
+    val quantityMap: StateFlow<Map<Product, Int>> get() = _quantityMap
+
     init {
-        viewModelScope.launch{
+        viewModelScope.launch {
             _medicineNames.value = medicineRepository.getAllMedicineNames()
             _companyNames.value = medicineRepository.getAllCompanyNames()
             _supplierNames.value = supplierRepository.getSupplierNames()
         }
     }
-    //? Cart
-    private val _cart = MutableStateFlow<List<Product>>(emptyList())
-    val cart: StateFlow<List<Product>> get() = _cart
-    //expected amount
-    private val _expectedAmount = MutableStateFlow(0.0)
-    val expectedAmount: StateFlow<Double> get() = _expectedAmount
+
+    //function to update quantity
+    fun updateQuantity(product: Product, quantity: Int) {
+        _quantityMap.value = _quantityMap.value.toMutableMap().apply {
+            this[product] = quantity
+        }
+        setExpectedAmount(_cart.value.sumOf {
+            it.retailSellingPrice * (_quantityMap.value[it] ?: 1)
+        })
+    }
+
 
     //function to set the expected amount
     fun setExpectedAmount(amount: Double) {
@@ -56,7 +75,9 @@ class StockViewModel @Inject constructor(
     // Function to add a product to the cart
     fun addToCart(product: Product) {
         _cart.value = _cart.value + product
+        _expectedAmount.value += product.retailSellingPrice
     }
+
     // Function to remove a product from the cart
     fun removeFromCart(product: Product, quantity: Int) {
         _cart.value = _cart.value - product
