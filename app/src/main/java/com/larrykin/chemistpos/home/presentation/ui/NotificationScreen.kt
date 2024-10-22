@@ -23,7 +23,8 @@ fun NotificationScreen(
     loggedInUser: LoggedInUser,
     notificationViewModel: NotificationViewModel = hiltViewModel()
 ) {
-    var selectedSection by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf("Expired Goods", "Out of Stock", "More")
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(
@@ -34,28 +35,13 @@ fun NotificationScreen(
             Text("Notifications", style = MaterialTheme.typography.titleLarge)
         }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
-        ) {
-            IconButton(onClick = { selectedSection = 0 }) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
-                    Text(text = "Expired", modifier = Modifier.padding(top = 8.dp))
-                }
-            }
-            IconButton(onClick = { selectedSection = 1 }) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                    Text(text = "Out of Stock", modifier = Modifier.padding(top = 8.dp))
-                }
-            }
-            IconButton(onClick = { selectedSection = 2 }) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
-                    Text(text = "More", modifier = Modifier.padding(top = 8.dp))
-                }
+        TabRow(selectedTabIndex = selectedTabIndex) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = { Text(text = title) }
+                )
             }
         }
 
@@ -63,7 +49,7 @@ fun NotificationScreen(
         val outOfStockGoods by notificationViewModel.outOfStockGoods.collectAsState()
 
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            when (selectedSection) {
+            when (selectedTabIndex) {
                 0 -> {
                     Text("Expired Goods", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
                     expiredGoods.forEach { product ->
@@ -100,8 +86,13 @@ fun ProductItem(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Name: ${product.name}")
             Text(text = "Company: ${product.company}")
+            Text(text = "Supplier: ${product.supplierName}")
             Text(text = "Formulation: ${product.formulation}")
             Text(text = "Minimum Stock: ${product.minStock}")
+            Text(text = "Quantity Available: ${product.quantityAvailable}")
+            Text(text = "Minimum Measure: ${product.minMeasure}")
+            Text(text = "Date Added: ${product.dateAdded}")
+            Text(text = "Expiry Date: ${product.expiryDate}")
 
             if (loggedInUser.role == Role.ADMIN) {
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
