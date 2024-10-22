@@ -24,6 +24,11 @@ class NotificationViewModel @Inject constructor(
     private val _outOfStockGoods = MutableStateFlow<List<Product>>(emptyList())
     val outOfStockGoods: StateFlow<List<Product>> get() = _outOfStockGoods
 
+    init {
+        getExpiredGoods()
+        getOutOfStockGoods()
+    }
+
     fun getExpiredGoods() {
         viewModelScope.launch {
             try {

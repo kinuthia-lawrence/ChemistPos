@@ -34,19 +34,11 @@ fun StatusBar(
     onInfoClick: () -> Unit = {},
     notificationViewModel: NotificationViewModel = hiltViewModel()
 ) {
-    var hasNotification by remember { mutableStateOf(false) }
+    val expiredGoods by notificationViewModel.expiredGoods.collectAsState()
+    val outOfStockGoods by notificationViewModel.outOfStockGoods.collectAsState()
 
-    LaunchedEffect(Unit) {
-        try {
-            notificationViewModel.getExpiredGoods()
-            notificationViewModel.getOutOfStockGoods()
-            hasNotification =
-                notificationViewModel.expiredGoods.value.isNotEmpty() || notificationViewModel.outOfStockGoods.value.isNotEmpty()
-            Log.d("Set Logs", " StatusBar: $hasNotification")
-        }catch (e: Exception){
-            Log.d("Set Logs", " StatusBar Error: ${e.message}")
-        }
-    }
+    val hasNotification = expiredGoods.isNotEmpty() || outOfStockGoods.isNotEmpty()
+    Log.d("Set Logs", " StatusBar: $hasNotification")
 
     Spacer(modifier = Modifier.height(24.dp))
     Row(
@@ -77,7 +69,7 @@ fun StatusBar(
             Icon(
                 Icons.Sharp.Notifications,
                 contentDescription = "Notifications",
-                tint = if (hasNotification) Color.Red else Color.Unspecified
+                tint = if (hasNotification) Color.Red else Color.White
             )
         }
         // Profile icon
