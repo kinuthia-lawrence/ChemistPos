@@ -66,13 +66,15 @@ class NotificationViewModel @Inject constructor(
         }
     }
 
-    fun deleteProduct(productId: Int) {
+    fun deleteProduct(productId: Int, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
-                productRepository.deleteProduct(productId)
+                val result =productRepository.deleteProduct(productId)
                 Log.d("Set Logs", "deleteProduct: $productId")
+                onResult(result)
             } catch (e: Exception) {
                 Log.d("Set Logs", "deleteProduct Error: ${e.message}")
+                onResult(false)
             }
         }
     }

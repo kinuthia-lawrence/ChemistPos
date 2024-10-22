@@ -118,7 +118,11 @@ fun ProductItem(
             message = "Are you sure you want to delete this product?, this action cannot be undone",
             onDismiss = { showDeleteChoiceDialog = false },
             onConfirm = {
-                notificationViewModel.deleteProduct(product.id)
+                notificationViewModel.deleteProduct(product.id){ result ->
+                    if (result) {
+                        showDeleteChoiceDialog = false
+                    }
+                }
             },
             alertState = "confirm"
         )
