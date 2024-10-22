@@ -203,7 +203,7 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                enabled = cartItems.isNotEmpty(),
+                enabled = !cartItems.isEmpty(),
                 onClick = {
                 val saleItems = cartItems.map { item ->
                     SaleItem(
