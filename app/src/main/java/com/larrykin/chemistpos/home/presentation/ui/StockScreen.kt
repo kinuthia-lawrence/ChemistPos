@@ -221,12 +221,17 @@ fun ProductCard(product: Product, loggedInUser: LoggedInUser, stockViewModel: St
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "Min Measure: ${product.minMeasure}",
+                text = "Minimum Stock: ${product.minStock}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "Quantity Available: ${product.quantityAvailable}",
+                text = "Min Sellable Measure: ${product.minMeasure}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "NO. of Sellable Units Available: ${product.quantityAvailable}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(2.dp))
@@ -417,7 +422,7 @@ fun EditProductDialog(
         CustomTextField(
             value = minStock,
             onValueChange = { minStock = it },
-            labelText = "Minimum Stock",
+            labelText = "Minimum Stock(Min. NO. of sellable Measure)",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -437,7 +442,7 @@ fun EditProductDialog(
         CustomTextField(
             value = quantityAvailable,
             onValueChange = { quantityAvailable = it },
-            labelText = "Total number of Minimum Measure",
+            labelText = "Total number of Minimum Sellable Units",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -447,7 +452,7 @@ fun EditProductDialog(
         CustomTextField(
             value = buyingPrice,
             onValueChange = { buyingPrice = it },
-            labelText = "Buying Price per Minimum Measure",
+            labelText = "Buying Price per Minimum Sellable Unit",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -457,7 +462,7 @@ fun EditProductDialog(
         CustomTextField(
             value = retailSellingPrice,
             onValueChange = { retailSellingPrice = it },
-            labelText = "Retail Selling Price per Minimum Measure",
+            labelText = "Retail Selling Price per Minimum Sellable Unit",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -467,7 +472,7 @@ fun EditProductDialog(
         CustomTextField(
             value = wholesaleSellingPrice,
             onValueChange = { wholesaleSellingPrice = it },
-            labelText = "Wholesale Selling Price per Minimum Measure",
+            labelText = "Wholesale Selling Price per Minimum Sellable Unit",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -695,7 +700,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         CustomTextField(
             value = minStock,
             onValueChange = { minStock = it },
-            labelText = "Minimum Stock",
+            labelText = "Minimum Stock(Min. NO. of sellable units)",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -715,7 +720,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         CustomTextField(
             value = quantityAvailable,
             onValueChange = { quantityAvailable = it },
-            labelText = "Total number of Minimum Measure",
+            labelText = "Total number of Minimum Units",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -725,7 +730,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         CustomTextField(
             value = buyingPrice,
             onValueChange = { buyingPrice = it },
-            labelText = "Buying Price per Minimum Measure",
+            labelText = "Buying Price per Minimum Sellable Unit",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -735,7 +740,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         CustomTextField(
             value = retailSellingPrice,
             onValueChange = { retailSellingPrice = it },
-            labelText = "Retail Selling Price per Minimum Measure",
+            labelText = "Retail Selling Price per Minimum sellable Unit",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),
@@ -745,7 +750,7 @@ fun AddStockContent(loggedInUser: LoggedInUser, stockViewModel: StockViewModel =
         CustomTextField(
             value = wholesaleSellingPrice,
             onValueChange = { wholesaleSellingPrice = it },
-            labelText = "Wholesale Selling Price per Minimum Measure",
+            labelText = "Wholesale Selling Price per Minimum Sellable Unit",
             leadingIcon = Icons.Default.Create,
             keyboardType = KeyboardType.Number,
             modifier = Modifier.fillMaxWidth(),

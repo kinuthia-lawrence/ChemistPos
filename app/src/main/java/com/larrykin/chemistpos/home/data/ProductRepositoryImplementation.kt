@@ -75,24 +75,24 @@ class ProductRepositoryImplementation @Inject constructor(private val productDao
         }
     }
 
-override suspend fun getProductByNameCompanyFormulationExpiryDate(
-    productName: String,
-    company: String,
-    formulation: String,
-    expiryDate: Date
-): Product? {
-    return try {
-        val expiryDateTimestamp = expiryDate.time
-        productDao.getProductByNameCompanyFormulationExpiryDate(
-            productName,
-            company,
-            formulation,
-            expiryDateTimestamp
-        )
-    } catch (e: Exception) {
-        null
+    override suspend fun getProductByNameCompanyFormulationExpiryDate(
+        productName: String,
+        company: String,
+        formulation: String,
+        expiryDate: Date
+    ): Product? {
+        return try {
+            val expiryDateTimestamp = expiryDate.time
+            productDao.getProductByNameCompanyFormulationExpiryDate(
+                productName,
+                company,
+                formulation,
+                expiryDateTimestamp
+            )
+        } catch (e: Exception) {
+            null
+        }
     }
-}
 
 
 }

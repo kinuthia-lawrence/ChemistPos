@@ -97,14 +97,24 @@ class StockViewModel @Inject constructor(
     suspend fun addProduct(product: Product, onResult: (StockResult) -> Unit) {
         viewModelScope.launch {
             try {
-                val existingProduct = productRepository.getProductByNameCompanyFormulationExpiryDate(
-                    product.name, product.company, product.formulation, product.expiryDate
-                )
+                val existingProduct =
+                    productRepository.getProductByNameCompanyFormulationExpiryDate(
+                        product.name, product.company, product.formulation, product.expiryDate
+                    )
                 Log.d("existingProduct", existingProduct.toString())
                 if (existingProduct != null) {
                     val updatedProduct = existingProduct.copy(
+                        minStock = product.minStock,
+                        minMeasure = product.minMeasure,
                         quantityAvailable = existingProduct.quantityAvailable + product.quantityAvailable,
-                        updatedAt = Date()
+                        buyingPrice = product.buyingPrice,
+                        retailSellingPrice = product.retailSellingPrice,
+                        wholesaleSellingPrice = product.wholesaleSellingPrice,
+                        supplierName = product.supplierName,
+                        updatedAt = Date(),
+                        description = if (product.description?.isBlank() == true) existingProduct
+                            .description
+                        else product.description
                     )
                     val result = productRepository.updateProduct(updatedProduct)
                     if (result != null) {

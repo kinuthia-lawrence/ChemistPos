@@ -150,6 +150,11 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
+                text = "Min Stock: ${product.minStock}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
                 text = "Retail Price: @Ksh${product.retailSellingPrice}",
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -160,12 +165,12 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "Min Measure: ${product.minMeasure}",
+                text = "Min Sellable Measure: ${product.minMeasure}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Sellable Quantity: $availableQuantity",
+                text = "NO.  of Sellable Units: $availableQuantity",
                 style = MaterialTheme.typography.bodyLarge
             )
             Spacer(modifier = Modifier.height(2.dp))

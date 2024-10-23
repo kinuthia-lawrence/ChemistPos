@@ -37,13 +37,15 @@ interface ProductDao {
     suspend fun deleteProduct(productId: Int): Int
 
     //get product by name, company, formulation and expiry date
-@Query("SELECT * FROM products WHERE name=:productName AND company=:company AND " +
-       "formulation=:formulation AND DATE(expiry_date / 1000, 'unixepoch') = DATE(:expiryDate / 1000, 'unixepoch') LIMIT 1")
-suspend fun getProductByNameCompanyFormulationExpiryDate(
-    productName: String,
-    company: String,
-    formulation: String,
-    expiryDate: Long
-): Product?
+    @Query(
+        "SELECT * FROM products WHERE name=:productName AND company=:company AND " +
+                "formulation=:formulation AND DATE(expiry_date / 1000, 'unixepoch') = DATE(:expiryDate / 1000, 'unixepoch') LIMIT 1"
+    )
+    suspend fun getProductByNameCompanyFormulationExpiryDate(
+        productName: String,
+        company: String,
+        formulation: String,
+        expiryDate: Long
+    ): Product?
 
 }
