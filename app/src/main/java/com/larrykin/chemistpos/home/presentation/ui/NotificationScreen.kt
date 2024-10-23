@@ -11,13 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.presentation.viewModels.NotificationViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun NotificationScreen(

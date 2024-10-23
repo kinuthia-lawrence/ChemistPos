@@ -176,7 +176,7 @@ fun MedicineCard(product: Product, stockViewModel: StockViewModel) {
                 IconButton(
                     onClick = {
                         if (cartItems.none { it.id == product.id }) {
-                            if (product.quantityAvailable > product.minMeasure) {
+                            if (product.quantityAvailable >= product.minMeasure) {
                                 stockViewModel.addToCart(product)
                             } else {
                                 showDialog = true
