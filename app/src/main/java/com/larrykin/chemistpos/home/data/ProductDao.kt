@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 @Dao
 interface ProductDao {
@@ -34,5 +35,15 @@ interface ProductDao {
     //delete a product
     @Query("DELETE FROM products WHERE id=:productId")
     suspend fun deleteProduct(productId: Int): Int
+
+    //get product by name, company, formulation and expiry date
+@Query("SELECT * FROM products WHERE name=:productName AND company=:company AND " +
+       "formulation=:formulation AND DATE(expiry_date / 1000, 'unixepoch') = DATE(:expiryDate / 1000, 'unixepoch') LIMIT 1")
+suspend fun getProductByNameCompanyFormulationExpiryDate(
+    productName: String,
+    company: String,
+    formulation: String,
+    expiryDate: Long
+): Product?
 
 }

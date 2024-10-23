@@ -1,8 +1,8 @@
 package com.larrykin.chemistpos.home.presentation.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import arrow.core.computations.result
 import com.larrykin.chemistpos.core.data.GetAllProductsResult
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.data.SaleItem
@@ -77,7 +77,6 @@ class StockViewModel @Inject constructor(
         })
     }
 
-
     //function to set the expected amount
     fun setExpectedAmount(amount: Double) {
         _expectedAmount.value = amount
@@ -98,9 +97,24 @@ class StockViewModel @Inject constructor(
     suspend fun addProduct(product: Product, onResult: (StockResult) -> Unit) {
         viewModelScope.launch {
             try {
-                val result = productRepository.insertProduct(product)
-                if (result != null) {
-                    if (result > 0) {
+                val existingProduct = productRepository.getProductByNameCompanyFormulationExpiryDate(
+                    product.name, product.company, product.formulation, product.expiryDate
+                )
+                Log.d("existingProduct", existingProduct.toString())
+                if (existingProduct != null) {
+                    val updatedProduct = existingProduct.copy(
+                        quantityAvailable = existingProduct.quantityAvailable + product.quantityAvailable,
+                        updatedAt = Date()
+                    )
+                    val result = productRepository.updateProduct(updatedProduct)
+                    if (result != null) {
+                        onResult(StockResult.Success)
+                    } else {
+                        onResult(StockResult.Error("Failed to update product"))
+                    }
+                } else {
+                    val result = productRepository.insertProduct(product)
+                    if (result != null && result > 0) {
                         onResult(StockResult.Success)
                     } else {
                         onResult(StockResult.Error("Failed to add product"))
@@ -202,7 +216,6 @@ class StockViewModel @Inject constructor(
                 onResult(false)
             }
         }
-
     }
 
     // clear cart
@@ -247,7 +260,7 @@ class StockViewModel @Inject constructor(
     }
 
     //get product by id
-    suspend  fun getProductById(productId: Int): Product? {
+    suspend fun getProductById(productId: Int): Product? {
         return productRepository.getProductById(productId)
     }
 }

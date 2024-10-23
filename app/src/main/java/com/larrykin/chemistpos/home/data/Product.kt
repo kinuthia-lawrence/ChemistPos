@@ -24,3 +24,4 @@ data class Product(
     @ColumnInfo(name = "expiry_date") val expiryDate: Date,
     @ColumnInfo(name = "description") val description: String?
 )
+ 

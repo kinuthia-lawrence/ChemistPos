@@ -6,11 +6,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
-class ProductRepositoryImplementation @Inject constructor(private val productDao: ProductDao):
+class ProductRepositoryImplementation @Inject constructor(private val productDao: ProductDao) :
     ProductRepository {
-        //insert product into the database
+    //insert product into the database
     override suspend fun insertProduct(product: Product): Long {
         return try {
             productDao.insert(product)
@@ -22,7 +25,7 @@ class ProductRepositoryImplementation @Inject constructor(private val productDao
     //get all products
     override suspend fun getAllProducts(): Flow<GetAllProductsResult> {
         return try {
-            productDao.getAllProducts().map{ products ->
+            productDao.getAllProducts().map { products ->
                 if (products.isEmpty()) {
                     GetAllProductsResult.Success(emptyList())
                 } else {
@@ -56,7 +59,7 @@ class ProductRepositoryImplementation @Inject constructor(private val productDao
         return try {
             val rowsUpdated = productDao.updateProduct(product)
             if (rowsUpdated > 0) productDao.getProductById(product.id).firstOrNull() else null
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             null
         }
     }
@@ -71,5 +74,25 @@ class ProductRepositoryImplementation @Inject constructor(private val productDao
             false
         }
     }
+
+override suspend fun getProductByNameCompanyFormulationExpiryDate(
+    productName: String,
+    company: String,
+    formulation: String,
+    expiryDate: Date
+): Product? {
+    return try {
+        val expiryDateTimestamp = expiryDate.time
+        productDao.getProductByNameCompanyFormulationExpiryDate(
+            productName,
+            company,
+            formulation,
+            expiryDateTimestamp
+        )
+    } catch (e: Exception) {
+        null
+    }
+}
+
 
 }
