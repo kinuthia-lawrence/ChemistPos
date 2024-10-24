@@ -338,6 +338,53 @@ object AppModule {
         }
     }
 
+    //migration after updating service offered
+    val MIGRATION_11_12 = object : Migration(11, 12) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Add new columns
+            database.execSQL("ALTER TABLE services_offered ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0")
+            database.execSQL("ALTER TABLE services_offered ADD COLUMN updated_at INTEGER")
+
+            // Make cash, mpesa, and expected_amount nullable
+            database.execSQL(
+                """CREATE TABLE services_offered_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                name TEXT NOT NULL,
+                servitor TEXT NOT NULL,
+                description TEXT NOT NULL,
+                cash REAL,
+                mpesa REAL,
+                total_price REAL NOT NULL,
+                expected_amount REAL,
+                created_at INTEGER NOT NULL,
+                updated_at INTEGER
+            )"""
+            )
+
+            // Copy data from old table to new table
+            database.execSQL(
+                """INSERT INTO services_offered_new (id, name, servitor, description, cash, mpesa, total_price, expected_amount, created_at, updated_at)
+                        SELECT id,
+                name,
+                servitor,
+                description,
+                cash,
+                mpesa,
+                total_price,
+                expected_amount,
+                date,
+                NULL FROM services_offered
+                """
+            )
+
+            // Remove old table
+            database.execSQL("DROP TABLE services_offered")
+
+            // Rename new table to old table name
+            database.execSQL("ALTER TABLE services_offered_new RENAME TO services_offered")
+        }
+    }
+
     @Provides // Annotates a method that returns a dependency instance (AppDatabase instance)
     @Singleton // Ensure only one instance is created
     fun provideDatabase(app: Application): AppDatabase {
@@ -364,7 +411,8 @@ object AppModule {
             MIGRATION_7_8,
             MIGRATION_8_7,
             MIGRATION_7_10,
-            MIGRATION_10_11
+            MIGRATION_10_11,
+            MIGRATION_11_12
 
         )
             .build()

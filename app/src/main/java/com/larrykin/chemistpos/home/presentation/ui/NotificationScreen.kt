@@ -47,9 +47,9 @@ fun NotificationScreen(
         TabRow(selectedTabIndex = selectedTabIndex) {
             tabs.forEachIndexed { index, title ->
                 val textColor = when (index) {
-                    0 -> if (hasExpiredGoods) Color.Red else Color.Black
-                    1 -> if (hasOutOfStockGoods) Color.Red else Color.Black
-                    else -> Color.Black
+                    0 -> if (hasExpiredGoods) Color.Red else Color.Unspecified
+                    1 -> if (hasOutOfStockGoods) Color.Red else Color.Unspecified
+                    else -> Color.Unspecified
                 }
                 Tab(
                     selected = selectedTabIndex == index,

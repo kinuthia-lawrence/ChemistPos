@@ -69,7 +69,7 @@ fun StatusBar(
             Icon(
                 Icons.Sharp.Notifications,
                 contentDescription = "Notifications",
-                tint = if (hasNotification) Color.Red else Color.White
+                tint = if (hasNotification) Color.Red else Color.Unspecified
             )
         }
         // Profile icon

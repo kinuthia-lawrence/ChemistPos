@@ -22,7 +22,7 @@ import com.larrykin.chemistpos.home.data.SupplierDao
 @Database(
     entities =[User::class, Product::class, Supplier::class, Medicine::class, Sales::class,
         Service::class, ServicesOffered::class],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 @TypeConverters(Converters::class) //specifying the type converter class
