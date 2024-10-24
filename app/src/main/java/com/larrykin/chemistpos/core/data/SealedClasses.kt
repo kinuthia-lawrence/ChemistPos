@@ -3,12 +3,15 @@ package com.larrykin.chemistpos.core.data
 import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.home.data.Medicine
 import com.larrykin.chemistpos.home.data.Product
+import com.larrykin.chemistpos.home.data.Service
+import com.larrykin.chemistpos.home.data.ServicesOffered
 import com.larrykin.chemistpos.home.data.Supplier
 
 sealed class AuthResult<out T> {
     data class Success<out T>(val data: T) : AuthResult<T>()
     data class Error(val message: String) : AuthResult<Nothing>()
 }
+
 sealed class GetAllUsersResult {
     data class Success(val users: List<User>) : GetAllUsersResult()
     data class Error(val message: String) : GetAllUsersResult()
@@ -23,7 +26,17 @@ sealed class GetAllSuppliersResult {
     data class Success(val suppliers: List<Supplier>) : GetAllSuppliersResult()
     data class Error(val message: String) : GetAllSuppliersResult()
 }
- sealed class  GetAllMedicinesResult {
+
+sealed class GetAllMedicinesResult {
     data class Success(val medicines: List<Medicine>) : GetAllMedicinesResult()
     data class Error(val message: String) : GetAllMedicinesResult()
+}
+
+sealed class GetAllServicesResult {
+    data class Success(val services: List<Service>) : GetAllServicesResult()
+    data class Error(val message: String) : GetAllServicesResult()
+}
+sealed class GetAllServicesOfferedResult {
+    data class Success(val servicesOffered: List<ServicesOffered>) : GetAllServicesOfferedResult()
+    data class Error(val message: String) : GetAllServicesOfferedResult()
 }

@@ -17,11 +17,14 @@ import com.larrykin.chemistpos.home.data.ProductDao
 import com.larrykin.chemistpos.home.data.ProductRepositoryImplementation
 import com.larrykin.chemistpos.home.data.SalesDao
 import com.larrykin.chemistpos.home.data.SalesRepositoryImplementation
+import com.larrykin.chemistpos.home.data.ServiceRepositoryImplementation
+import com.larrykin.chemistpos.home.data.ServicesDao
 import com.larrykin.chemistpos.home.data.SupplierDao
 import com.larrykin.chemistpos.home.data.SupplierRepositoryImplementation
 import com.larrykin.chemistpos.home.domain.MedicineRepository
 import com.larrykin.chemistpos.home.domain.ProductRepository
 import com.larrykin.chemistpos.home.domain.SalesRepository
+import com.larrykin.chemistpos.home.domain.ServiceRepository
 import com.larrykin.chemistpos.home.domain.SupplierRepository
 import dagger.Binds
 import dagger.Module
@@ -301,6 +304,40 @@ object AppModule {
         }
     }
 
+    //migration after adding services table and services offered table
+    val MIGRATION_10_11 = object : Migration(10, 11) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            //create service table
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `services` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `name` TEXT NOT NULL,
+                `description` TEXT NOT NULL,
+                `price` REAL NOT NULL
+            )
+            """
+            )
+
+            //create service offered
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `services_offered` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `name` TEXT NOT NULL,
+                `servitor` TEXT NOT NULL,
+                `description` TEXT NOT NULL,
+                `cash` REAL NOT NULL,
+                `mpesa` REAL NOT NULL,
+                `total_price` REAL NOT NULL,
+                `expected_amount` REAL NOT NULL,
+                `date` INTEGER NOT NULL
+            )
+            """
+            )
+        }
+    }
+
     @Provides // Annotates a method that returns a dependency instance (AppDatabase instance)
     @Singleton // Ensure only one instance is created
     fun provideDatabase(app: Application): AppDatabase {
@@ -326,7 +363,8 @@ object AppModule {
             MIGRATION_6_7,
             MIGRATION_7_8,
             MIGRATION_8_7,
-            MIGRATION_7_10
+            MIGRATION_7_10,
+            MIGRATION_10_11
 
         )
             .build()
@@ -355,6 +393,11 @@ object AppModule {
     @Provides // Provide SalesDao instance
     fun providesSalesDao(appDatabase: AppDatabase): SalesDao {
         return appDatabase.salesDao()
+    }
+
+    @Provides //provide serviceDao instance
+    fun providesServicesDao(appDatabase: AppDatabase): ServicesDao {
+        return appDatabase.servicesDao()
     }
 
     @Provides // Provide Context instance
@@ -407,4 +450,13 @@ abstract class SalesRepositoryModule {
     abstract fun bindSalesRepository(
         salesRepositoryImplementation: SalesRepositoryImplementation
     ): SalesRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class ServicesRepositoryModule {
+    @Binds //bind the serviceRepositoryImplementation to ServicesRepository
+    abstract fun bindServiceRepository(
+        serviceRepositoryImplementation: ServiceRepositoryImplementation
+    ): ServiceRepository
 }

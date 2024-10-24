@@ -13,12 +13,16 @@ import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.data.ProductDao
 import com.larrykin.chemistpos.home.data.Sales
 import com.larrykin.chemistpos.home.data.SalesDao
+import com.larrykin.chemistpos.home.data.Service
+import com.larrykin.chemistpos.home.data.ServicesDao
+import com.larrykin.chemistpos.home.data.ServicesOffered
 import com.larrykin.chemistpos.home.data.Supplier
 import com.larrykin.chemistpos.home.data.SupplierDao
 
 @Database(
-    entities =[User::class, Product::class, Supplier::class, Medicine::class, Sales::class],
-    version = 10,
+    entities =[User::class, Product::class, Supplier::class, Medicine::class, Sales::class,
+        Service::class, ServicesOffered::class],
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(Converters::class) //specifying the type converter class
@@ -29,4 +33,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun supplierDao(): SupplierDao
     abstract fun medicineDao(): MedicineDao
     abstract fun salesDao() : SalesDao
+    abstract fun servicesDao() : ServicesDao
 }
