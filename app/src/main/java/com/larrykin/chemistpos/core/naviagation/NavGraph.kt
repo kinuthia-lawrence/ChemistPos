@@ -16,9 +16,11 @@ import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewM
 import com.larrykin.chemistpos.authentication.presentation.viewModels.RegisterViewModel
 import com.larrykin.chemistpos.home.presentation.ui.HomeScreen
 import com.larrykin.chemistpos.home.presentation.ui.MedicineScreen
+import com.larrykin.chemistpos.home.presentation.ui.ServiceCrudScreen
 import com.larrykin.chemistpos.home.presentation.ui.SettingsScreen
 import com.larrykin.chemistpos.home.presentation.ui.SupplierScreen
 import com.larrykin.chemistpos.home.presentation.viewModels.MedicineViewModel
+import com.larrykin.chemistpos.home.presentation.viewModels.ServicesViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.SettingsViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.SupplierViewModel
 
@@ -33,6 +35,7 @@ sealed class Screen(val route: String) {
     data object LoginAsAdmin : Screen("login_as_admin")
     data object Medicines : Screen("medicines")
     data object Suppliers : Screen("suppliers")
+    data object ServiceCrud : Screen("service_crud")
 }
 
 @Composable
@@ -73,6 +76,10 @@ fun NavGraph(navController: NavHostController) {
         composable(route= Screen.Suppliers.route){
             val viewModel : SupplierViewModel = hiltViewModel()
             SupplierScreen(viewModel, navController)
+        }
+        composable(route = Screen.ServiceCrud.route){
+            val viewModel : ServicesViewModel = hiltViewModel()
+            ServiceCrudScreen(viewModel,navController)
         }
     }
 }

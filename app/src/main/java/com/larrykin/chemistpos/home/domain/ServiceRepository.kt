@@ -12,6 +12,7 @@ interface ServiceRepository {
     suspend fun insertService(service: Service) : Long?
     suspend fun getAllServices() : Flow<GetAllServicesResult>
     suspend fun getServiceById(serviceId: Int) : Service?
+    suspend fun getServiceByName(serviceName: String) : Service?
     suspend fun updateService(service: Service) : Service?
     suspend fun deleteService(serviceId: Int) : Boolean
     suspend fun getServiceNames() : List<String>

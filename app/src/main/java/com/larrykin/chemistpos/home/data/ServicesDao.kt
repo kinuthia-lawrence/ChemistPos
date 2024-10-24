@@ -22,6 +22,10 @@ interface ServicesDao {
     @Query("SELECT * FROM services WHERE id=:serviceId")
     fun getServiceById(serviceId: Int): Flow<Service>
 
+    //Get a service by name
+    @Query("SELECT *  FROM services  WHERE name=:serviceName")
+    fun getServiceByName(serviceName: String): Flow<Service>
+
     //update a service
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateService(service: Service): Int

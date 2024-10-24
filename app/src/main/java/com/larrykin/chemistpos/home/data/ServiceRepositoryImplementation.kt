@@ -45,6 +45,14 @@ class ServiceRepositoryImplementation @Inject constructor(
         }
     }
 
+    override suspend fun getServiceByName(serviceName: String): Service? {
+        return try{
+            servicesDao.getServiceByName(serviceName).firstOrNull()
+        } catch (e: Exception){
+            null
+        }
+    }
+
     //update service
     override suspend fun updateService(service: Service): Service? {
         return try {

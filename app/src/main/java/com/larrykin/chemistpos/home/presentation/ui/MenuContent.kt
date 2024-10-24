@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
@@ -41,6 +42,13 @@ fun MenuContent(
         icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Medicines Icon") },
         selected = false,
         onClick = { parentNavController.navigate("medicines") }
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    NavigationDrawerItem(
+        label = { Text(text = "Services") },
+        icon = { Icon(imageVector = Icons.Default.Build, contentDescription = "Services Icon") },
+        selected = false,
+        onClick = { parentNavController.navigate("service_crud") }
     )
     Spacer(modifier = Modifier.height(16.dp))
     HorizontalDivider()
