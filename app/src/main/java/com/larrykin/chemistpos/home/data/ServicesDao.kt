@@ -58,8 +58,4 @@ interface ServicesDao {
     //delete a service offered
     @Query("DELETE FROM services_offered WHERE id=:serviceOfferedId")
     suspend fun deleteServiceOffered(serviceOfferedId: Int): Int
-
-    //get all service offered names
-    @Query("SELECT name FROM services_offered")
-    suspend fun getAllServiceOfferedNames(): List<String>
 }

@@ -21,6 +21,7 @@ class ServiceRepositoryImplementation @Inject constructor(
             -1
         }
     }
+
     //get all services
     override suspend fun getAllServices(): Flow<GetAllServicesResult> {
         return try {
@@ -46,9 +47,9 @@ class ServiceRepositoryImplementation @Inject constructor(
     }
 
     override suspend fun getServiceByName(serviceName: String): Service? {
-        return try{
+        return try {
             servicesDao.getServiceByName(serviceName).firstOrNull()
-        } catch (e: Exception){
+        } catch (e: Exception) {
             null
         }
     }
@@ -119,7 +120,8 @@ class ServiceRepositoryImplementation @Inject constructor(
     override suspend fun updateServiceOffered(serviceOffered: ServicesOffered): ServicesOffered? {
         return try {
             val rowsUpdated = servicesDao.updateServiceOffered(serviceOffered)
-            if (rowsUpdated > 0) servicesDao.getServiceOfferedById(serviceOffered.id).firstOrNull() else null
+            if (rowsUpdated > 0) servicesDao.getServiceOfferedById(serviceOffered.id)
+                .firstOrNull() else null
         } catch (e: Exception) {
             null
         }
@@ -134,12 +136,5 @@ class ServiceRepositoryImplementation @Inject constructor(
         }
     }
 
-    override suspend fun getServiceOfferedNames(): List<String> {
-        return try {
-            servicesDao.getAllServiceOfferedNames()
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
 
 }

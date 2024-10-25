@@ -36,6 +36,8 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
     var serviceOfferedCash by mutableStateOf("")
     var serviceOfferedMpesa by mutableStateOf("")
 
+    val serviceOfferedNameTrim = serviceOfferedName.trim()
+
     // medicinesNames
     private val _serviceNames = MutableStateFlow<List<String>>(emptyList())
     val serviceNames: StateFlow<List<String>> get() = _serviceNames
@@ -46,18 +48,20 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
 
     init {
         viewModelScope.launch {
-            _serviceNames.value = servicesRepository.getServiceOfferedNames()
+            _serviceNames.value = servicesRepository.getServiceNames()
         }
     }
 
     //function to set the expected amount
-    fun setExpectedAmount() {
+    fun setExpectedAmount(name: String) {
         viewModelScope.launch {
-            val serviceExists = servicesRepository.getServiceByName(serviceOfferedName)
+            val nameTrim = name.trim()
+            val serviceExists = servicesRepository.getServiceByName(nameTrim)
             if (serviceExists != null) {
                 _expectedAmount.value = serviceExists.price
+            } else {
+                _expectedAmount.value = 0.0
             }
-            _expectedAmount.value = 0.0
         }
     }
 
@@ -149,16 +153,9 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
     fun createServiceOffered(onResult: (ServiceResult) -> Unit) {
         viewModelScope.launch {
             try {
-                val serviceOfferedNameTrim = serviceOfferedName.trim()
                 val servitorTrim = servitor.trim()
                 val serviceOfferedDescriptionTrim = serviceOfferedDescription.trim()
 
-                //check service exists by name
-                var expectedAmount: Double? = null
-                val serviceExists = servicesRepository.getServiceByName(serviceOfferedNameTrim)
-                if (serviceExists != null) {
-                    expectedAmount = serviceExists.price
-                }
 
                 val servicesOffered = ServicesOffered(
                     name = serviceOfferedNameTrim,
@@ -168,7 +165,7 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
                     mpesa = serviceOfferedMpesa.toDoubleOrNull() ?: 0.0,
                     totalPrice = (serviceOfferedCash.toDoubleOrNull() ?: 0.0) +
                             (serviceOfferedMpesa.toDoubleOrNull() ?: 0.0),
-                    expectedAmount = expectedAmount ?: 0.0,
+                    expectedAmount = expectedAmount.value,
                     createdAt = Date(),
                     updatedAt = null
                 )

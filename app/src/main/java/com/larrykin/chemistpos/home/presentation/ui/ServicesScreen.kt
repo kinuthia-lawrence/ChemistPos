@@ -171,7 +171,7 @@ fun AddService(loggedInUser: LoggedInUser, servicesViewModel: ServicesViewModel)
             .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
-    ) {
+    )  {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -219,7 +219,6 @@ fun AddService(loggedInUser: LoggedInUser, servicesViewModel: ServicesViewModel)
                 name = servicesViewModel.serviceOfferedName,
                 onNameChange = {
                     servicesViewModel.serviceOfferedName = it
-                    servicesViewModel.setExpectedAmount()
                 },
                 labelText = "Service Name",
                 leadingIcon = Icons.Default.Edit,
@@ -230,7 +229,7 @@ fun AddService(loggedInUser: LoggedInUser, servicesViewModel: ServicesViewModel)
                 value = servicesViewModel.servitor,
                 onValueChange = {
                     servicesViewModel.servitor = it
-                    servicesViewModel.setExpectedAmount()
+                    servicesViewModel.setExpectedAmount(servicesViewModel.serviceOfferedName)
                 },
                 labelText = "Servitor",
                 leadingIcon = Icons.Default.Edit,
@@ -429,6 +428,16 @@ fun ServiceCard(
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "Total Price: ${servicesOffered.totalPrice}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "Expected Price: ${servicesOffered.expectedAmount}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
             if (loggedInUser.role == Role.ADMIN) {
                 Text(
                     text = if (servicesOffered.updatedAt != null) {
@@ -467,8 +476,10 @@ fun EditServiceDialog(
     var description by remember { mutableStateOf(servicesOffered.description) }
     var cash by remember { mutableStateOf(servicesOffered.cash.toString()) }
     var mpesa by remember { mutableStateOf(servicesOffered.mpesa.toString()) }
-    val serviceNames by servicesViewModel.serviceNames.collectAsState()
 
+    val serviceNames by servicesViewModel.serviceNames.collectAsState()
+    val expectedAmount by servicesViewModel.expectedAmount.collectAsState()
+    servicesViewModel.setExpectedAmount(name)
 
     var showErrorAlert by remember { mutableStateOf(false) }
     var showSuccessAlert by remember { mutableStateOf(false) }
@@ -512,7 +523,10 @@ fun EditServiceDialog(
         CustomFilterField(
             namesList = serviceNames,
             name = name,
-            onNameChange = { name = it },
+            onNameChange = {
+                name = it
+                servicesViewModel.setExpectedAmount(name)
+                           },
             labelText = "Service Name",
             leadingIcon = Icons.Default.Edit,
             keyboardType = KeyboardType.Text
@@ -558,6 +572,8 @@ fun EditServiceDialog(
             enabled = true
         )
         Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Expected Amount: $expectedAmount")
+        Spacer(modifier = Modifier.height(16.dp))
         Row {
             Button(onClick = { onDismiss() }) {
                 Text("Cancel")
@@ -577,6 +593,7 @@ fun EditServiceDialog(
                     cash = cash.toDoubleOrNull() ?: 0.0,
                     mpesa = mpesa.toDoubleOrNull() ?: 0.0,
                     totalPrice = (cash.toDoubleOrNull() ?: 0.0) + (mpesa.toDoubleOrNull() ?: 0.0),
+                    expectedAmount = expectedAmount,
                     updatedAt = Date()
                 )
                 servicesViewModel.viewModelScope.launch {
