@@ -292,6 +292,7 @@ fun AddService(loggedInUser: LoggedInUser, servicesViewModel: ServicesViewModel)
                                 servicesViewModel.serviceOfferedDescription = ""
                                 servicesViewModel.serviceOfferedCash = ""
                                 servicesViewModel.serviceOfferedMpesa = ""
+                                servicesViewModel.setExpectedAmount(servicesViewModel.serviceOfferedName)
                             }
 
                             is ServiceResult.Error -> {
@@ -604,6 +605,8 @@ fun EditServiceDialog(
                                 is ServiceResult.Success -> {
                                     showSuccessAlert = true
                                     onDismiss()
+                                    val name = "clear"
+                                    servicesViewModel.setExpectedAmount(name)
                                 }
 
                                 else -> {
