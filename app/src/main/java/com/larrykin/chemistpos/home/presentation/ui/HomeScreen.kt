@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
 import com.larrykin.chemistpos.core.data.LoggedInUser
+import com.larrykin.chemistpos.home.presentation.viewModels.DashboardViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.NotificationViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.ProfileViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.ServicesViewModel
@@ -50,6 +51,7 @@ fun HomeScreen(
     val stockViewModel: StockViewModel = hiltViewModel()
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val servicesViewModel: ServicesViewModel = hiltViewModel()
+    val dashboardViewModel: DashboardViewModel = hiltViewModel()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -131,10 +133,14 @@ fun HomeScreen(
                             navController = innerNavController,
                             startDestination = "dashboard"
                         ) {
-                            composable("dashboard") { DashboardScreen() }
+                            composable("dashboard") {
+                                loggedInUser?.let {
+                                    DashboardScreen(it, dashboardViewModel)
+                                }
+                            }
                             composable("notification") {
                                 loggedInUser?.let {
-                                    NotificationScreen(it,notificationViewModel)
+                                    NotificationScreen(it, notificationViewModel)
                                 }
                             }
                             composable("help") { HelpScreen() }
