@@ -23,4 +23,5 @@ interface ServiceRepository {
     suspend fun getServiceOfferedById(serviceOfferedId: Int) : ServicesOffered?
     suspend fun updateServiceOffered(serviceOffered: ServicesOffered) : ServicesOffered?
     suspend fun deleteServiceOffered(serviceOfferedId: Int) : Boolean
+    suspend fun getServiceOfferedNames() : List<String>
 }

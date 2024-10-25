@@ -30,10 +30,12 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,9 +51,11 @@ import com.larrykin.chemistpos.components.HeaderText
 import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialog
 import com.larrykin.chemistpos.core.presentation.ui.CustomAlertDialogWithChoice
+import com.larrykin.chemistpos.core.presentation.ui.CustomFilterField
 import com.larrykin.chemistpos.home.data.ServicesOffered
 import com.larrykin.chemistpos.home.presentation.viewModels.ServiceResult
 import com.larrykin.chemistpos.home.presentation.viewModels.ServicesViewModel
+import com.larrykin.chemistpos.home.presentation.viewModels.SupplierResult
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -101,10 +105,11 @@ fun ServicesHistory(loggedInUser: LoggedInUser, servicesViewModel: ServicesViewM
                     errorMessage = result.message
                 }
 
-                ServiceResult.ServiceExists ->  {
+                ServiceResult.ServiceExists -> {
                     errorMessage = "Service already exists"
                 }
-                ServiceResult.ServiceNotFound ->  {
+
+                ServiceResult.ServiceNotFound -> {
                     errorMessage = "Service not found"
                 }
             }
@@ -154,7 +159,160 @@ fun ServicesHistory(loggedInUser: LoggedInUser, servicesViewModel: ServicesViewM
 
 @Composable
 fun AddService(loggedInUser: LoggedInUser, servicesViewModel: ServicesViewModel) {
-    Text(text = "add service")
+    val serviceNames by servicesViewModel.serviceNames.collectAsState()
+    val expectedAmount by servicesViewModel.expectedAmount.collectAsState()
+    val messageState = remember { mutableStateOf("") }
+    val (isRed, setIsRed) = rememberSaveable { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            HeaderText(
+                text = "Create Service",
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .align(alignment = Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            if (messageState.value.isNotBlank()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (isRed) Color.Red else Color(0xFF014605))
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = messageState.value,
+                        color = Color.White,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            if (errorMessage.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Red)
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = errorMessage,
+                        color = Color.White,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            CustomFilterField(
+                namesList = serviceNames,
+                name = servicesViewModel.serviceOfferedName,
+                onNameChange = {
+                    servicesViewModel.serviceOfferedName = it
+                    servicesViewModel.setExpectedAmount()
+                },
+                labelText = "Service Name",
+                leadingIcon = Icons.Default.Edit,
+                keyboardType = KeyboardType.Text
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            CustomTextField(
+                value = servicesViewModel.servitor,
+                onValueChange = {
+                    servicesViewModel.servitor = it
+                    servicesViewModel.setExpectedAmount()
+                },
+                labelText = "Servitor",
+                leadingIcon = Icons.Default.Edit,
+                keyboardType = KeyboardType.Text,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = true
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            CustomTextField(
+                value = servicesViewModel.serviceOfferedDescription,
+                onValueChange = { servicesViewModel.serviceOfferedDescription = it },
+                labelText = "Description",
+                leadingIcon = Icons.Default.Create,
+                keyboardType = KeyboardType.Text,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = true
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            CustomTextField(
+                value = servicesViewModel.serviceOfferedCash,
+                onValueChange = { servicesViewModel.serviceOfferedCash = it },
+                labelText = "Cash",
+                leadingIcon = Icons.Default.Create,
+                keyboardType = KeyboardType.Number,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = true
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            CustomTextField(
+                value = servicesViewModel.serviceOfferedMpesa,
+                onValueChange = { servicesViewModel.serviceOfferedMpesa = it },
+                labelText = "Mpesa",
+                leadingIcon = Icons.Default.Create,
+                keyboardType = KeyboardType.Number,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = true
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Expected Amount: $expectedAmount")
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    //check if fields are empty
+                    if (servicesViewModel.serviceOfferedName.isBlank() || servicesViewModel.servitor.isBlank() ||
+                        servicesViewModel.serviceOfferedDescription.isEmpty()
+                    ) {
+                        errorMessage = "Please fill all fields"
+                        return@Button
+                    }
+                    //invoke the create supplier method
+                    servicesViewModel.createServiceOffered { result ->
+                        when (result) {
+                            is ServiceResult.Success -> {
+                                errorMessage = ""
+                                setIsRed(false)
+                                messageState.value = "Service created successfully"
+                                //clear the fields
+                                servicesViewModel.serviceOfferedName = ""
+                                servicesViewModel.servitor = ""
+                                servicesViewModel.serviceOfferedDescription = ""
+                                servicesViewModel.serviceOfferedCash = ""
+                                servicesViewModel.serviceOfferedMpesa = ""
+                            }
+
+                            is ServiceResult.Error -> {
+                                errorMessage = result.message
+                            }
+
+                            is ServiceResult.ServiceExists -> {
+                                errorMessage = "Service with this name already exists"
+                            }
+
+                            else -> {}
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Create Service")
+            }
+        }
+    }
 }
 
 @Composable
@@ -309,6 +467,7 @@ fun EditServiceDialog(
     var description by remember { mutableStateOf(servicesOffered.description) }
     var cash by remember { mutableStateOf(servicesOffered.cash.toString()) }
     var mpesa by remember { mutableStateOf(servicesOffered.mpesa.toString()) }
+    val serviceNames by servicesViewModel.serviceNames.collectAsState()
 
 
     var showErrorAlert by remember { mutableStateOf(false) }
@@ -350,21 +509,20 @@ fun EditServiceDialog(
             modifier = Modifier.padding(bottom = 16.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        CustomTextField(
-            value = name,
-            onValueChange = { name = it },
+        CustomFilterField(
+            namesList = serviceNames,
+            name = name,
+            onNameChange = { name = it },
             labelText = "Service Name",
-            leadingIcon = Icons.Default.CheckCircle,
-            keyboardType = KeyboardType.Text,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = true
+            leadingIcon = Icons.Default.Edit,
+            keyboardType = KeyboardType.Text
         )
         Spacer(modifier = Modifier.height(8.dp))
         CustomTextField(
             value = servitor,
             onValueChange = { servitor = it },
             labelText = "Service Name",
-            leadingIcon = Icons.Default.CheckCircle,
+            leadingIcon = Icons.Default.Edit,
             keyboardType = KeyboardType.Text,
             modifier = Modifier.fillMaxWidth(),
             enabled = true

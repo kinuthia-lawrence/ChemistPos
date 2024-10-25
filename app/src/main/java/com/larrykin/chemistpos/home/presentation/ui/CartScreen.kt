@@ -51,7 +51,7 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
     var discount by remember { mutableStateOf("") }
     var credit by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(16.dp))  {
         cartItems.forEach { item ->
             var quantity = quantityMap[item] ?: 1
             val availableQuantity = item.quantityAvailable / item.minMeasure

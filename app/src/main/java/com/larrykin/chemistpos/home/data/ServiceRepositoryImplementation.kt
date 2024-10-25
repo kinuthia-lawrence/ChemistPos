@@ -134,4 +134,12 @@ class ServiceRepositoryImplementation @Inject constructor(
         }
     }
 
+    override suspend fun getServiceOfferedNames(): List<String> {
+        return try {
+            servicesDao.getAllServiceOfferedNames()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
 }

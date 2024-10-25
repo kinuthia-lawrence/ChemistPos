@@ -3,13 +3,14 @@ package com.larrykin.chemistpos.home.presentation.viewModels
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import arrow.core.raise.result
 import com.larrykin.chemistpos.core.data.GetAllServicesOfferedResult
 import com.larrykin.chemistpos.core.data.GetAllServicesResult
 import com.larrykin.chemistpos.home.data.Service
 import com.larrykin.chemistpos.home.data.ServicesOffered
 import com.larrykin.chemistpos.home.domain.ServiceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -35,6 +36,30 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
     var serviceOfferedCash by mutableStateOf("")
     var serviceOfferedMpesa by mutableStateOf("")
 
+    // medicinesNames
+    private val _serviceNames = MutableStateFlow<List<String>>(emptyList())
+    val serviceNames: StateFlow<List<String>> get() = _serviceNames
+
+    //expected amount
+    private val _expectedAmount = MutableStateFlow(0.0)
+    val expectedAmount: StateFlow<Double> get() = _expectedAmount
+
+    init {
+        viewModelScope.launch {
+            _serviceNames.value = servicesRepository.getServiceOfferedNames()
+        }
+    }
+
+    //function to set the expected amount
+    fun setExpectedAmount() {
+        viewModelScope.launch {
+            val serviceExists = servicesRepository.getServiceByName(serviceOfferedName)
+            if (serviceExists != null) {
+                _expectedAmount.value = serviceExists.price
+            }
+            _expectedAmount.value = 0.0
+        }
+    }
 
     //!Service Section
     //create service
@@ -147,12 +172,12 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
                     createdAt = Date(),
                     updatedAt = null
                 )
-                    val result = servicesRepository.insertServiceOffered(servicesOffered)
-                    if (result != null) {
-                        onResult(ServiceResult.Success)
-                    } else {
-                        onResult(ServiceResult.Error("An error occurred, Try again"))
-                    }
+                val result = servicesRepository.insertServiceOffered(servicesOffered)
+                if (result != null) {
+                    onResult(ServiceResult.Success)
+                } else {
+                    onResult(ServiceResult.Error("An error occurred, Try again"))
+                }
 
             } catch (e: Exception) {
                 onResult(ServiceResult.Error(e.message ?: "Unknown error occurred"))
@@ -161,8 +186,10 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
     }
 
     //update service
-    fun updateServiceOffered(updatedService: ServicesOffered, serviceId: Int, onResult: (ServiceResult) ->
-        Unit) {
+    fun updateServiceOffered(
+        updatedService: ServicesOffered, serviceId: Int, onResult: (ServiceResult) ->
+        Unit
+    ) {
         viewModelScope.launch {
             try {
                 val serviceExists = servicesRepository.getServiceOfferedById(serviceId)
@@ -188,10 +215,15 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
         viewModelScope.launch {
             servicesRepository.getAllServicesOffered().collect { result ->
                 when (result) {
-                    is GetAllServicesOfferedResult.Success -> onResult(ServiceResult.Success,result
-                        .servicesOffered)
-                    is GetAllServicesOfferedResult.Error -> onResult(ServiceResult.Error(result.message),
-                        emptyList())
+                    is GetAllServicesOfferedResult.Success -> onResult(
+                        ServiceResult.Success, result
+                            .servicesOffered
+                    )
+
+                    is GetAllServicesOfferedResult.Error -> onResult(
+                        ServiceResult.Error(result.message),
+                        emptyList()
+                    )
                 }
             }
         }
