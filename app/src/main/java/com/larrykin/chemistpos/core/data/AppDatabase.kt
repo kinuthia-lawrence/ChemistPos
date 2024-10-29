@@ -7,12 +7,16 @@ import androidx.room.TypeConverters
 import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.authentication.data.UserDao
 import com.larrykin.chemistpos.core.converters.Converters
+import com.larrykin.chemistpos.home.data.Income
+import com.larrykin.chemistpos.home.data.IncomeDao
 import com.larrykin.chemistpos.home.data.Medicine
 import com.larrykin.chemistpos.home.data.MedicineDao
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.data.ProductDao
 import com.larrykin.chemistpos.home.data.Sales
 import com.larrykin.chemistpos.home.data.SalesDao
+import com.larrykin.chemistpos.home.data.SalesHistory
+import com.larrykin.chemistpos.home.data.SalesHistoryDao
 import com.larrykin.chemistpos.home.data.Service
 import com.larrykin.chemistpos.home.data.ServicesDao
 import com.larrykin.chemistpos.home.data.ServicesOffered
@@ -21,8 +25,8 @@ import com.larrykin.chemistpos.home.data.SupplierDao
 
 @Database(
     entities =[User::class, Product::class, Supplier::class, Medicine::class, Sales::class,
-        Service::class, ServicesOffered::class],
-    version = 12,
+        Service::class, ServicesOffered::class, Income::class, SalesHistory::class],
+    version = 13,
     exportSchema = false
 )
 @TypeConverters(Converters::class) //specifying the type converter class
@@ -34,4 +38,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun medicineDao(): MedicineDao
     abstract fun salesDao() : SalesDao
     abstract fun servicesDao() : ServicesDao
+    abstract  fun incomeDao() : IncomeDao
+    abstract fun salesHistoryDao() : SalesHistoryDao
 }

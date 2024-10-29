@@ -11,18 +11,24 @@ import com.larrykin.chemistpos.authentication.data.UserDao
 import com.larrykin.chemistpos.authentication.data.UserRepositoryImplementation
 import com.larrykin.chemistpos.authentication.domain.UserRepository
 import com.larrykin.chemistpos.core.data.AppDatabase
+import com.larrykin.chemistpos.home.data.IncomeDao
+import com.larrykin.chemistpos.home.data.IncomeRepositoryImplementation
 import com.larrykin.chemistpos.home.data.MedicineDao
 import com.larrykin.chemistpos.home.data.MedicineRepositoryImplementation
 import com.larrykin.chemistpos.home.data.ProductDao
 import com.larrykin.chemistpos.home.data.ProductRepositoryImplementation
 import com.larrykin.chemistpos.home.data.SalesDao
+import com.larrykin.chemistpos.home.data.SalesHistoryDao
+import com.larrykin.chemistpos.home.data.SalesHistoryRepositoryImplementation
 import com.larrykin.chemistpos.home.data.SalesRepositoryImplementation
 import com.larrykin.chemistpos.home.data.ServiceRepositoryImplementation
 import com.larrykin.chemistpos.home.data.ServicesDao
 import com.larrykin.chemistpos.home.data.SupplierDao
 import com.larrykin.chemistpos.home.data.SupplierRepositoryImplementation
+import com.larrykin.chemistpos.home.domain.IncomeRepository
 import com.larrykin.chemistpos.home.domain.MedicineRepository
 import com.larrykin.chemistpos.home.domain.ProductRepository
+import com.larrykin.chemistpos.home.domain.SalesHistoryRepository
 import com.larrykin.chemistpos.home.domain.SalesRepository
 import com.larrykin.chemistpos.home.domain.ServiceRepository
 import com.larrykin.chemistpos.home.domain.SupplierRepository
@@ -385,6 +391,43 @@ object AppModule {
         }
     }
 
+    //migration after adding the income table and sales_history table
+    val MIGRATION_12_13 = object : Migration(12, 13) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create the income table
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `income` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `cash` REAL NOT NULL,
+                `mpesa` REAL NOT NULL,
+                `stock_worth` REAL NOT NULL,
+                `services_cash` REAL NOT NULL,
+                `services_mpesa` REAL NOT NULL,
+                `profit` REAL NOT NULL,
+                `loss` REAL NOT NULL
+            )
+            """
+            )
+
+            // Create the sales_history table
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS `sales_history` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `cash` REAL NOT NULL,
+                `mpesa` REAL NOT NULL,
+                `discount` REAL NOT NULL,
+                `credit` REAL NOT NULL,
+                `services_cash` REAL NOT NULL,
+                `services_mpesa` REAL NOT NULL,
+                `date` INTEGER NOT NULL
+            )
+            """
+            )
+        }
+    }
+
     @Provides // Annotates a method that returns a dependency instance (AppDatabase instance)
     @Singleton // Ensure only one instance is created
     fun provideDatabase(app: Application): AppDatabase {
@@ -412,7 +455,8 @@ object AppModule {
             MIGRATION_8_7,
             MIGRATION_7_10,
             MIGRATION_10_11,
-            MIGRATION_11_12
+            MIGRATION_11_12,
+            MIGRATION_12_13
 
         )
             .build()
@@ -446,6 +490,16 @@ object AppModule {
     @Provides //provide serviceDao instance
     fun providesServicesDao(appDatabase: AppDatabase): ServicesDao {
         return appDatabase.servicesDao()
+    }
+
+    @Provides //provide incomeDao instance
+    fun providesIncomeDao(appDatabase: AppDatabase): IncomeDao {
+        return appDatabase.incomeDao()
+    }
+
+    @Provides
+    fun providesSalesHistoryDao(appDatabase: AppDatabase): SalesHistoryDao {
+        return appDatabase.salesHistoryDao()
     }
 
     @Provides // Provide Context instance
@@ -507,4 +561,22 @@ abstract class ServicesRepositoryModule {
     abstract fun bindServiceRepository(
         serviceRepositoryImplementation: ServiceRepositoryImplementation
     ): ServiceRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class IncomeRepositoryModule {
+    @Binds //bind the incomeRepositoryImplementation to IncomeRepository
+    abstract fun bindIncomeRepository(
+        incomeRepositoryImplementation: IncomeRepositoryImplementation
+    ): IncomeRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class SalesHistoryRepositoryModule {
+    @Binds //bind the salesHistoryRepositoryImplementation to SalesHistoryRepository
+    abstract fun bindSalesHistoryRepository(
+        salesHistoryRepositoryImplementation: SalesHistoryRepositoryImplementation
+    ): SalesHistoryRepository
 }
