@@ -1,12 +1,15 @@
 package com.larrykin.chemistpos.home.presentation.viewModels
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.larrykin.chemistpos.core.data.GetAllServicesOfferedResult
 import com.larrykin.chemistpos.core.data.GetAllServicesResult
+import com.larrykin.chemistpos.home.data.Income
 import com.larrykin.chemistpos.home.data.Service
 import com.larrykin.chemistpos.home.data.ServicesOffered
+import com.larrykin.chemistpos.home.domain.IncomeRepository
 import com.larrykin.chemistpos.home.domain.ServiceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +26,10 @@ sealed class ServiceResult {
 }
 
 @HiltViewModel
-class ServicesViewModel @Inject constructor(private val servicesRepository: ServiceRepository) :
+class ServicesViewModel @Inject constructor(
+    private val servicesRepository: ServiceRepository,
+    private val incomeRepository: IncomeRepository
+) :
     ViewModel() {
     var name by mutableStateOf("")
     var description by mutableStateOf("")
@@ -172,6 +178,9 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
                 val result = servicesRepository.insertServiceOffered(servicesOffered)
                 if (result != null) {
                     onResult(ServiceResult.Success)
+                    val cash = servicesOffered.cash ?: 0.0
+                    val mpesa = servicesOffered.mpesa ?: 0.0
+                    updateIncomeServices(cash, mpesa)
                 } else {
                     onResult(ServiceResult.Error("An error occurred, Try again"))
                 }
@@ -243,6 +252,50 @@ class ServicesViewModel @Inject constructor(private val servicesRepository: Serv
                 onResult(false)
             }
         }
+    }
+
+    //update income
+    suspend fun updateIncomeServices(
+        cash: Double,
+        mpesa: Double
+    ) {
+        //check if there are incomes
+        val result = incomeRepository.getFirstIncome()
+        if (result != null) {
+            val income = Income(
+                cash = 0.0,
+                mpesa =  0.0,
+                stockWorth = result.stockWorth,
+                servicesMpesa = mpesa,
+                servicesCash = cash,
+                profit =  0.0,
+                loss =  0.0
+            )
+            val updateResult = incomeRepository.updateIncome(income)
+            if (updateResult == 1) {
+                Log.d("MyLogs", "Income  service updated successfully")
+
+            } else {
+                Log.d("MyLogs", "Error in updating income service")
+            }
+        } else {
+            val income = Income(
+                cash = 0.0,
+                mpesa = 0.0,
+                stockWorth = 0.0,
+                servicesMpesa = mpesa,
+                servicesCash = cash,
+                profit = 0.0,
+                loss = 0.0
+            )
+            val insertResult = incomeRepository.insertIncome(income)
+            if (insertResult != null) {
+                Log.d("MyLogs", "Income service inserted successfully")
+            } else {
+                Log.d("MyLogs", "Error in inserting income service")
+            }
+        }
+
     }
 
 }

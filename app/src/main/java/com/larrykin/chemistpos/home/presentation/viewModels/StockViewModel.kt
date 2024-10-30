@@ -309,19 +309,20 @@ class StockViewModel @Inject constructor(
 
     //! update income
     suspend fun updateIncome(sales: Sales) {
-        //create income
-        val income = Income(
-            cash = sales.cash,
-            mpesa = sales.mpesa,
-            stockWorth = 0.0,
-            servicesMpesa = 0.0,
-            servicesCash = 0.0,
-            profit = 0.0,
-            loss = 0.0
-        )
+
         //check if there are incomes
         val result = incomeRepository.getFirstIncome()
         if (result != null) {
+            //create income
+            val income = Income(
+                cash = sales.cash,
+                mpesa = sales.mpesa,
+                stockWorth = result.stockWorth,
+                servicesMpesa =  0.0,
+                servicesCash =  0.0,
+                profit =  0.0,
+                loss =  0.0
+            )
             val updateResult = incomeRepository.updateIncome(income)
             if (updateResult == 1) {
                 Log.d("MyLogs", "Income updated successfully")
@@ -330,6 +331,16 @@ class StockViewModel @Inject constructor(
                 Log.d("MyLogs", "Error in updating income")
             }
         } else {
+            //create income
+            val income = Income(
+                cash = sales.cash,
+                mpesa = sales.mpesa,
+                stockWorth = 0.0,
+                servicesMpesa = 0.0,
+                servicesCash = 0.0,
+                profit = 0.0,
+                loss = 0.0
+            )
             val insertResult = incomeRepository.insertIncome(income)
             if (insertResult != null) {
                 Log.d("MyLogs", "Income inserted successfully")
@@ -356,18 +367,18 @@ class StockViewModel @Inject constructor(
     }
 
     suspend fun updateStockWorth(stockWorth: Double) {
-        val income = Income(
-            cash = 0.0,
-            mpesa = 0.0,
-            stockWorth = stockWorth,
-            servicesMpesa = 0.0,
-            servicesCash = 0.0,
-            profit = 0.0,
-            loss = 0.0
-        )
         // Check if there are incomes
         val result = incomeRepository.getFirstIncome()
         if (result != null) {
+            val income = Income(
+                cash =  0.0,
+                mpesa =  0.0,
+                stockWorth = stockWorth,
+                servicesMpesa =  0.0,
+                servicesCash =  0.0,
+                profit =  0.0,
+                loss =  0.0
+            )
             val updateResult = incomeRepository.updateIncome(income)
             if (updateResult == 1) {
                 Log.d("MyLogs", "Income stockWorth updated successfully")
@@ -375,6 +386,15 @@ class StockViewModel @Inject constructor(
                 Log.d("MyLogs", "Error in updating income stockWorth")
             }
         } else {
+            val income = Income(
+                cash = 0.0,
+                mpesa = 0.0,
+                stockWorth = stockWorth,
+                servicesMpesa = 0.0,
+                servicesCash = 0.0,
+                profit = 0.0,
+                loss = 0.0
+            )
             val insertResult = incomeRepository.insertIncome(income)
             if (insertResult != null) {
                 Log.d("MyLogs", "Income stockWorth inserted successfully")
