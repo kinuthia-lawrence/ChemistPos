@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -145,32 +147,55 @@ fun SalesByDateCard(
     servicesMpesa: Double
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clip(RoundedCornerShape(12.dp)),
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "SALES BY DATE", style = MaterialTheme.typography.titleMedium)
-            }
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "SALES BY DATE",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "Total Cash : $cash", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Total Mpesa: $mpesa", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Total Discount: $discount", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Total Credit: $credit", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Service Cash: $servicesCash", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                text = "Service Mpesa: $servicesMpesa",
-                style = MaterialTheme.typography.bodyMedium
+            val salesData = listOf(
+                "Total Cash" to cash,
+                "Total Mpesa" to mpesa,
+                "Total Discount" to discount,
+                "Total Credit" to credit,
+                "Service Cash" to servicesCash,
+                "Service Mpesa" to servicesMpesa
             )
+
+            salesData.forEach { (label, amount) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = label, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = String.format("%.2f", amount),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
         }
     }
-
 }
 
 @Composable
@@ -184,32 +209,55 @@ fun IncomeCard(
     loss: Double
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clip(RoundedCornerShape(12.dp)),
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "INCOME", style = MaterialTheme.typography.titleMedium)
-            }
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "INCOME",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "Total Cash : $cash", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Total Mpesa: $mpesa", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Stock Worth: $stockWorth", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Service Cash: $servicesCash", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                text = "Service Mpesa: $servicesMpesa",
-                style = MaterialTheme.typography.bodyMedium
+            val incomeData = listOf(
+                "Total Cash" to cash,
+                "Total Mpesa" to mpesa,
+                "Stock Worth" to stockWorth,
+                "Service Cash" to servicesCash,
+                "Service Mpesa" to servicesMpesa,
+                "Profit Amount" to profit,
+                "Loss Amount" to loss
             )
-            Text(text = "Profit Amount: $profit", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Loss Amount: $loss", style = MaterialTheme.typography.bodyMedium)
 
+            incomeData.forEach { (label, amount) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = label, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = String.format("%.2f", amount),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (label.contains("Loss")) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
         }
     }
-
 }
