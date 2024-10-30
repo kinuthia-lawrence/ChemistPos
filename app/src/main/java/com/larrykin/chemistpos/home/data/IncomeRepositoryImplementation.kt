@@ -31,7 +31,7 @@ class IncomeRepositoryImplementation @Inject constructor(
                     id = firstIncome.id,
                     cash = firstIncome.cash + income.cash,
                     mpesa = firstIncome.mpesa + income.mpesa,
-                    stockWorth = firstIncome.stockWorth + income.stockWorth,
+                    stockWorth = income.stockWorth,
                     servicesCash = firstIncome.servicesCash + income.servicesCash,
                     servicesMpesa = firstIncome.servicesMpesa + income.servicesMpesa,
                     profit = firstIncome.profit + income.profit,

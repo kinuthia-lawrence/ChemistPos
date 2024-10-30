@@ -125,6 +125,7 @@ class StockViewModel @Inject constructor(
                     val result = productRepository.updateProduct(updatedProduct)
                     if (result != null) {
                         onResult(StockResult.Success)
+                        calculateCurrentStockWorth()
                     } else {
                         onResult(StockResult.Error("Failed to update product"))
                     }
@@ -172,6 +173,7 @@ class StockViewModel @Inject constructor(
                     getAllProducts { stockResult, _ ->
                         onResult(stockResult is StockResult.Success)
                     }
+                    calculateCurrentStockWorth()
                 } else {
                     onResult(false)
                 }
@@ -190,6 +192,7 @@ class StockViewModel @Inject constructor(
                     getAllProducts { stockResult, _ ->
                         onResult(stockResult)
                     }
+                    calculateCurrentStockWorth()
                 } else {
                     onResult(StockResult.Error("Failed to update product"))
                 }
@@ -322,6 +325,7 @@ class StockViewModel @Inject constructor(
             val updateResult = incomeRepository.updateIncome(income)
             if (updateResult == 1) {
                 Log.d("MyLogs", "Income updated successfully")
+                calculateCurrentStockWorth()
             } else {
                 Log.d("MyLogs", "Error in updating income")
             }
@@ -331,6 +335,51 @@ class StockViewModel @Inject constructor(
                 Log.d("MyLogs", "Income inserted successfully")
             } else {
                 Log.d("MyLogs", "Error in inserting income")
+            }
+        }
+    }
+
+    suspend fun calculateCurrentStockWorth() {
+        productRepository.getAllProducts().collect { result ->
+            when (result) {
+                is GetAllProductsResult.Success -> {
+                    val totalWorth = result.products.sumOf { it.buyingPrice * it.quantityAvailable }
+                    Log.d("MyLogs", "Current stock worth: $totalWorth")
+                    updateStockWorth(totalWorth)
+                }
+
+                is GetAllProductsResult.Error -> {
+                    Log.d("MyLogs", "Error calculating stock worth: ${result.message}")
+                }
+            }
+        }
+    }
+
+    suspend fun updateStockWorth(stockWorth: Double) {
+        val income = Income(
+            cash = 0.0,
+            mpesa = 0.0,
+            stockWorth = stockWorth,
+            servicesMpesa = 0.0,
+            servicesCash = 0.0,
+            profit = 0.0,
+            loss = 0.0
+        )
+        // Check if there are incomes
+        val result = incomeRepository.getFirstIncome()
+        if (result != null) {
+            val updateResult = incomeRepository.updateIncome(income)
+            if (updateResult == 1) {
+                Log.d("MyLogs", "Income stockWorth updated successfully")
+            } else {
+                Log.d("MyLogs", "Error in updating income stockWorth")
+            }
+        } else {
+            val insertResult = incomeRepository.insertIncome(income)
+            if (insertResult != null) {
+                Log.d("MyLogs", "Income stockWorth inserted successfully")
+            } else {
+                Log.d("MyLogs", "Error in inserting income stockWorth")
             }
         }
     }
