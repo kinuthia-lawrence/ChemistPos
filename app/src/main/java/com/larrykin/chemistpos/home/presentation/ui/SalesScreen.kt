@@ -1,6 +1,5 @@
 package com.larrykin.chemistpos.home.presentation.ui
 
-import android.app.DatePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -10,23 +9,21 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.larrykin.chemistpos.authentication.components.CustomTextField
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.data.Sales
+import com.larrykin.chemistpos.core.presentation.ui.DatePicker
 import com.larrykin.chemistpos.home.presentation.viewModels.StockResult
 import com.larrykin.chemistpos.home.presentation.viewModels.StockViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import kotlin.text.set
 
 @Composable
 fun SalesScreen(stockViewModel: StockViewModel = hiltViewModel()) {
@@ -253,39 +250,7 @@ fun SalesTabContent(stockViewModel: StockViewModel = hiltViewModel()) {
 }
 
 
-@Composable
-fun DatePicker(label: String, selectedDate: Date, onDateSelected: (Date) -> Unit) {
-    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
-    val dateText = remember { mutableStateOf(dateFormat.format(selectedDate)) }
-    val context = LocalContext.current
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = label, style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(4.dp))
-        Button(onClick = {
-            // Show date picker dialog
-            val calendar = Calendar.getInstance()
-            calendar.time = selectedDate
-            DatePickerDialog(
-                context,
-                { _, year, month, dayOfMonth ->
-                    val newDate = Calendar.getInstance().apply {
-                        set(year, month, dayOfMonth)
-                    }.time
-                    dateText.value = dateFormat.format(newDate)
-                    onDateSelected(newDate)
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }) {
-            Text(text = dateText.value)
-        }
-    }
-}
 
 @Composable
 fun SaleItemCard(sale: Sales, stockViewModel: StockViewModel = hiltViewModel()) {
