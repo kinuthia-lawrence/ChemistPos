@@ -215,6 +215,7 @@ fun CartScreen(loggedInUser: LoggedInUser, stockViewModel: StockViewModel = hilt
                 val mpesaAmount = mpesa.toDoubleOrNull() ?: 0.0
                 val totalPrice = cashAmount + mpesaAmount
 
+
                 stockViewModel.saveSales(
                     items = saleItems,
                     totalPrice = totalPrice,
