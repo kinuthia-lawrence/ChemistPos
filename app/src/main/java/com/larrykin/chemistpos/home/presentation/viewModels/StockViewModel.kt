@@ -4,11 +4,15 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.larrykin.chemistpos.core.data.GetAllProductsResult
+import com.larrykin.chemistpos.home.data.Income
 import com.larrykin.chemistpos.home.data.Product
 import com.larrykin.chemistpos.home.data.SaleItem
 import com.larrykin.chemistpos.home.data.Sales
+import com.larrykin.chemistpos.home.data.SalesHistory
+import com.larrykin.chemistpos.home.domain.IncomeRepository
 import com.larrykin.chemistpos.home.domain.MedicineRepository
 import com.larrykin.chemistpos.home.domain.ProductRepository
+import com.larrykin.chemistpos.home.domain.SalesHistoryRepository
 import com.larrykin.chemistpos.home.domain.SalesRepository
 import com.larrykin.chemistpos.home.domain.SupplierRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +32,9 @@ class StockViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     private val medicineRepository: MedicineRepository,
     private val supplierRepository: SupplierRepository,
-    private val salesRepository: SalesRepository
+    private val salesRepository: SalesRepository,
+    private val salesHistoryRepository: SalesHistoryRepository,
+    private val incomeRepository: IncomeRepository
 ) : ViewModel() {
     // medicinesNames
     private val _medicineNames = MutableStateFlow<List<String>>(emptyList())
@@ -221,6 +227,10 @@ class StockViewModel @Inject constructor(
             if (result != null && result > 0) {
                 subtractFromStock(items) { stockSuccess ->
                     onResult(stockSuccess)
+                    viewModelScope.launch {
+                        insertSalesHistory(sale)
+                        updateIncome(sale)
+                    }
                 }
             } else {
                 onResult(false)
@@ -273,4 +283,56 @@ class StockViewModel @Inject constructor(
     suspend fun getProductById(productId: Int): Product? {
         return productRepository.getProductById(productId)
     }
+
+    //! insert sales history
+    suspend fun insertSalesHistory(sale: Sales) {
+        val salesHistory = SalesHistory(
+            cash = sale.cash,
+            mpesa = sale.mpesa,
+            discount = sale.discount,
+            credit = sale.credit,
+            servicesCash = 0.0,
+            servicesMpesa = 0.0,
+            date = Date()
+        )
+        Log.d("MyLogs", "Inserting sales history: $salesHistory")
+        val result = salesHistoryRepository.insertSalesHistory(salesHistory)
+        if (result != null && result > 0) {
+            Log.d("MyLogs", "Sale History inserted successfully")
+        } else {
+            Log.d("MyLogs", "Error in inserting salesHistory")
+        }
+    }
+
+    //! update income
+    suspend fun updateIncome(sales: Sales) {
+        //create income
+        val income = Income(
+            cash = sales.cash,
+            mpesa = sales.mpesa,
+            stockWorth = 0.0,
+            servicesMpesa = 0.0,
+            servicesCash = 0.0,
+            profit = 0.0,
+            loss = 0.0
+        )
+        //check if there are incomes
+        val result = incomeRepository.getFirstIncome()
+        if (result != null) {
+            val updateResult = incomeRepository.updateIncome(income)
+            if (updateResult == 1) {
+                Log.d("MyLogs", "Income updated successfully")
+            } else {
+                Log.d("MyLogs", "Error in updating income")
+            }
+        } else {
+            val insertResult = incomeRepository.insertIncome(income)
+            if (insertResult != null) {
+                Log.d("MyLogs", "Income inserted successfully")
+            } else {
+                Log.d("MyLogs", "Error in inserting income")
+            }
+        }
+    }
+
 }

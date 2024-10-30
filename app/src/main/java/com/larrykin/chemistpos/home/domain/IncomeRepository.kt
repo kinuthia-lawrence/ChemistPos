@@ -6,5 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface IncomeRepository {
     suspend fun insertIncome(income: Income): Long?
     suspend fun getAllIncome(): Flow<List<Income>>
+    suspend fun getFirstIncome(): Income?
     suspend fun updateIncome(income: Income): Int
 }

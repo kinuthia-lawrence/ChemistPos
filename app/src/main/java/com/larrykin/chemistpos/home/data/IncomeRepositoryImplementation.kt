@@ -19,6 +19,10 @@ class IncomeRepositoryImplementation @Inject constructor(
         return incomeDao.getAllIncome()
     }
 
+    override suspend fun getFirstIncome(): Income? {
+        return incomeDao.getFirstIncome()
+    }
+
     override suspend fun updateIncome(income: Income): Int {
         return try {
             val firstIncome = incomeDao.getFirstIncome()
