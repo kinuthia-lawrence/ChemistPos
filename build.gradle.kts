@@ -5,4 +5,7 @@ plugins {
     //dagger hilt - id("com.google.dagger.hilt.android") version "2.44" apply false
     alias(libs.plugins.google.dagger.hilt.android)  apply false
     alias(libs.plugins.compose.compiler) apply false
+
+    // Add the dependency for the Google services Gradle plugin
+    alias(libs.plugins.google.services) apply false
 }

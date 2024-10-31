@@ -6,6 +6,10 @@ plugins {
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.compose.compiler)
 
+    // Add the Google services Gradle plugin in toml file
+    alias(libs.plugins.google.services)
+
+
 }
 
 android {
@@ -120,6 +124,18 @@ dependencies {
     //JavaMail
     implementation(libs.android.mail)
     implementation(libs.android.activation)
+
+
+
+    // Import the Firebase BoM(bill of materials)
+    implementation(platform(libs.firebase.bom))
+
+
+    // Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.firestore)
+
 
 
 }
