@@ -14,12 +14,12 @@ plugins {
 
 android {
     namespace = "com.larrykin.chemistpos"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.larrykin.chemistpos"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -135,6 +135,8 @@ dependencies {
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
+    //adroidx work
+    implementation(libs.androidx.work.runtime.ktx)
 
 
 

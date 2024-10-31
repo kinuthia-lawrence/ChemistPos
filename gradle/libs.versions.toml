@@ -28,6 +28,8 @@ uiTestAndroid = "1.7.3"
 # firebaseBOM
 firebaseBom = "33.5.1"
 googleServices = "4.4.2"
+#androidx-work
+workRuntimeKtx = "2.10.0"
 
 [libraries]
 android-activation = { module = "com.sun.mail:android-activation", version.ref = "androidActivation" }
@@ -65,7 +67,8 @@ androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-andr
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
-
+#androidx.work
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
 
 [plugins]
