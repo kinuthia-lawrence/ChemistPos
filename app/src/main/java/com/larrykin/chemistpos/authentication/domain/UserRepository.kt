@@ -18,4 +18,7 @@ interface UserRepository{
     suspend fun updateUser(user: User): User?
     suspend fun deleteUser(user: User): AuthResult<String>
     suspend fun updateProfilePicture(email: String, newUrl: String): User?
+
+    //create user in firebase
+    suspend fun createUserInFirestore(user: User): Boolean?
 }
