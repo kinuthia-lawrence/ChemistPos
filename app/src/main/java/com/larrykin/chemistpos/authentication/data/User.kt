@@ -32,5 +32,7 @@ data class User(
     @ColumnInfo(name = "created_at")
     val createdAt: Date = Date(),
     @ColumnInfo(name = "profile_Picture_url")
-    var profilePictureUrl: String? = null
+    var profilePictureUrl: String? = null,
+    @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
+
 )

@@ -18,6 +18,7 @@ data class Sales(
     @ColumnInfo(name = "credit") val credit: Double,
     @ColumnInfo(name = "seller") val seller: String,
     @ColumnInfo(name = "date") val date: Date,
+    @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
 )
 
 data class SaleItem(

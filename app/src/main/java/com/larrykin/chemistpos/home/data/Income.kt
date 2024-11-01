@@ -13,5 +13,6 @@ data class Income (
     @ColumnInfo(name = "services_cash") val servicesCash: Double,
     @ColumnInfo(name = "services_mpesa") val servicesMpesa: Double,
     @ColumnInfo(name = "profit") val profit: Double,
-    @ColumnInfo(name = "loss") val loss: Double
+    @ColumnInfo(name = "loss") val loss: Double,
+    @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
 )

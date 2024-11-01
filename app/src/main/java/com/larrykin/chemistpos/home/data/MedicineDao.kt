@@ -44,5 +44,8 @@ interface MedicineDao{
     @Query("SELECT DISTINCT company FROM medicines")
     suspend fun getAllCompanyNames(): List<String>
 
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAll(medicine: List<Medicine>)
+
 
 }

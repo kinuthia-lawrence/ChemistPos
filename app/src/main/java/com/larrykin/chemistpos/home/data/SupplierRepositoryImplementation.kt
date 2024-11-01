@@ -13,6 +13,7 @@ class SupplierRepositoryImplementation @Inject constructor(private val supplierD
         //insert supplier
     override suspend fun insertSupplier(supplier: Supplier): Long? {
         return try{
+            supplier.timestamp = System.currentTimeMillis()
             supplierDao.insert(supplier)
         }catch (e: Exception){
             -1
@@ -55,6 +56,7 @@ class SupplierRepositoryImplementation @Inject constructor(private val supplierD
     //update supplier
     override suspend fun updateSupplier(supplier: Supplier): Supplier? {
         return try {
+            supplier.timestamp = System.currentTimeMillis()
             val rowsUpdated = supplierDao.updateSupplier(supplier)
             if (rowsUpdated > 0) supplierDao.getSupplierById(supplier.id).firstOrNull() else null
         }catch (e: Exception){

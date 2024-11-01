@@ -16,5 +16,6 @@ data class ServicesOffered(
     @ColumnInfo(name = "total_price") val totalPrice: Double,
     @ColumnInfo(name = "expected_amount") val expectedAmount: Double?,
     @ColumnInfo(name = "created_at") val createdAt: Date,
-    @ColumnInfo(name = "updated_at") val updatedAt: Date?
+    @ColumnInfo(name = "updated_at") val updatedAt: Date?,
+    @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
 )

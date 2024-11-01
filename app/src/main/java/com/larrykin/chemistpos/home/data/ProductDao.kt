@@ -48,4 +48,8 @@ interface ProductDao {
         expiryDate: Long
     ): Product?
 
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAll(product: List<Product>)
+
+
 }

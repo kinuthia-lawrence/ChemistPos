@@ -9,6 +9,7 @@ class IncomeRepositoryImplementation @Inject constructor(
 ) : IncomeRepository {
     override suspend fun insertIncome(income: Income): Long? {
         return try {
+            income.timestamp = System.currentTimeMillis()
             incomeDao.insert(income)
         } catch (e: Exception) {
             null
@@ -35,7 +36,8 @@ class IncomeRepositoryImplementation @Inject constructor(
                     servicesCash = firstIncome.servicesCash + income.servicesCash,
                     servicesMpesa = firstIncome.servicesMpesa + income.servicesMpesa,
                     profit = firstIncome.profit + income.profit,
-                    loss = firstIncome.loss + income.loss
+                    loss = firstIncome.loss + income.loss,
+                    timestamp = System.currentTimeMillis()
                 )
                 incomeDao.update(updatedIncome)
             } else {

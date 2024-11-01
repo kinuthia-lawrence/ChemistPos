@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
@@ -19,11 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.larrykin.chemistpos.home.presentation.viewModels.MenuContentViewModel
 
 @Composable
 fun MenuContent(
-    parentNavController: NavHostController
+    parentNavController: NavHostController,
+    menuContentViewModel: MenuContentViewModel = hiltViewModel()
 ) {
     Spacer(modifier = Modifier.height(48.dp))
     Text("Menu", modifier = Modifier.padding(16.dp))
@@ -52,6 +56,15 @@ fun MenuContent(
     )
     Spacer(modifier = Modifier.height(16.dp))
     HorizontalDivider()
+    NavigationDrawerItem(
+        label = { Text(text = "Sync Data") },
+        icon = { Icon(imageVector = Icons.Default.Refresh, contentDescription = "Sync Icon", tint =
+        Color.Green)
+        },
+        selected = false,
+        onClick = { menuContentViewModel.syncData()  }
+    )
+    Spacer(modifier = Modifier.height(16.dp))
     NavigationDrawerItem(
         label = { Text(text = "Settings") },
         icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings Icon", tint = Color.Red)

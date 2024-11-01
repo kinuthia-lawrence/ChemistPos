@@ -16,6 +16,7 @@ class ServiceRepositoryImplementation @Inject constructor(
     //insert service
     override suspend fun insertService(service: Service): Long? {
         return try {
+            service.timestamp = System.currentTimeMillis()
             servicesDao.insertService(service)
         } catch (e: Exception) {
             -1
@@ -57,6 +58,7 @@ class ServiceRepositoryImplementation @Inject constructor(
     //update service
     override suspend fun updateService(service: Service): Service? {
         return try {
+            service.timestamp = System.currentTimeMillis()
             val rowsUpdated = servicesDao.updateService(service)
             if (rowsUpdated > 0) servicesDao.getServiceById(service.id).firstOrNull() else null
         } catch (e: Exception) {
@@ -86,6 +88,7 @@ class ServiceRepositoryImplementation @Inject constructor(
     //insert service offered
     override suspend fun insertServiceOffered(serviceOffered: ServicesOffered): Long? {
         return try {
+            serviceOffered.timestamp = System.currentTimeMillis()
             servicesDao.insertServiceOffered(serviceOffered)
         } catch (e: Exception) {
             -1
@@ -119,6 +122,7 @@ class ServiceRepositoryImplementation @Inject constructor(
     //update service offered
     override suspend fun updateServiceOffered(serviceOffered: ServicesOffered): ServicesOffered? {
         return try {
+            serviceOffered.timestamp = System.currentTimeMillis()
             val rowsUpdated = servicesDao.updateServiceOffered(serviceOffered)
             if (rowsUpdated > 0) servicesDao.getServiceOfferedById(serviceOffered.id)
                 .firstOrNull() else null

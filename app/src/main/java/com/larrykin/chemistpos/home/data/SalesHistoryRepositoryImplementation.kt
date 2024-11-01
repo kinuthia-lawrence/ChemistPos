@@ -10,6 +10,7 @@ class SalesHistoryRepositoryImplementation @Inject constructor(
 ) : SalesHistoryRepository {
     override suspend fun insertSalesHistory(salesHistory: SalesHistory): Long? {
         return try {
+            salesHistory.timestamp = System.currentTimeMillis()
             salesHistoryDao.insert(salesHistory)
         } catch (e: Exception) {
             null

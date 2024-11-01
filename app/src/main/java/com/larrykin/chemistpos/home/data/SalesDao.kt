@@ -2,7 +2,9 @@ package com.larrykin.chemistpos.home.data
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
@@ -17,4 +19,8 @@ interface SalesDao {
 
     @Query("SELECT * FROM sales WHERE date = :date")
     fun getSalesByDate(date: Date): Flow<List<Sales>>
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAll(sales: List<Sales>)
+
 }

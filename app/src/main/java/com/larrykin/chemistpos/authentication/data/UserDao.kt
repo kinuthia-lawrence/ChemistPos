@@ -8,7 +8,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
+import com.larrykin.chemistpos.home.data.Income
 import kotlinx.coroutines.flow.Flow
+import kotlin.coroutines.Continuation
 
 //Data Access Objects are used to access the database, all the crud operations are defined here
 //The @Dao annotation is used to tell room that this is a Dao class
@@ -50,5 +52,8 @@ interface UserDao {
     //update profile picture
     @Query("UPDATE users SET profile_picture_url = :newUrl WHERE email = :email")
     suspend fun updateProfilePicture(email: String, newUrl: String) : Int
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAll(users: List<User>)
 
 }

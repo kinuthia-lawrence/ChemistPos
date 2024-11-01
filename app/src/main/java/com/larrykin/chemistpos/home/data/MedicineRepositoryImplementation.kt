@@ -13,6 +13,7 @@ class MedicineRepositoryImplementation @Inject constructor(private val medicineD
         //insert medicine
     override suspend fun insertMedicine(medicine: Medicine): Long? {
         return try {
+            medicine.timestamp = System.currentTimeMillis()
             medicineDao.insert(medicine)
         } catch (e: Exception) {
             -1
@@ -55,6 +56,7 @@ class MedicineRepositoryImplementation @Inject constructor(private val medicineD
     //update medicine
     override suspend fun updateMedicine(medicine: Medicine): Medicine? {
         return try {
+            medicine.timestamp = System.currentTimeMillis()
             val rowsUpdated = medicineDao.updateMedicine(medicine)
             if (rowsUpdated > 0) medicineDao.getMedicineById(medicine.id).firstOrNull() else null
         }catch (e: Exception){

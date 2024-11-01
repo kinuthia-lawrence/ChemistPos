@@ -41,4 +41,7 @@ interface SupplierDao {
     @Query("SELECT name FROM  SUPPLIERS")
     suspend fun getAllSupplierNames(): List<String>
 
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAll(supplier: List<Supplier>)
+
 }

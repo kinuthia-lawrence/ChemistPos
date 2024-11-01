@@ -43,6 +43,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class) // Installing AppModule to SingletonComponent
 object AppModule {
 
+    /*
     //migration after adding profile picture url
     private val MIGRATION_1_2 =
         object : Migration(1, 2) {
@@ -427,7 +428,7 @@ object AppModule {
             )
         }
     }
-
+*/
     @Provides // Annotates a method that returns a dependency instance (AppDatabase instance)
     @Singleton // Ensure only one instance is created
     fun provideDatabase(app: Application): AppDatabase {
@@ -444,21 +445,7 @@ object AppModule {
                     "Database created"
                 )
             }
-        }).addMigrations(
-            MIGRATION_1_2,
-            MIGRATION_2_3,
-            MIGRATION_3_4,
-            MIGRATION_4_5,
-            MIGRATION_5_6,
-            MIGRATION_6_7,
-            MIGRATION_7_8,
-            MIGRATION_8_7,
-            MIGRATION_7_10,
-            MIGRATION_10_11,
-            MIGRATION_11_12,
-            MIGRATION_12_13
-
-        )
+        }).addMigrations()
             .build()
     }
 

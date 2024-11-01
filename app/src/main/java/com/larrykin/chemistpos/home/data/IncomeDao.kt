@@ -24,5 +24,7 @@ interface IncomeDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(income: Income): Int
 
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAll(income: List<Income>)
 
 }

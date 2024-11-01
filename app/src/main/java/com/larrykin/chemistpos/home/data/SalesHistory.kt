@@ -15,5 +15,6 @@ data class SalesHistory(
     @ColumnInfo(name = "credit") val credit: Double,
     @ColumnInfo(name = "services_cash") val servicesCash: Double,
     @ColumnInfo(name = "services_mpesa") val servicesMpesa: Double,
-    @ColumnInfo(name = "date") val date: Date
+    @ColumnInfo(name = "date") val date: Date,
+    @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
 )

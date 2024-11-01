@@ -26,7 +26,7 @@ import com.larrykin.chemistpos.home.data.SupplierDao
 @Database(
     entities =[User::class, Product::class, Supplier::class, Medicine::class, Sales::class,
         Service::class, ServicesOffered::class, Income::class, SalesHistory::class],
-    version = 13,
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(Converters::class) //specifying the type converter class

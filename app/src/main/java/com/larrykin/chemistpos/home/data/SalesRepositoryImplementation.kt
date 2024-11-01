@@ -10,6 +10,7 @@ class SalesRepositoryImplementation @Inject constructor(
 ): SalesRepository {
     override suspend fun insertSale(sales: Sales): Long? {
         return try{
+            sales.timestamp = System.currentTimeMillis()
             salesDao.insertSale(sales)
         }catch (e: Exception){
             null

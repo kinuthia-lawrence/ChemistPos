@@ -38,6 +38,9 @@ interface ServicesDao {
     @Query("SELECT name FROM  services")
     suspend fun getAllServiceNames(): List<String>
 
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAllServices(service: List<Service>)
+
     //! Services Offered Section
     // Insert a service offered
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -58,4 +61,7 @@ interface ServicesDao {
     //delete a service offered
     @Query("DELETE FROM services_offered WHERE id=:serviceOfferedId")
     suspend fun deleteServiceOffered(serviceOfferedId: Int): Int
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAllServicesOffered(servicesOffered: List<ServicesOffered>)
 }

@@ -23,6 +23,7 @@ class UserRepositoryImplementation @Inject constructor(private val userDao: User
             if (existingUser != null) {
                 return null
             } else {
+                user.timestamp = System.currentTimeMillis()
                 userDao.insert(user)
                 userDao.getUserByEmail(user.email).firstOrNull()
             }
@@ -91,6 +92,7 @@ class UserRepositoryImplementation @Inject constructor(private val userDao: User
     //update user
     override suspend fun updateUser(user: User): User? {
         return try {
+            user.timestamp = System.currentTimeMillis()
             val rowsUpdated = userDao.updateUser(user)
             if (rowsUpdated > 0) userDao.getUserByEmail(user.email).firstOrNull() else null
         } catch (e: Exception) {
@@ -117,6 +119,7 @@ class UserRepositoryImplementation @Inject constructor(private val userDao: User
             val user = userDao.getUserByEmail(email).firstOrNull()
             if (user != null) {
                 user.profilePictureUrl = newUrl
+                user.timestamp = System.currentTimeMillis()
                 userDao.updateUser(user)
                 userDao.getUserByEmail(email).firstOrNull()
             } else {
@@ -153,7 +156,8 @@ class UserRepositoryImplementation @Inject constructor(private val userDao: User
                         "sales_history",
                         "services",
                         "services_offered",
-                        "suppliers"
+                        "suppliers",
+                        "users"
                     )
                     for (subCollection in subCollections) {
                         userDataDocRef.collection(subCollection)

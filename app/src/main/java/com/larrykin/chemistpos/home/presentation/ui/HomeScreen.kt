@@ -24,6 +24,7 @@ import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.authentication.presentation.viewModels.LoginViewModel
 import com.larrykin.chemistpos.core.data.LoggedInUser
 import com.larrykin.chemistpos.home.presentation.viewModels.DashboardViewModel
+import com.larrykin.chemistpos.home.presentation.viewModels.MenuContentViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.NotificationViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.ProfileViewModel
 import com.larrykin.chemistpos.home.presentation.viewModels.ServicesViewModel
@@ -52,6 +53,7 @@ fun HomeScreen(
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val servicesViewModel: ServicesViewModel = hiltViewModel()
     val dashboardViewModel: DashboardViewModel = hiltViewModel()
+    val menuContentViewModel: MenuContentViewModel = hiltViewModel()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -60,7 +62,8 @@ fun HomeScreen(
                 modifier = Modifier.padding(end = 120.dp)
             ) {
                 MenuContent(
-                    parentNavController = parentNavController
+                    parentNavController = parentNavController,
+                    menuContentViewModel = menuContentViewModel
                 )
             }
         }

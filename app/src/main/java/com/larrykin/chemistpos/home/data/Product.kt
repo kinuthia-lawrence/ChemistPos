@@ -22,6 +22,7 @@ data class Product(
     @ColumnInfo(name="updated_at") val updatedAt: Date?,
     @ColumnInfo(name ="added_by") val addedBy: String,
     @ColumnInfo(name = "expiry_date") val expiryDate: Date,
-    @ColumnInfo(name = "description") val description: String?
+    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
 )
  

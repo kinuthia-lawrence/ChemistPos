@@ -8,5 +8,6 @@ import androidx.room.PrimaryKey
 data class Medicine(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "company") val company: String
+    @ColumnInfo(name = "company") val company: String,
+    @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
 )

@@ -16,6 +16,7 @@ class ProductRepositoryImplementation @Inject constructor(private val productDao
     //insert product into the database
     override suspend fun insertProduct(product: Product): Long {
         return try {
+            product.timestamp = System.currentTimeMillis()
             productDao.insert(product)
         } catch (e: Exception) {
             -1
@@ -57,6 +58,7 @@ class ProductRepositoryImplementation @Inject constructor(private val productDao
 
     override suspend fun updateProduct(product: Product): Product? {
         return try {
+            product.timestamp = System.currentTimeMillis()
             val rowsUpdated = productDao.updateProduct(product)
             if (rowsUpdated > 0) productDao.getProductById(product.id).firstOrNull() else null
         } catch (e: Exception) {
