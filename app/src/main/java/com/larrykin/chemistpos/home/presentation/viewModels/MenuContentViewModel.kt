@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,275 +30,464 @@ class MenuContentViewModel @Inject constructor(
     private val userDao: UserDao
 ) : ViewModel() {
 
-    fun syncData() {
+    fun syncData(adminEmail: String) {
         viewModelScope.launch {
-            val adminEmail = getAdminEmail().toString()
-            val firestore = FirebaseFirestore.getInstance()
-            val userDataDocRef = firestore.collection("UserData").document(adminEmail)
-
-            val subCollections = listOf(
-                "income",
-                "medicines",
-                "products",
-                "sales",
-                "sales_history",
-                "services",
-                "services_offered",
-                "suppliers",
-                "users"
-            )
-
-            for (subCollection in subCollections) {
-                val localData = getLocalData(subCollection)
-                val firestoreData = userDataDocRef.collection(subCollection).get()
-                    .await().documents.map { it.toObject(Data::class.java)!! }
-
-                // Merge local and Firestore data
-                val mergedData = mergeData(localData, firestoreData)
-
-                // Update Firestore with merged data
-                for (data in mergedData) {
-                    userDataDocRef.collection(subCollection).document(data.id).set(data).await()
+            try {
+                if (adminEmail.isEmpty()) {
+                    Log.e("MyLogs", "Admin email is null or empty, cannot sync data")
+                    return@launch
                 }
+                Log.d("MyLogs", "Admin email in SyncData method: $adminEmail")
+                val firestore = FirebaseFirestore.getInstance()
+                val userDataDocRef = firestore.collection("UserData").document(adminEmail)
 
-                // Update local database with merged data
-                updateLocalDatabase(subCollection, mergedData)
+                val subCollections = listOf(
+                    "income",
+                    "medicines",
+                    "products",
+                    "sales",
+                    "sales_history",
+                    "services",
+                    "services_offered",
+                    "suppliers",
+                    "users"
+                )
+
+                for (subCollection in subCollections) {
+                    val localData = getLocalData(subCollection)
+                    val firestoreData = userDataDocRef.collection(subCollection).get()
+                        .await().documents.mapNotNull {
+                            it.toObject(getDataClass(subCollection))
+                        }
+
+                    if (firestoreData.isEmpty()) {
+                        Log.d(
+                            "MyLogs",
+                            "No data found in Firestore for subCollection: $subCollection"
+                        )
+                    }
+
+                    // Merge local and Firestore data
+                    val mergedData = mergeData(localData, firestoreData, subCollection)
+
+                    // Update Firestore with merged data
+                    for (data in mergedData) {
+                        val idFieldName = if (data is User) "email" else "id"
+                        val id = data::class.java.getDeclaredField(idFieldName)
+                            .apply { isAccessible = true }.get(data)
+                        if (id is Int && id >= 0 || id is String && id.isNotEmpty()) {
+                            userDataDocRef.collection(subCollection).document(id.toString())
+                                .set(data).await()
+                            Log.d("MyLogs", "Data synced: $data")
+                        } else {
+                            Log.d("MyLogs", "Skipped syncing data with empty ID: $data")
+                        }
+                    }
+
+                    // Update local database with merged data
+                    updateLocalDatabase(subCollection, mergedData)
+                }
+            } catch (e: Exception) {
+                Log.e("MyLogs", "Error syncing data: ${e.message}", e)
             }
         }
     }
 
-    private suspend fun getLocalData(subCollection: String): List<Data> {
+    private fun getDataClass(subCollection: String): Class<*> {
         return when (subCollection) {
-            "income" -> incomeDao.getAllIncome().first().map { Data(it.id.toString(), it.timestamp) }
-            "medicines" -> medicineDao.getAllMedicines().first().map { Data(it.id.toString(), it.timestamp) }
-            "products" -> productDao.getAllProducts().first().map { Data(it.id.toString(), it.timestamp) }
-            "sales" -> salesDao.getAllSales().first().map { Data(it.id.toString(), it.timestamp) }
-            "sales_history" -> salesHistoryDao.getAllSalesHistory().first().map { Data(it.id.toString(), it.timestamp) }
-            "services" -> servicesDao.getAllServices().first().map { Data(it.id.toString(), it.timestamp) }
-            "services_offered" -> servicesDao.getAllServicesOffered().first().map { Data(it.id.toString(), it.timestamp) }
-            "suppliers" -> supplierDao.getAllSuppliers().first().map { Data(it.id.toString(), it.timestamp) }
-            "users" -> userDao.getAllUsers().first().map { Data(it.email, it.timestamp) }
+            "income" -> Income::class.java
+            "medicines" -> Medicine::class.java
+            "products" -> Product::class.java
+            "sales" -> Sales::class.java
+            "sales_history" -> SalesHistory::class.java
+            "services" -> Service::class.java
+            "services_offered" -> ServicesOffered::class.java
+            "suppliers" -> Supplier::class.java
+            "users" -> User::class.java
+            else -> Any::class.java
+        }
+    }
+
+    private suspend fun getLocalData(subCollection: String): List<Any> {
+        return when (subCollection) {
+            "income" -> incomeDao.getAllIncome().first()
+                .map {
+                    Income(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        cash = it.cash,
+                        mpesa = it.mpesa,
+                        stockWorth = it.stockWorth,
+                        servicesCash = it.servicesCash,
+                        servicesMpesa = it.servicesMpesa,
+                        profit = it.profit,
+                        loss = it.loss
+                    )
+                }
+
+            "medicines" -> medicineDao.getAllMedicines().first()
+                .map {
+                    Medicine(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        company = it.company
+                    )
+                }
+
+            "products" -> productDao.getAllProducts().first()
+                .map {
+                    Product(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        company = it.company,
+                        formulation = it.formulation,
+                        minStock = it.minStock,
+                        minMeasure = it.minMeasure,
+                        quantityAvailable = it.quantityAvailable,
+                        buyingPrice = it.buyingPrice,
+                        retailSellingPrice = it.retailSellingPrice,
+                        wholesaleSellingPrice = it.wholesaleSellingPrice,
+                        supplierName = it.supplierName,
+                        dateAdded = it.dateAdded,
+                        updatedAt = it.updatedAt,
+                        addedBy = it.addedBy,
+                        expiryDate = it.expiryDate,
+                        description = it.description
+                    )
+                }
+
+            "sales" -> salesDao.getAllSales().first()
+                .map {
+                    Sales(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        items = it.items,
+                        totalPrice = it.totalPrice,
+                        expectedAmount = it.expectedAmount,
+                        cash = it.cash,
+                        mpesa = it.mpesa,
+                        discount = it.discount,
+                        credit = it.credit,
+                        seller = it.seller,
+                        date = it.date
+                    )
+                }
+
+            "sales_history" -> salesHistoryDao.getAllSalesHistory().first()
+                .map {
+                    SalesHistory(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        cash = it.cash,
+                        mpesa = it.mpesa,
+                        discount = it.discount,
+                        credit = it.credit,
+                        servicesCash = it.servicesCash,
+                        servicesMpesa = it.servicesMpesa,
+                        date = it.date
+                    )
+                }
+
+            "services" -> servicesDao.getAllServices().first()
+                .map {
+                    Service(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        description = it.description,
+                        price = it.price
+                    )
+                }
+
+            "services_offered" -> servicesDao.getAllServicesOffered().first()
+                .map {
+                    ServicesOffered(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        servitor = it.servitor,
+                        description = it.description,
+                        cash = it.cash,
+                        mpesa = it.mpesa,
+                        totalPrice = it.totalPrice,
+                        expectedAmount = it.expectedAmount,
+                        createdAt = it.createdAt,
+                        updatedAt = it.updatedAt
+                    )
+                }
+
+            "suppliers" -> supplierDao.getAllSuppliers().first()
+                .map {
+                    Supplier(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        phone = it.phone,
+                        email = it.email,
+                        medicines = it.medicines
+                    )
+                }
+
+            "users" -> userDao.getAllUsers().first()
+                .map {
+                    User(
+                        email = it.email,
+                        timestamp = it.timestamp,
+                        username = it.username,
+                        password = it.password,
+                        phoneNumber = it.phoneNumber,
+                        chemistName = it.chemistName,
+                        role = it.role,
+                        createdAt = it.createdAt,
+                        profilePictureUrl = it.profilePictureUrl
+                    )
+                }
+
             else -> emptyList()
         }
     }
 
-    data class Data(
-        val id: String = "",
-        val timestamp: Long = 0L,
-        val cash: Double? = null,
-        val mpesa: Double? = null,
-        val stockWorth: Double? = null,
-        val servicesCash: Double? = null,
-        val servicesMpesa: Double? = null,
-        val profit: Double? = null,
-        val loss: Double? = null,
-        val name: String? = null,
-        val company: String? = null,
-        val formulation: String? = null,
-        val minStock: Int? = null,
-        val minMeasure: Int? = null,
-        val quantityAvailable: Int? = null,
-        val buyingPrice: Double? = null,
-        val retailSellingPrice: Double? = null,
-        val wholesaleSellingPrice: Double? = null,
-        val supplierName: String? = null,
-        val dateAdded: Date? = null,
-        val updatedAt: Date? = null,
-        val addedBy: String? = null,
-        val expiryDate: Date? = null,
-        val description: String? = null,
-        val totalPrice: Double? = null,
-        val expectedAmount: Double? = null,
-        val discount: Double? = null,
-        val credit: Double? = null,
-        val seller: String? = null,
-        val date: Date? = null,
-        val items: List<SaleItem>? = null,
-        val medicineNames: List<String>? = null,
-        val role: Role? = null,
-        val createdAt: Date? = null,
-        val profilePictureUrl: String? = null,
-        val phoneNumber: Number? = null,
-        val chemistName: String? = null,
-        val username: String? = null,
-        val password: String? = null,
-        val email: String? = null
-    )
-
-    private fun mergeData(localData: List<Data>, firestoreData: List<Data>): List<Data> {
-        val mergedData = mutableListOf<Data>()
-        val firestoreDataMap = firestoreData.associateBy { it.id }
+    private inline fun <reified T : Any> mergeData(
+        localData: List<T>,
+        firestoreData: List<T>,
+        subCollection: String
+    ): List<T> {
+        val mergedData = mutableListOf<T>()
+        val idFieldName = if (subCollection == "users") "email" else "id"
+        val firestoreDataMap = firestoreData.associateBy {
+            it::class.java.getDeclaredField(idFieldName).apply { isAccessible = true }.get(it)
+        }
+        Log.d("MyLogs", "Firestore data map: $firestoreDataMap")
 
         for (localItem in localData) {
-            val firestoreItem = firestoreDataMap[localItem.id]
-            if (firestoreItem == null || localItem.timestamp > firestoreItem.timestamp) {
+            val localId =
+                localItem::class.java.getDeclaredField(idFieldName).apply { isAccessible = true }
+                    .get(localItem)
+            val localTimestamp =
+                localItem::class.java.getDeclaredField("timestamp").apply { isAccessible = true }
+                    .get(localItem) as Long
+            val firestoreItem = firestoreDataMap[localId]
+            if (firestoreItem == null || localTimestamp > firestoreItem::class.java.getDeclaredField(
+                    "timestamp"
+                ).apply { isAccessible = true }.get(firestoreItem) as Long
+            ) {
                 mergedData.add(localItem)
+                Log.d("MyLogs", "Local data added: $localItem")
             } else {
                 mergedData.add(firestoreItem)
+                Log.d("MyLogs", "Firestore data added: $firestoreItem")
             }
         }
 
         for (firestoreItem in firestoreData) {
-            if (!localData.any { it.id == firestoreItem.id }) {
+            val firestoreId =
+                firestoreItem::class.java.getDeclaredField(idFieldName)
+                    .apply { isAccessible = true }
+                    .get(firestoreItem)
+            if (!localData.any {
+                    it::class.java.getDeclaredField(idFieldName).apply { isAccessible = true }
+                        .get(it) == firestoreId
+                }) {
                 mergedData.add(firestoreItem)
+                Log.d("MyLogs", "Firestore data added: $firestoreItem")
             }
         }
 
         return mergedData
     }
 
-    private suspend fun updateLocalDatabase(subCollection: String, mergedData: List<Data>) {
+    private suspend fun updateLocalDatabase(subCollection: String, mergedData: List<Any>) {
+        Log.d("MyLogs", "Updating local database: $subCollection")
         when (subCollection) {
-            "income" -> incomeDao.updateAll(mergedData.map {
-                Income(
-                    id = it.id.toInt(),
-                    timestamp = it.timestamp,
-                    cash = it.cash ?: 0.0,
-                    mpesa = it.mpesa ?: 0.0,
-                    stockWorth = it.stockWorth ?: 0.0,
-                    servicesCash = it.servicesCash ?: 0.0,
-                    servicesMpesa = it.servicesMpesa ?: 0.0,
-                    profit = it.profit ?: 0.0,
-                    loss = it.loss ?: 0.0
-                )
+            "income" -> incomeDao.updateAll(mergedData.mapNotNull {
+                val data = it as? Income
+                data?.let {
+                    Income(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        cash = it.cash,
+                        mpesa = it.mpesa,
+                        stockWorth = it.stockWorth,
+                        servicesCash = it.servicesCash,
+                        servicesMpesa = it.servicesMpesa,
+                        profit = it.profit,
+                        loss = it.loss
+                    )
+                }
             })
 
-            "medicines" -> medicineDao.updateAll(mergedData.map {
-                Medicine(
-                    id = it.id.toInt(),
-                    timestamp = it.timestamp,
-                    name = it.name ?: "",
-                    company = it.company ?: ""
-                )
+            "medicines" -> medicineDao.updateAll(mergedData.mapNotNull {
+                val data = it as? Medicine
+                data?.let {
+                    Medicine(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        company = it.company
+                    )
+                }
             })
 
-            "products" -> productDao.updateAll(mergedData.map {
-                Product(
-                    id = it.id.toInt(),
-                    timestamp = it.timestamp,
-                    name = it.name ?: "",
-                    company = it.company ?: "",
-                    formulation = it.formulation ?: "",
-                    minStock = it.minStock ?: 0,
-                    minMeasure = it.minMeasure ?: 0,
-                    quantityAvailable = it.quantityAvailable ?: 0,
-                    buyingPrice = it.buyingPrice ?: 0.0,
-                    retailSellingPrice = it.retailSellingPrice ?: 0.0,
-                    wholesaleSellingPrice = it.wholesaleSellingPrice ?: 0.0,
-                    supplierName = it.supplierName ?: "",
-                    dateAdded = it.dateAdded ?: Date(),
-                    updatedAt = it.updatedAt,
-                    addedBy = it.addedBy ?: "",
-                    expiryDate = it.expiryDate ?: Date(),
-                    description = it.description
-                )
+            "products" -> productDao.updateAll(mergedData.mapNotNull {
+                val data = it as? Product
+                data?.let {
+                    Product(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        company = it.company,
+                        formulation = it.formulation,
+                        minStock = it.minStock,
+                        minMeasure = it.minMeasure,
+                        quantityAvailable = it.quantityAvailable,
+                        buyingPrice = it.buyingPrice,
+                        retailSellingPrice = it.retailSellingPrice,
+                        wholesaleSellingPrice = it.wholesaleSellingPrice,
+                        supplierName = it.supplierName,
+                        dateAdded = it.dateAdded,
+                        updatedAt = it.updatedAt,
+                        addedBy = it.addedBy,
+                        expiryDate = it.expiryDate,
+                        description = it.description
+                    )
+                }
             })
 
-            "sales" -> salesDao.updateAll(mergedData.map {
-                Sales(
-                    id = it.id.toInt(),
-                    timestamp = it.timestamp,
-                    items = it.items?.map { itemData -> SaleItem(
-                        productId = itemData.productId,
-                        quantity = itemData.quantity,
-                    ) } ?: emptyList(),
-                    totalPrice = it.totalPrice ?: 0.0,
-                    expectedAmount = it.expectedAmount ?: 0.0,
-                    cash = it.cash ?: 0.0,
-                    mpesa = it.mpesa ?: 0.0,
-                    discount = it.discount ?: 0.0,
-                    credit = it.credit ?: 0.0,
-                    seller = it.seller ?: "",
-                    date = it.date ?: Date()
-                )
+            "sales" -> salesDao.updateAll(mergedData.mapNotNull {
+                val data = it as? Sales
+                data?.let {
+                    Sales(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        items = it.items,
+                        totalPrice = it.totalPrice,
+                        expectedAmount = it.expectedAmount,
+                        cash = it.cash,
+                        mpesa = it.mpesa,
+                        discount = it.discount,
+                        credit = it.credit,
+                        seller = it.seller,
+                        date = it.date
+                    )
+                }
             })
 
-            "sales_history" -> salesHistoryDao.updateAll(mergedData.map {
-                SalesHistory(
-                    id = it.id.toInt(),
-                    timestamp = it.timestamp,
-                    cash = it.cash ?: 0.0,
-                    mpesa = it.mpesa ?: 0.0,
-                    discount = it.discount ?: 0.0,
-                    credit = it.credit ?: 0.0,
-                    servicesCash = it.servicesCash ?: 0.0,
-                    servicesMpesa = it.servicesMpesa ?: 0.0,
-                    date = it.date ?: Date()
-                )
+            "sales_history" -> salesHistoryDao.updateAll(mergedData.mapNotNull {
+                val data = it as? SalesHistory
+                data?.let {
+                    SalesHistory(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        cash = it.cash,
+                        mpesa = it.mpesa,
+                        discount = it.discount,
+                        credit = it.credit,
+                        servicesCash = it.servicesCash,
+                        servicesMpesa = it.servicesMpesa,
+                        date = it.date
+                    )
+                }
             })
 
-            "services" -> servicesDao.updateAllServices(mergedData.map {
-                Service(
-                    id = it.id.toInt(),
-                    timestamp = it.timestamp,
-                    name = it.name ?: "",
-                    description = it.description ?: "",
-                    price = it.totalPrice ?: 0.0
-                )
+            "services" -> servicesDao.updateAllServices(mergedData.mapNotNull {
+                val data = it as? Service
+                data?.let {
+                    Service(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        description = it.description,
+                        price = it.price
+                    )
+                }
             })
 
-            "services_offered" -> servicesDao.updateAllServicesOffered(mergedData.map {
-                ServicesOffered(
-                    id = it.id.toInt(),
-                    timestamp = it.timestamp,
-                    name = it.name ?: "",
-                    servitor = it.seller ?: "",
-                    description = it.description ?: "",
-                    cash = it.cash ?: 0.0,
-                    mpesa = it.mpesa ?: 0.0,
-                    totalPrice = it.totalPrice ?: 0.0,
-                    expectedAmount = it.expectedAmount ?: 0.0,
-                    createdAt = it.createdAt ?: Date(),
-                    updatedAt = it.updatedAt
-                )
+            "services_offered" -> servicesDao.updateAllServicesOffered(mergedData.mapNotNull {
+                val data = it as? ServicesOffered
+                data?.let {
+                    ServicesOffered(
+                        id = it.id,
+                        timestamp = it.timestamp,
+                        name = it.name,
+                        servitor = it.servitor,
+                        description = it.description,
+                        cash = it.cash,
+                        mpesa = it.mpesa,
+                        totalPrice = it.totalPrice,
+                        expectedAmount = it.expectedAmount,
+                        createdAt = it.createdAt,
+                        updatedAt = it.updatedAt
+                    )
+                }
             })
 
-            "suppliers" -> supplierDao.updateAll(mergedData.map {
-                Supplier(
-                    id = it.id.toInt(),
-                    name = it.name ?: "",
-                    phone = it.phoneNumber?.toString() ?: "",
-                    email = it.email ?: "",
-                    medicines = it.medicineNames?.map { name -> name } ?: emptyList(),
-                    timestamp = it.timestamp
-                )
+            "suppliers" -> supplierDao.updateAll(mergedData.mapNotNull {
+                val data = it as? Supplier
+                data?.let {
+                    Supplier(
+                        id = it.id,
+                        name = it.name,
+                        phone = it.phone,
+                        email = it.email,
+                        medicines = it.medicines,
+                        timestamp = it.timestamp
+                    )
+                }
             })
 
-            "users" -> userDao.updateAll(mergedData.map { data ->
-                User(
-                    email = data.id,
-                    username = data.username ?: "",
-                    password = data.password ?: "",
-                    phoneNumber = data.phoneNumber ?: 0,
-                    chemistName = data.chemistName ?: "",
-                    role = data.role ?: Role.USER,
-                    createdAt = data.createdAt ?: Date(),
-                    profilePictureUrl = data.profilePictureUrl,
-                    timestamp = data.timestamp
-                )
+            "users" -> userDao.updateAll(mergedData.mapNotNull {
+                val data = it as? User
+                data?.let {
+                    User(
+                        email = it.email,
+                        username = it.username,
+                        password = it.password,
+                        phoneNumber = it.phoneNumber,
+                        chemistName = it.chemistName,
+                        role = it.role,
+                        createdAt = it.createdAt,
+                        profilePictureUrl = it.profilePictureUrl,
+                        timestamp = it.timestamp
+                    )
+                }
             })
         }
     }
 
-    private suspend fun getAdminEmail(): String? {
+    suspend fun getAdminEmailAndStatus(): Pair<String?, String?> {
         return try {
             when (val allUsersResult = repository.getAllUsers().firstOrNull()) {
                 is GetAllUsersResult.Success -> {
                     val adminUser = allUsersResult.users.find { it.role == Role.ADMIN }
-                    adminUser?.email // Return the admin email if found, else null
+                    Log.d("MyLogs", "Admin email: ${adminUser?.email}")
+                    val email = adminUser?.email
+                    if (email != null) {
+                        val firestore = FirebaseFirestore.getInstance()
+                        val userDocRef = firestore.collection("users").document(email)
+                        val document = userDocRef.get().await()
+                        val subscriptionStatus = document.getString("subscription_status")
+                        Log.d("MyLogs", "Subscription status: $subscriptionStatus")
+                        Pair(email, subscriptionStatus)
+                    } else {
+                        Pair(null, null)
+                    }
                 }
+
                 is GetAllUsersResult.Error -> {
                     Log.e("MyLogs", "Error fetching users: ${allUsersResult.message}")
-                    null
+                    Pair(null, null)
                 }
+
                 else -> {
                     Log.e("MyLogs", "Unknown error fetching users")
-                    null
+                    Pair(null, null)
                 }
             }
         } catch (e: Exception) {
             Log.e("MyLogs", "Exception fetching admin email: ${e.message}")
-            null
+            Pair(null, null)
         }
     }
 }

@@ -86,7 +86,7 @@ fun HomeScreen(
                             email = "example@gmail.com",
                             role = Role.ADMIN,
                             chemistName = "Chemist Name",
-                            phoneNumber = 748590146,
+                            phoneNumber = "748590146",
                             createdAt = Date(2024, 10, 10),
                         ),
                         onLogout = { loginViewModel.onLogout(parentNavController) },

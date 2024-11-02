@@ -11,6 +11,6 @@ data class LoggedInUser(
     val email: String,
     val role: Role,
     val chemistName: String,
-    val phoneNumber: Number,
+    val phoneNumber: String,
     val createdAt: Date
 ) : Parcelable

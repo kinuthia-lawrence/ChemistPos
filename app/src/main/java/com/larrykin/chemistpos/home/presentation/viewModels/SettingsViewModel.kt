@@ -61,7 +61,7 @@ class SettingsViewModel @Inject constructor(
                     emailProcessed,
                     usernameLower,
                     password,
-                    phoneNumberTrim,
+                    phoneNumberTrim.toString(),
                     chemistNameTrim,
                     role
                 )
@@ -101,7 +101,7 @@ class SettingsViewModel @Inject constructor(
                         emailProcessed,
                         usernameLower,
                         password,
-                        phoneNumberTrim,
+                        phoneNumberTrim.toString(),
                         chemistNameTrim,
                         role
                     )

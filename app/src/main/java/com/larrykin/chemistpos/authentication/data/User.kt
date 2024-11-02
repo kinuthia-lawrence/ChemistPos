@@ -24,7 +24,7 @@ data class User(
     @ColumnInfo(name = "password")
     val password: String,
     @ColumnInfo(name = "phone_number")
-    val phoneNumber: Number,
+    val phoneNumber: String,
     @ColumnInfo(name = "chemist_name")
     val chemistName: String,
     @ColumnInfo(name = "role")
@@ -34,5 +34,17 @@ data class User(
     @ColumnInfo(name = "profile_Picture_url")
     var profilePictureUrl: String? = null,
     @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
-
-)
+) {
+    // No-argument constructor for Firestore
+    constructor() : this(
+        email = "",
+        username = "",
+        password = "",
+        phoneNumber = "",
+        chemistName = "",
+        role = Role.USER,
+        createdAt = Date(),
+        profilePictureUrl = null,
+        timestamp = System.currentTimeMillis()
+    )
+}

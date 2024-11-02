@@ -15,4 +15,8 @@ data class Income (
     @ColumnInfo(name = "profit") val profit: Double,
     @ColumnInfo(name = "loss") val loss: Double,
     @ColumnInfo(name = "timestamp") var timestamp: Long = System.currentTimeMillis()
-)
+){
+    // No-argument constructor for firestore
+    constructor() : this(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+}

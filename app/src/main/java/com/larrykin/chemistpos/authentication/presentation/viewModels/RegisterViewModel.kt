@@ -79,7 +79,7 @@ class RegisterViewModel @Inject constructor(
                     emailProcessed,
                     usernameLower,
                     password,
-                    phoneNumberTrim,
+                    phoneNumberTrim.toString(),
                     chemistNameTrim,
                     role
                 )
