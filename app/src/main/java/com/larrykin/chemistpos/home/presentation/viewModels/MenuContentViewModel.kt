@@ -75,7 +75,7 @@ class MenuContentViewModel @Inject constructor(
                         val idFieldName = if (data is User) "email" else "id"
                         val id = data::class.java.getDeclaredField(idFieldName)
                             .apply { isAccessible = true }.get(data)
-                        if (id is Int && id >= 0 || id is String && id.isNotEmpty()) {
+                        if (id is Int && id > 0 || id is String && id.isNotEmpty()) {
                             userDataDocRef.collection(subCollection).document(id.toString())
                                 .set(data).await()
                             Log.d("MyLogs", "Data synced: $data")
@@ -302,156 +302,39 @@ class MenuContentViewModel @Inject constructor(
         Log.d("MyLogs", "Updating local database: $subCollection")
         when (subCollection) {
             "income" -> incomeDao.updateAll(mergedData.mapNotNull {
-                val data = it as? Income
-                data?.let {
-                    Income(
-                        id = it.id,
-                        timestamp = it.timestamp,
-                        cash = it.cash,
-                        mpesa = it.mpesa,
-                        stockWorth = it.stockWorth,
-                        servicesCash = it.servicesCash,
-                        servicesMpesa = it.servicesMpesa,
-                        profit = it.profit,
-                        loss = it.loss
-                    )
-                }
+                it as? Income
             })
 
             "medicines" -> medicineDao.updateAll(mergedData.mapNotNull {
-                val data = it as? Medicine
-                data?.let {
-                    Medicine(
-                        id = it.id,
-                        timestamp = it.timestamp,
-                        name = it.name,
-                        company = it.company
-                    )
-                }
+                it as? Medicine
             })
 
             "products" -> productDao.updateAll(mergedData.mapNotNull {
-                val data = it as? Product
-                data?.let {
-                    Product(
-                        id = it.id,
-                        timestamp = it.timestamp,
-                        name = it.name,
-                        company = it.company,
-                        formulation = it.formulation,
-                        minStock = it.minStock,
-                        minMeasure = it.minMeasure,
-                        quantityAvailable = it.quantityAvailable,
-                        buyingPrice = it.buyingPrice,
-                        retailSellingPrice = it.retailSellingPrice,
-                        wholesaleSellingPrice = it.wholesaleSellingPrice,
-                        supplierName = it.supplierName,
-                        dateAdded = it.dateAdded,
-                        updatedAt = it.updatedAt,
-                        addedBy = it.addedBy,
-                        expiryDate = it.expiryDate,
-                        description = it.description
-                    )
-                }
+                it as? Product
             })
 
             "sales" -> salesDao.updateAll(mergedData.mapNotNull {
-                val data = it as? Sales
-                data?.let {
-                    Sales(
-                        id = it.id,
-                        timestamp = it.timestamp,
-                        items = it.items,
-                        totalPrice = it.totalPrice,
-                        expectedAmount = it.expectedAmount,
-                        cash = it.cash,
-                        mpesa = it.mpesa,
-                        discount = it.discount,
-                        credit = it.credit,
-                        seller = it.seller,
-                        date = it.date
-                    )
-                }
+                it as? Sales
             })
 
             "sales_history" -> salesHistoryDao.updateAll(mergedData.mapNotNull {
-                val data = it as? SalesHistory
-                data?.let {
-                    SalesHistory(
-                        id = it.id,
-                        timestamp = it.timestamp,
-                        cash = it.cash,
-                        mpesa = it.mpesa,
-                        discount = it.discount,
-                        credit = it.credit,
-                        servicesCash = it.servicesCash,
-                        servicesMpesa = it.servicesMpesa,
-                        date = it.date
-                    )
-                }
+                it as? SalesHistory
             })
 
             "services" -> servicesDao.updateAllServices(mergedData.mapNotNull {
-                val data = it as? Service
-                data?.let {
-                    Service(
-                        id = it.id,
-                        timestamp = it.timestamp,
-                        name = it.name,
-                        description = it.description,
-                        price = it.price
-                    )
-                }
+                it as? Service
             })
 
             "services_offered" -> servicesDao.updateAllServicesOffered(mergedData.mapNotNull {
-                val data = it as? ServicesOffered
-                data?.let {
-                    ServicesOffered(
-                        id = it.id,
-                        timestamp = it.timestamp,
-                        name = it.name,
-                        servitor = it.servitor,
-                        description = it.description,
-                        cash = it.cash,
-                        mpesa = it.mpesa,
-                        totalPrice = it.totalPrice,
-                        expectedAmount = it.expectedAmount,
-                        createdAt = it.createdAt,
-                        updatedAt = it.updatedAt
-                    )
-                }
+                it as? ServicesOffered
             })
 
             "suppliers" -> supplierDao.updateAll(mergedData.mapNotNull {
-                val data = it as? Supplier
-                data?.let {
-                    Supplier(
-                        id = it.id,
-                        name = it.name,
-                        phone = it.phone,
-                        email = it.email,
-                        medicines = it.medicines,
-                        timestamp = it.timestamp
-                    )
-                }
+                it as? Supplier
             })
 
             "users" -> userDao.updateAll(mergedData.mapNotNull {
-                val data = it as? User
-                data?.let {
-                    User(
-                        email = it.email,
-                        username = it.username,
-                        password = it.password,
-                        phoneNumber = it.phoneNumber,
-                        chemistName = it.chemistName,
-                        role = it.role,
-                        createdAt = it.createdAt,
-                        profilePictureUrl = it.profilePictureUrl,
-                        timestamp = it.timestamp
-                    )
-                }
+                it as? User
             })
         }
     }

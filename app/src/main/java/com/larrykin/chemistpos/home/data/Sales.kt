@@ -8,7 +8,13 @@ import java.util.Date
 data class SaleItem(
     val productId: Int,
     val quantity: Int,
-)
+){
+    // No-argument constructor for Firestore
+    constructor() : this(
+        productId = 0,
+        quantity = 0
+    )
+}
 
 @Entity(tableName = "sales")
 data class Sales(
