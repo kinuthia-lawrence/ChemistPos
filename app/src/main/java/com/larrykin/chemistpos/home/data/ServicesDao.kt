@@ -14,6 +14,10 @@ interface ServicesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertService(service: Service) : Long
 
+    // Insert all services
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertService(services: List<Service>)
+
     // Get all services
     @Query("SELECT * FROM services")
     fun getAllServices(): Flow<List<Service>>
@@ -45,6 +49,10 @@ interface ServicesDao {
     // Insert a service offered
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertServiceOffered(serviceOffered: ServicesOffered) : Long
+
+    // Insert all services offered
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertServiceOffered(servicesOffered: List<ServicesOffered>)
 
     // Get all services offered
     @Query("SELECT * FROM services_offered")

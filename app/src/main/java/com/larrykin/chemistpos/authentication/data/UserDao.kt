@@ -21,6 +21,10 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(user: User): Long
 
+    //insert all users
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(users: List<User>)
+
     //    @Upsert//combines both insertion and update. If the data is already present, it updates it, if not it inserts it(automatically handles the conflict)
     //    suspend fun upsertUser(user: User)
 

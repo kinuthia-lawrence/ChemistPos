@@ -14,6 +14,9 @@ interface SalesDao {
     @Insert
     suspend fun insertSale(sales: Sales): Long?
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSale(sales: List<Sales>)
+
     @Query("SELECT * FROM sales")
     fun getAllSales(): Flow<List<Sales>>
 

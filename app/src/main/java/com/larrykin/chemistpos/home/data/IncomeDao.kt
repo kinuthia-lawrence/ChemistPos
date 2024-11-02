@@ -12,6 +12,9 @@ interface IncomeDao {
     //insert income
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(income: Income): Long
+    //insert all income
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(income: List<Income>)
 
     //get all income
     @Query("SELECT * FROM income")

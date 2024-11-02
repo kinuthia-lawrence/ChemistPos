@@ -67,25 +67,34 @@ class MenuContentViewModel @Inject constructor(
                         )
                     }
 
-                    // Merge local and Firestore data
-                    val mergedData = mergeData(localData, firestoreData, subCollection)
+                    // If local data is empty, insert Firestore data directly
+                    if (localData.isEmpty()) {
+                        Log.d(
+                            "MyLogs",
+                            "Local data is empty for subCollection: $subCollection, inserting Firestore data"
+                        )
+                        insertLocalDatabase(subCollection, firestoreData)
+                    } else {
+                        // Merge local and Firestore data
+                        val mergedData = mergeData(localData, firestoreData, subCollection)
 
-                    // Update Firestore with merged data
-                    for (data in mergedData) {
-                        val idFieldName = if (data is User) "email" else "id"
-                        val id = data::class.java.getDeclaredField(idFieldName)
-                            .apply { isAccessible = true }.get(data)
-                        if (id is Int && id > 0 || id is String && id.isNotEmpty()) {
-                            userDataDocRef.collection(subCollection).document(id.toString())
-                                .set(data).await()
-                            Log.d("MyLogs", "Data synced: $data")
-                        } else {
-                            Log.d("MyLogs", "Skipped syncing data with empty ID: $data")
+                        // Update Firestore with merged data
+                        for (data in mergedData) {
+                            val idFieldName = if (data is User) "email" else "id"
+                            val id = data::class.java.getDeclaredField(idFieldName)
+                                .apply { isAccessible = true }.get(data)
+                            if (id is Int && id > 0 || id is String && id.isNotEmpty()) {
+                                userDataDocRef.collection(subCollection).document(id.toString())
+                                    .set(data).await()
+                                Log.d("MyLogs", "Data synced: $data")
+                            } else {
+                                Log.d("MyLogs", "Skipped syncing data with empty ID: $data")
+                            }
                         }
-                    }
 
-                    // Update local database with merged data
-                    updateLocalDatabase(subCollection, mergedData)
+                        // Update local database with merged data
+                        updateLocalDatabase(subCollection, mergedData)
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("MyLogs", "Error syncing data: ${e.message}", e)
@@ -296,6 +305,29 @@ class MenuContentViewModel @Inject constructor(
         }
 
         return mergedData
+    }
+
+    private suspend fun insertLocalDatabase(subCollection: String, firestoreData: List<Any>) {
+        Log.d("MyLogs", "Inserting data into local database: $subCollection")
+        when (subCollection) {
+            "income" -> incomeDao.insert(firestoreData.filterIsInstance<Income>())
+
+            "medicines" -> medicineDao.insert(firestoreData.filterIsInstance<Medicine>())
+
+            "products" -> productDao.insert(firestoreData.filterIsInstance<Product>())
+
+            "sales" -> salesDao.insertSale(firestoreData.filterIsInstance<Sales>())
+
+            "sales_history" -> salesHistoryDao.insert(firestoreData.filterIsInstance<SalesHistory>())
+
+            "services" -> servicesDao.insertService(firestoreData.filterIsInstance<Service>())
+
+            "services_offered" -> servicesDao.insertServiceOffered(firestoreData.filterIsInstance<ServicesOffered>())
+
+            "suppliers" -> supplierDao.insert(firestoreData.filterIsInstance<Supplier>())
+
+            "users" -> userDao.insert(firestoreData.filterIsInstance<User>())
+        }
     }
 
     private suspend fun updateLocalDatabase(subCollection: String, mergedData: List<Any>) {

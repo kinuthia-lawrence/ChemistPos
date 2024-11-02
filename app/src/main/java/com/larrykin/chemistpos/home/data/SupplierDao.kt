@@ -16,6 +16,10 @@ interface SupplierDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(supplier: Supplier): Long
 
+    //insert all products
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(suppliers: List<Supplier>)
+
     //get all suppliers
     @Query("SELECT * FROM suppliers")
     fun getAllSuppliers(): Flow<List<Supplier>>

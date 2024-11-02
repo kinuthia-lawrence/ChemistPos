@@ -13,6 +13,9 @@ interface SalesHistoryDao {
     //insert income
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(salesHistory: SalesHistory) : Long
+    //insert all income
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(salesHistory: List<SalesHistory>)
 
     //get all income
     @Query("SELECT * FROM sales_history")
