@@ -51,7 +51,9 @@ class CodeGenerator @Inject constructor(
                         "Verification Code",
                         "Your verification code is $generatedCode",
                         { result: String ->
-                            onResult("$result. The code has been sent to Developer at kinuthialawrence343@gmail.com, contact him on +254748590146 to get the code")
+                            onResult("$result. The code has been sent to Developer at " +
+                                    "kinuthialawrence343@gmail.com, contact him on +254748590146 " +
+                                    "or the email to get the code")
                         }
                     )
                     Log.d("CodeGenerator", "No admin user exists, sending code to developer")

@@ -48,66 +48,152 @@ fun HelpScreen() {
             )
 
             // Developer Info
-            Text(text = "Developer: +254 748 590 146", fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
+            Text(
+                text = "Developer: +254 748 590 146",
+                fontSize = 16.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             ClickableText(
-                text = whatsappLink,
-                onClick = { handleHyperlinkClick(uriHandler, whatsappLink) },
-                modifier = Modifier.padding(bottom = 16.dp)
+                text = AnnotatedString.Builder().apply {
+                    append("Whatsapp: ")
+                    pushStringAnnotation(tag = "URL", annotation = whatsappUrl)
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append("Available on our Whatsapp.")
+                    }
+                    pop()
+                }.toAnnotatedString(),
+                modifier = Modifier.padding(bottom = 8.dp),
+                onClick = { handleHyperlinkClick(uriHandler, whatsappLink) }
             )
 
             // First Time Registration Instructions
-            Text(text = "First-Time Registration", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = "First-Time Registration✍️", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(text = "1. Go to the Register page and enter your email.")
             Text(text = "2. Click 'Send Code' and contact the developer at +254 748 590 146 to receive the code.")
             Text(text = "3. Enter the code sent by the developer and create your account.")
             Text(text = "4. Note: The first registered user becomes the Super Admin with admin privileges.")
-            Text(text = "5. To register other users, follow the same steps but use the Admin's email. The code will be sent to the Admin, who will verify it and complete the registration.")
-            Text(text = "6. All subsequent users will have the 'user' role without rights to create or delete accounts.", modifier = Modifier.padding(bottom = 16.dp))
+            Text(
+                text = "5. To register other users, You follow the same steps but use the " +
+                        "Admins email or after login, navigate to menu on top left and go to " +
+                        "settings.Admin authentication will be required" +
+                        ". The code " +
+                        "will be" +
+                        " sent to the Admin," +
+                        " who will verify it and complete the registration."
+            )
+            Text(
+                text = "6. All subsequent users will have the 'user' role without rights to create or delete accounts.",
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
             // Login Instructions
-            Text(text = "Login Instructions", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Login Instructions🔑", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(text = "1. Open the Application: Launch the Chemist POS app.")
             Text(text = "2. Enter Your Credentials:")
-            Text(text = "    • Username: Enter your registered email.")
+            Text(text = "    • Username or email: Enter your username or registered email.")
             Text(text = "    • Password: Enter your password.")
             Text(text = "3. Click on the Login Button: Press Login to access the system.")
             Text(text = "4. Encountering Issues?:")
             Text(text = "    • Ensure your email and password are correct.")
             Text(text = "    • Check the error message in red and follow the instructions.")
-            Text(text = "    • If issues persist, contact support (details below).", modifier = Modifier.padding(bottom = 16.dp))
-
-            // Password Reset Instructions
-            Text(text = "Forgotten Password?", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(text = "1. Enter the Admin's email on the 'Forgot Password' page.")
-            Text(text = "2. Click 'Send Code' to receive a reset code via email.")
-            Text(text = "3. Enter the code sent to the Admin.")
-            Text(text = "4. If the code is correct, you can change the password.", modifier = Modifier.padding(bottom = 16.dp))
-
-            // Contact Information
-            Text(text = "Contact Information", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            ClickableText(
-                text = emailLink,
-                onClick = { handleHyperlinkClick(uriHandler, emailLink) },
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            ClickableText(
-                text = whatsappLink,
-                onClick = { handleHyperlinkClick(uriHandler, whatsappLink) },
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            ClickableText(
-                text = websiteLink,
-                onClick = { handleHyperlinkClick(uriHandler, websiteLink) },
+            Text(
+                text = "    • If issues persist, contact support (details below).",
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            // Password Reset Instructions
+            Text(text = "Forgotten Password?🤯", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = "1. Enter the Admins email on the 'Forgot Password' page.")
+            Text(text = "2. Click 'Send Code' to receive a reset code via email.")
+            Text(text = "3. Enter the code sent to the Admin.")
+            Text(
+                text = "4. If the code is correct, you can change the password.",
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+
             // Security Tips
-            Text(text = "Security Tips", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "\uD83E\uDD14Security Tips🥴",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
             Text(text = "• Choose a strong password with at least 8 characters.")
             Text(text = "• Do not share your credentials.")
             Text(text = "• Recognize phishing attempts and avoid suspicious links.")
             Text(text = "• Update your password regularly.")
-            Text(text = "• Enable Two-Factor Authentication (2FA).", modifier = Modifier.padding(bottom = 16.dp))
+            Text(
+                text = "• Enable Two-Factor Authentication (2FA).", modifier = Modifier.padding
+                    (bottom = 32.dp)
+            )
+            Text(
+                text = "Need other help? contact developer📞", fontSize = 18.sp, fontWeight =
+                FontWeight
+                    .Bold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Contact Information
+            Text(text = "Contact Information", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            ClickableText(
+                text = AnnotatedString.Builder().apply {
+                    append("Email: ")
+                    pushStringAnnotation(tag = "URL", annotation = email)
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append("kinuthialawrence343@gmail.com")
+                    }
+                    pop()
+                }.toAnnotatedString(),
+                modifier = Modifier.padding(bottom = 8.dp),
+                onClick = { handleHyperlinkClick(uriHandler, emailLink) }
+            )
+
+            ClickableText(
+                text = AnnotatedString.Builder().apply {
+                    append("Whatsapp: ")
+                    pushStringAnnotation(tag = "URL", annotation = whatsappUrl)
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append("Available on our Whatsapp.")
+                    }
+                    pop()
+                }.toAnnotatedString(),
+                modifier = Modifier.padding(bottom = 8.dp),
+                onClick = { handleHyperlinkClick(uriHandler, whatsappLink) }
+            )
+
+            ClickableText(
+                text = AnnotatedString.Builder().apply {
+                    append("Website: ")
+                    pushStringAnnotation(tag = "URL", annotation = websiteUrl)
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append("larrykin343 Technologies")
+                    }
+                    pop()
+                }.toAnnotatedString(),
+                modifier = Modifier.padding(bottom = 16.dp),
+                onClick = { handleHyperlinkClick(uriHandler, websiteLink) }
+            )
         }
     }
 }

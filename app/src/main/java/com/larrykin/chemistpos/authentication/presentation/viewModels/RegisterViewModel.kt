@@ -3,14 +3,12 @@ package com.larrykin.chemistpos.authentication.presentation.viewModels
 import android.content.Context
 import android.content.IntentFilter
 import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.FirebaseFirestore
 import com.larrykin.chemistpos.authentication.data.Role
 import com.larrykin.chemistpos.authentication.data.User
 import com.larrykin.chemistpos.authentication.domain.UserRepository
@@ -22,7 +20,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import java.util.Date
 
 sealed class RegisterResult {
     data object Success : RegisterResult()
