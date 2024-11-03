@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     kotlin("kapt")
-    id ("org.jetbrains.kotlin.plugin.parcelize")
+    id("org.jetbrains.kotlin.plugin.parcelize")
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.compose.compiler)
 
@@ -16,7 +16,7 @@ android {
     namespace = "com.larrykin.chemistpos"
     compileSdk = 35
 
-    defaultConfig {
+     defaultConfig {
         applicationId = "com.larrykin.chemistpos"
         minSdk = 26
         targetSdk = 35
@@ -51,13 +51,13 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
-packaging {
-    resources {
-        excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        excludes += "META-INF/NOTICE.md"
-        excludes += "META-INF/LICENSE.md"
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE.md"
+        }
     }
-}
 }
 
 dependencies {
@@ -126,7 +126,6 @@ dependencies {
     implementation(libs.android.activation)
 
 
-
     // Import the Firebase BoM(bill of materials)
     implementation(platform(libs.firebase.bom))
 
@@ -137,7 +136,6 @@ dependencies {
     implementation(libs.firebase.firestore)
     //adroidx work
     implementation(libs.androidx.work.runtime.ktx)
-
 
 
 }
