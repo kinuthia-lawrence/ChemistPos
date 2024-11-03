@@ -107,7 +107,7 @@ class StockViewModel @Inject constructor(
                     productRepository.getProductByNameCompanyFormulationExpiryDate(
                         product.name, product.company, product.formulation, product.expiryDate
                     )
-                Log.d("existingProduct", existingProduct.toString())
+                Log.d("MyLogs", "existing product: $existingProduct")
                 if (existingProduct != null) {
                     val updatedProduct = existingProduct.copy(
                         minStock = product.minStock,
@@ -130,6 +130,7 @@ class StockViewModel @Inject constructor(
                         onResult(StockResult.Error("Failed to update product"))
                     }
                 } else {
+                    Log.d("MyLogs", "adding product, no existing product")
                     val result = productRepository.insertProduct(product)
                     if (result != null && result > 0) {
                         onResult(StockResult.Success)
